@@ -1,29 +1,28 @@
 #include "ModuleTaskManager.h"
-//#include <thread>
+#include <thread>
+#include <chrono>
 
 void ModuleTaskManager::threadMain()
 {
 	while (true)
 	{
-		std::unique_lock<std::mutex> lock(mtx);
-		while (scheduledTasks.empty())
-		{
-			if (exitFlag)
-			{
-				return;
-			}
-			event.wait(lock);
+		// TODO 3:
+		// - Wait for new tasks to arrive
+		// - Retrieve a task from scheduledTasks
+		// - Execute it
+		// - Insert it into finishedTasks
 
-			// TODO 3:
-			// - Wait for new tasks to arrive
-			// - Retrieve a task from scheduledTasks
-			// - Execute it
-			// - Insert it into finishedTasks
+		if (exitFlag) {
+			return;
 		}
-		Task* task = scheduledTasks.front();
-		task->execute();
-		scheduledTasks.pop();
-		finishedTasks.push(task);
+		std::unique_lock<std::mutex> lock(mtx);
+		if (!scheduledTasks.empty()) {
+			Task* task = scheduledTasks.front();
+			scheduledTasks.pop();
+			task->execute();
+			finishedTasks.push(task);
+		}
+		event.wait(lock);
 	}
 }
 
@@ -41,11 +40,12 @@ bool ModuleTaskManager::update()
 {
 	// TODO 4: Dispatch all finished tasks to their owner module (use Module::onTaskFinished() callback)
 	std::unique_lock<std::mutex> lock(mtx);
-	while (!finishedTasks.empty())
+	if (!finishedTasks.empty())
 	{
 		Task* task = finishedTasks.front();
 		task->owner->onTaskFinished(task);
 		finishedTasks.pop();
+		std::this_thread::sleep_for(std::chrono::milliseconds(50));
 	}
 
 	return true;
