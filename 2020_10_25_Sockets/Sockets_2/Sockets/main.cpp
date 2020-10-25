@@ -28,19 +28,23 @@ int main(int argc, char** argv)
     }
         
     //INFO: Connect the socket
-    struct sockaddr_in bindAddr;
-    bindAddr.sin_family = AF_INET;
-    bindAddr.sin_port = htons(LOCAL_PORT);//TODO: Change, estic assignant la family dos cops
+    struct sockaddr_in dstAddr;
+    int dstAddrSize = sizeof(dstAddr);
+    dstAddr.sin_family = AF_INET;
+    dstAddr.sin_port = htons(LOCAL_PORT);
     const char* remoteAddrStr = "localhost";
-    //const char* remoteAddrStr = "127.0.0.1";
-    inet_pton(AF_INET, remoteAddrStr, &bindAddr.sin_addr);
-
-    system("pause");
+    inet_pton(AF_INET, remoteAddrStr, &dstAddr.sin_addr);
 
     //INFO: Send information
-    const int bufLength = 1024;
-    char buf[bufLength];
-    sendto(s, buf, bufLength, 0, (SOCKADDR *) &bindAddr, sizeof(bindAddr));
+    const int bufLen = 1024;
+    char sendBuf[bufLen] = "ping";
+    char recvBuf[bufLen];
+
+    for (int i = 0; i < 5; ++i) {
+        sendto(s, sendBuf, bufLen, 0, (SOCKADDR *) &dstAddr, sizeof(dstAddr));
+        recvfrom(s, recvBuf, bufLen, 0, (SOCKADDR *) &dstAddr, &dstAddrSize);
+        printf(recvBuf);
+    }
 
     //INFO: Clean up
     //WSACleanup();
@@ -49,19 +53,19 @@ int main(int argc, char** argv)
     return 0;
 }
 
-void printWSErrorAndExit(const char* msg)
-{
-    wchar_t* s = NULL;
-    FormatMessageW(
-        FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM
-        | FORMAT_MESSAGE_IGNORE_INSERTS,
-        NULL,
-        WSAGetLastError(),
-        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-        (LPWSTR)&s,
-        0, NULL);
-    fprintf(stderr, "%s: %S\n", msg, s);
-    LocalFree(s);
-    system("pause");
-    exit(-1);
-}
+//void printWSErrorAndExit(const char* msg)
+//{
+//    wchar_t* s = NULL;
+//    FormatMessageW(
+//        FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM
+//        | FORMAT_MESSAGE_IGNORE_INSERTS,
+//        NULL,
+//        WSAGetLastError(),
+//        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+//        (LPWSTR)&s,
+//        0, NULL);
+//    fprintf(stderr, "%s: %S\n", msg, s);
+//    LocalFree(s);
+//    system("pause");
+//    exit(-1);
+//}

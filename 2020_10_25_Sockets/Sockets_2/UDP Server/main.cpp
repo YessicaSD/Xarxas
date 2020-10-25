@@ -28,38 +28,46 @@ int main(int argc, char** argv)
         //printWSErrorAndExit();
     }
 
-    //TODO: Open the socket to start listening for connections and packages?
-    struct sockaddr_in bindAddr;
-    bindAddr.sin_family = AF_INET; 
+    //Bind our adress (to listen to incoming connections)
+    struct sockaddr_in srcAddr;
+    srcAddr.sin_family = AF_INET;
+    srcAddr.sin_port = htons(LOCAL_PORT);
+    srcAddr.sin_addr.S_un.S_addr = INADDR_ANY;
+    int res = bind(s, (const struct sockaddr *)&srcAddr, sizeof(srcAddr));
 
-    bindAddr.sin_port = htons(LOCAL_PORT); // Port
-    bindAddr.sin_addr.S_un.S_addr = INADDR_ANY; // Any local IP address
+    //Specify the destination address
+    struct sockaddr_in dstAddr;
+    int dstAddrSize = sizeof(dstAddr);
+    dstAddr.sin_family = AF_INET;
+    dstAddr.sin_port = htons(LOCAL_PORT);
+    const char* remoteAddrStr = "localhost";
+    inet_pton(AF_INET, remoteAddrStr, &dstAddr.sin_addr);
 
-    system("pause");
-
-    //Receive a message
+    //INFO: Send messages
     const int bufLen = 1024;
-    char buf[bufLen];
-    
-    struct sockaddr_in senderAddr;
-    int senderAddrSize = sizeof(senderAddr);
+    char sendBuf[bufLen] = "pong";
+    char recvBuf[bufLen];
 
-    recvfrom(s, buf, bufLen, 0, (SOCKADDR*)&senderAddr, &senderAddrSize);
+    for (int i = 0; i < 5; ++i) {
+        recvfrom(s, recvBuf, bufLen, 0, (SOCKADDR*)&dstAddr, &dstAddrSize);
+        printf(recvBuf);
+        sendto(s, sendBuf, bufLen, 0, (SOCKADDR*)&dstAddr, sizeof(dstAddrSize));
+    }
 }
 
-void printWSErrorAndExit(const char* msg)
-{
-    wchar_t* s = NULL;
-    FormatMessageW(
-        FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM
-        | FORMAT_MESSAGE_IGNORE_INSERTS,
-        NULL,
-        WSAGetLastError(),
-        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-        (LPWSTR)&s,
-        0, NULL);
-    fprintf(stderr, "%s: %S\n", msg, s);
-    LocalFree(s);
-    system("pause");
-    exit(-1);
-}
+//void printWSErrorAndExit(const char* msg)
+//{
+//    wchar_t* s = NULL;
+//    FormatMessageW(
+//        FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM
+//        | FORMAT_MESSAGE_IGNORE_INSERTS,
+//        NULL,
+//        WSAGetLastError(),
+//        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+//        (LPWSTR)&s,
+//        0, NULL);
+//    fprintf(stderr, "%s: %S\n", msg, s);
+//    LocalFree(s);
+//    system("pause");
+//    exit(-1);
+//}
