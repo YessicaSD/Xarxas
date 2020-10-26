@@ -7,7 +7,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define LOCAL_PORT 8000
+#define LOCAL_PORT 8888
+#define BUF_LEN 1024
 
 int main(int argc, char** argv)
 {
@@ -32,22 +33,25 @@ int main(int argc, char** argv)
     int dstAddrSize = sizeof(dstAddr);
     dstAddr.sin_family = AF_INET;
     dstAddr.sin_port = htons(LOCAL_PORT);
-    const char* remoteAddrStr = "localhost";
+    const char* remoteAddrStr = "127.0.0.1";
     inet_pton(AF_INET, remoteAddrStr, &dstAddr.sin_addr);
+    
+    //We can get socket info with this
+    //getnameinfo();
 
     //INFO: Send information
-    const int bufLen = 1024;
-    char sendBuf[bufLen] = "ping";
-    char recvBuf[bufLen];
+    char sendBuf[BUF_LEN] = "ping\0";
+    char recvBuf[BUF_LEN];
 
     for (int i = 0; i < 5; ++i) {
-        sendto(s, sendBuf, bufLen, 0, (SOCKADDR *) &dstAddr, sizeof(dstAddr));
-        recvfrom(s, recvBuf, bufLen, 0, (SOCKADDR *) &dstAddr, &dstAddrSize);
+        sendto(s, sendBuf, BUF_LEN, 0, (SOCKADDR *) &dstAddr, sizeof(dstAddr));
+        memset(recvBuf, '/0', BUF_LEN);
+        recvfrom(s, recvBuf, BUF_LEN, 0, (SOCKADDR *) &dstAddr, &dstAddrSize);
         printf(recvBuf);
     }
 
     //INFO: Clean up
-    //WSACleanup();
+    WSACleanup();
 
     system("pause");
     return 0;
