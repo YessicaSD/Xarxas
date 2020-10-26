@@ -1,3 +1,9 @@
+//Code by:
+//- Jaume Montagut
+//Thanks to:
+//- Jesus Diaz
+//- https://www.binarytides.com/udp-socket-programming-in-winsock/
+
 //Server
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
@@ -14,18 +20,17 @@ int main(int argc, char** argv)
 {
     //INFO: Initialization
     WSADATA wsaData;
-    int iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
-    if (iResult != NO_ERROR)
+    if (WSAStartup(MAKEWORD(2, 2), &wsaData) != NO_ERROR)
     {
-        printf("Error: %d", WSAGetLastError());
-        return false;
+        printf("Error: %d (See error codes in https://docs.microsoft.com/en-us/windows/win32/winsock/windows-sockets-error-codes-2)", WSAGetLastError());
+        return 1;
     }
     
     //INFO: Socket creation
     SOCKET s = socket(AF_INET, SOCK_DGRAM, 0);
     if (s == INVALID_SOCKET) {
-        printf("Error: %d", WSAGetLastError());
-        return false;
+        printf("Error: %d (See error codes in https://docs.microsoft.com/en-us/windows/win32/winsock/windows-sockets-error-codes-2)", WSAGetLastError());
+        return 1;
     }
 
     //Bind our adress (to listen to incoming connections)
@@ -33,10 +38,9 @@ int main(int argc, char** argv)
     srcAddr.sin_family = AF_INET;
     srcAddr.sin_port = htons(LOCAL_PORT);
     srcAddr.sin_addr.s_addr = INADDR_ANY;
-    int res = bind(s, (const struct sockaddr *)&srcAddr, sizeof(srcAddr));
-    if (res == SOCKET_ERROR) {
-        printf("Error: %d", WSAGetLastError());
-        return false;
+    if (bind(s, (const struct sockaddr*) & srcAddr, sizeof(srcAddr)) == SOCKET_ERROR) {
+        printf("Error: %d (See error codes in https://docs.microsoft.com/en-us/windows/win32/winsock/windows-sockets-error-codes-2)", WSAGetLastError());
+        return 1;
     }
 
     //Specify the destination address
@@ -44,48 +48,31 @@ int main(int argc, char** argv)
     int dstAddrSize = sizeof(dstAddr);
     dstAddr.sin_family = AF_INET;
     dstAddr.sin_port = htons(LOCAL_PORT);
-    const char* remoteAddrStr = "127.0.0.1";
-    inet_pton(AF_INET, remoteAddrStr, &dstAddr.sin_addr);
+    inet_pton(AF_INET, "127.0.0.1", &dstAddr.sin_addr);
 
     //INFO: Send messages
     char sendBuf[BUF_LEN] = "pong\0";
     char recvBuf[BUF_LEN];
 
+    printf("Waiting for incoming mesages...\n");
+
     for (int i = 0; i < 5; ++i) {
         memset(recvBuf, '/0', BUF_LEN);
-        int recvLen = recvfrom(s, recvBuf, BUF_LEN, 0, (SOCKADDR*)&dstAddr, &dstAddrSize);
-        if (recvLen == SOCKET_ERROR) {
-            printf("Error: %d", WSAGetLastError());
-            return false;
+        if (recvfrom(s, recvBuf, BUF_LEN, 0, (SOCKADDR*)&dstAddr, &dstAddrSize) == SOCKET_ERROR) {
+            printf("Error: %d (See error codes in https://docs.microsoft.com/en-us/windows/win32/winsock/windows-sockets-error-codes-2)", WSAGetLastError());
+            return 1;
         }
-        printf("Received packet from port %d\n", ntohs(dstAddr.sin_port));
-        printf("Data: %s\n", recvBuf);
-        sendto(s, sendBuf, BUF_LEN, 0, (SOCKADDR*)&dstAddr, sizeof(dstAddrSize));
-        //if ( == SOCKET_ERROR) {
-        //    printf("Error: %d", WSAGetLastError());
-        //    return false;
-        //}
+        printf("%s\n", recvBuf);
+        if (sendto(s, sendBuf, BUF_LEN, 0, (SOCKADDR*)&dstAddr, dstAddrSize) == SOCKET_ERROR) {
+            printf("Error: %d (See error codes in https://docs.microsoft.com/en-us/windows/win32/winsock/windows-sockets-error-codes-2)", WSAGetLastError());
+            return 1;
+        }
     }
 
     //INFO: Clean up
     closesocket(s);
     WSACleanup();
+    system("pause");
+
     return 0;
 }
-
-//void printWSErrorAndExit(const char* msg)
-//{
-//    wchar_t* s = NULL;
-//    FormatMessageW(
-//        FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM
-//        | FORMAT_MESSAGE_IGNORE_INSERTS,
-//        NULL,
-//        WSAGetLastError(),
-//        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-//        (LPWSTR)&s,
-//        0, NULL);
-//    fprintf(stderr, "%s: %S\n", msg, s);
-//    LocalFree(s);
-//    system("pause");
-//    exit(-1);
-//}
