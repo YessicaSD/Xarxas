@@ -50,6 +50,13 @@ bool CleanUp()
 
 //AF_INET refers to the family of addresses IPv4
 // IPv6 address family were needed, we should pass, the value AF_INET6 .
+
+/*
+With SOCK_DGRAM (for UDP sockets) discrete datagrams (that is, independent
+packets of data) will be sent through the network. With SOCK_STREAM (for TCP sockets)
+the data sent through the network will be packed into a contiguous stream of data that
+needs to be separated by the application code.
+*/
 bool CreateUDPSocket(SOCKET& s)
 {
 	s = socket(AF_INET, SOCK_DGRAM, 0);
