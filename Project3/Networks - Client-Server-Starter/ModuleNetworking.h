@@ -1,8 +1,10 @@
 #pragma once
 
-
 class ModuleNetworking : public Module
 {
+public:
+	static bool CreateTCPSocket(SOCKET& socket);
+
 private:
 
 	//////////////////////////////////////////////////////////////////////
@@ -15,7 +17,8 @@ private:
 
 	bool cleanUp() override;
 
-
+	
+	
 
 	//////////////////////////////////////////////////////////////////////
 	// Socket event callbacks

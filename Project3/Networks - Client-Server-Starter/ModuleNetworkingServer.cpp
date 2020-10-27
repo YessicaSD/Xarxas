@@ -9,12 +9,25 @@
 
 bool ModuleNetworkingServer::start(int port)
 {
-	// TODO(jesus): TCP listen socket stuff
-	// - Create the listenSocket
-	// - Set address reuse
-	// - Bind the socket to a local interface
-	// - Enter in listen mode
-	// - Add the listenSocket to the managed list of sockets using addSocket()
+	// x TODO(jesus): TCP listen socket stuff
+	// x - Create the listenSocket
+	// x - Set address reuse
+	// x - Bind the socket to a local interface
+	// x - Enter in listen mode
+	// x - Add the listenSocket to the managed list of sockets using addSocket()
+	CreateTCPSocket(listenSocket);
+	
+	sockaddr_in bindAddr;
+	bindAddr.sin_family = AF_INET; // IPv4
+	bindAddr.sin_port = htons(port); // Port
+	bindAddr.sin_addr.S_un.S_addr = INADDR_ANY; // Any local IP address
+
+	int res = bind(listenSocket, (const struct sockaddr*) & bindAddr, sizeof(bindAddr));
+	
+	listen(listenSocket, 1024);
+
+	addSocket(listenSocket);
+	// Where backlog is the maximum number of simultaneous incoming connections allowed.
 
 	state = ServerState::Listening;
 
