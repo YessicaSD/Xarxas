@@ -5,6 +5,10 @@
 #include "Ws2tcpip.h"
 #include <stdio.h>
 #include <stdlib.h>
+u_short port = 8000;
+
+#define MAX_MESSAGE_SIZE 1024
+
 
 void printWSErrorAndExit(const char* msg)
 {
@@ -23,6 +27,11 @@ void printWSErrorAndExit(const char* msg)
 	exit(-1);
 }
 
+void SendTo(SOCKET& s, const char* messatge, sockaddr_in& address)
+{
+	sendto(s, messatge, sizeof(messatge), 0, (const sockaddr*)&address, sizeof(address));
+}
+
 bool Init(WSADATA& wsaData)
 {
 	int iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
@@ -35,8 +44,14 @@ bool Init(WSADATA& wsaData)
 	return true;
 }
 
-bool CleanUp()
+/*
+	directions ( SD_RECEIVE, SD_SEND, SD_BOTH)
+	int shutdown ( SOCKET s, int direction );
+*/
+bool CleanUp(SOCKET& s)
 {
+	closesocket(s);
+
 	int iResult = WSACleanup();
 	if (iResult != NO_ERROR)
 	{
@@ -52,10 +67,10 @@ bool CleanUp()
 // IPv6 address family were needed, we should pass, the value AF_INET6 .
 
 /*
-With SOCK_DGRAM (for UDP sockets) discrete datagrams (that is, independent
-packets of data) will be sent through the network. With SOCK_STREAM (for TCP sockets)
-the data sent through the network will be packed into a contiguous stream of data that
-needs to be separated by the application code.
+	With SOCK_DGRAM (for UDP sockets) discrete datagrams (that is, independent
+	packets of data) will be sent through the network. With SOCK_STREAM (for TCP sockets)
+	the data sent through the network will be packed into a contiguous stream of data that
+	needs to be separated by the application code.
 */
 bool CreateUDPSocket(SOCKET& s)
 {
