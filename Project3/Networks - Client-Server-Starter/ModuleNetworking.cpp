@@ -111,10 +111,7 @@ bool ModuleNetworking::preUpdate()
 				else
 				{
 					disconnectedSockets.push_back(s);
-					if (result <0)
-					{
-						reportError("Error resiving client");
-					}
+					ELOG("Player disconnected");
 				}
 				
 			}
