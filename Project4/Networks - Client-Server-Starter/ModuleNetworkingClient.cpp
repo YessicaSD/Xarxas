@@ -4,12 +4,6 @@
 bool  ModuleNetworkingClient::start(const char * serverAddressStr, int serverPort, const char *pplayerName)
 {
 	playerName = pplayerName;
-	//playerName += '\0';
-	// x TODO(jesus): TCP connection stuff
-	// x - Create the socket
-	// x - Create the remote address object
-	// x - Connect to the remote address
-	// x- Add the created socket to the managed list of sockets using addSocket()
 	CreateTCPSocket(socket);
 	serverAddress.sin_family = AF_INET; // IPv4
 	serverAddress.sin_port = htons(serverPort); // Port
@@ -42,7 +36,7 @@ bool ModuleNetworkingClient::update()
 	if (state == ClientState::Start)
 	{
 		OutputMemoryStream packet;
-		packet << ClientMessage::Hello;
+		packet << ClientMessage::HELLO;
 		packet << playerName;
 		if (sendPacket(packet, socket))
 		{
@@ -53,7 +47,6 @@ bool ModuleNetworkingClient::update()
 			disconnect();
 			state = ClientState::Stopped;
 		}
-		//sendto(socket, playerName.c_str(), playerName.size(), 0, (const sockaddr*)&serverAddress, sizeof(serverAddress));
 	}
 
 	return true;
@@ -76,7 +69,17 @@ bool ModuleNetworkingClient::gui()
 		{
 			ImGui::TextColored(yellow,(*iter).c_str());
 		}
-
+		ImGui::SetCursorPosY(ImGui::GetWindowPos().y + ImGui::GetWindowHeight() - 40);
+		static char inputText[50];
+		if (ImGui::InputText("## Message", inputText, 50))
+		ImGui::SameLine();
+		if (ImGui::Button("Send"))
+		{
+			OutputMemoryStream packet;
+			packet << ClientMessage::MESSAGE;
+			packet << std::string(inputText);
+			sendPacket(packet, socket);
+		}
 		ImGui::End();
 	}
 
@@ -87,15 +90,29 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemo
 {
 	ClientMessage clientMessage;
 	packet >> clientMessage;
-
-	if (clientMessage == ClientMessage::Welcome)
+	switch (clientMessage)
 	{
-		std::string strmsg;
-		packet >> strmsg;
-		msg.push_back(strmsg);
+	case ClientMessage::HELLO:
+		break;
+	case ClientMessage::WELCOME:
+	case ClientMessage::MESSAGE:
+		{
+			std::string strmsg;
+			packet >> strmsg;
+			msg.push_back(strmsg);
+		}
+		break;
+	case ClientMessage::NONE_WELCOME:
+	{
+		std::string name;
+		packet >> name;
+		ELOG("%s is already taken :(", name.c_str());
+		state = ClientState::Stopped;
 	}
-
-	//state = ClientState::Stopped;
+		break;
+	default:
+		break;
+	}
 }
 
 void ModuleNetworkingClient::onSocketDisconnected(SOCKET socket)

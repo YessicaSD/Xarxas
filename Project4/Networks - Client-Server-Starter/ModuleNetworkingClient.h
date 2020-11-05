@@ -49,7 +49,7 @@ private:
 
 	sockaddr_in serverAddress = {};
 	SOCKET socket = INVALID_SOCKET;
-
+	
 	std::string playerName;
 };
 

@@ -29,6 +29,13 @@ public:
 		mBuffer(nullptr), mCapacity(0), mHead(0)
 	{ ReallocBuffer(inSize); }
 
+	OutputMemoryStream(uint32 inSize, char* mBuffer, uint32 mCapacity, uint32 mHead) : mBuffer(nullptr), mCapacity(0), mHead(0)
+	{
+		ReallocBuffer(inSize);
+		std::memcpy(this->mBuffer, mBuffer, inSize);
+
+	}
+
 	// Destructor
 	~OutputMemoryStream()
 	{ std::free(mBuffer); }
@@ -127,7 +134,10 @@ public:
 	char *GetBufferPtr() const { return mBuffer; }
 	uint32 GetCapacity() const { return mCapacity; }
 	uint32 GetSize() const { return mSize; }
+	uint32 GetHead() const { return mHead; }
 	uint32 RemainingByteCount() const { return mSize - mHead; }
+	
+
 	void SetSize(uint32 size) { mSize = size; }
 
 	// Clear the stream state

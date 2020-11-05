@@ -168,6 +168,16 @@ bool ModuleNetworking::sendPacket(const OutputMemoryStream& packet, SOCKET socke
 	}
 	return true;
 }
+bool ModuleNetworking::sendPacket(const char* buffer, uint32 size, SOCKET socket)
+{
+	int result = send(socket, buffer, size, 0);
+	if (result == SOCKET_ERROR)
+	{
+		reportError("Error when sending packet");
+		return false;
+	}
+	return true;
+}
 
 void ModuleNetworking::addSocket(SOCKET socket)
 {

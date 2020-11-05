@@ -106,26 +106,76 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 {
 	ClientMessage clientMessage;
 	packet >> clientMessage;
-	if (clientMessage == ClientMessage::Hello)
+	switch (clientMessage)
 	{
-		std::string playerName;
-		packet >> playerName;
-		for (auto& connectedSocket : connectedSockets)
+		case ClientMessage::HELLO:
 		{
-			if (connectedSocket.socket == socket)
+			std::string playerName;
+			packet >> playerName;
+			ConnectedSocket* playerSocket = nullptr;
+			for (auto& connectedSocket : connectedSockets)
 			{
-				connectedSocket.playerName = playerName;
+				if (connectedSocket.playerName == playerName)
+				{
+					playerSocket = nullptr;
+					break;
+				}
+				if (connectedSocket.socket == socket)
+				{
+					playerSocket = &connectedSocket;
+				}
+			}
 
+			if (playerSocket != nullptr)
+			{
+				playerSocket->playerName = playerName;
+				SendWelcomePacket(playerName, socket);
+			}
+			else
+			{
 				OutputMemoryStream wpacket;
-				std::string welcomemsg = "**** Welcome " + playerName + " ****";
-				wpacket << ClientMessage::Welcome;
-				wpacket << welcomemsg;
-				
+				wpacket << ClientMessage::NONE_WELCOME;
+				wpacket << playerName;
 				sendPacket(wpacket, socket);
 			}
 		}
+		break;
+		case ClientMessage::MESSAGE:
+		{
+			EmitPacket(packet.GetBufferPtr(), packet.GetSize());
+		}
+			break;
+		default:
+			break;
 	}
-	
+
+
+}
+
+void ModuleNetworkingServer::SendWelcomePacket(std::string& playerName, const SOCKET& socket)
+{
+	OutputMemoryStream wpacket;
+	std::string welcomemsg = R"(
+=============================================================================================
+
+                         /$$                                                  
+                        | $$                                                  
+ /$$  /$$  /$$  /$$$$$$ | $$  /$$$$$$$  /$$$$$$  /$$$$$$/$$$$   /$$$$$$       
+| $$ | $$ | $$ /$$__  $$| $$ /$$_____/ /$$__  $$| $$_  $$_  $$ /$$__  $$      
+| $$ | $$ | $$| $$$$$$$$| $$| $$      | $$  \ $$| $$ \ $$ \ $$| $$$$$$$$      
+| $$ | $$ | $$| $$_____/| $$| $$      | $$  | $$| $$ | $$ | $$| $$_____/      
+|  $$$$$/$$$$/|  $$$$$$$| $$|  $$$$$$$|  $$$$$$/| $$ | $$ | $$|  $$$$$$$      
+ \_____/\___/  \_______/|__/ \_______/ \______/ |__/ |__/ |__/ \_______/           
+
+
+=============================================================================================
+)";
+	welcomemsg += "\n **Welcome to the GenerationX 3D Revolution server" + playerName + "**";
+
+	wpacket << ClientMessage::WELCOME;
+	wpacket << welcomemsg;
+
+	sendPacket(wpacket, socket);
 }
 
 void ModuleNetworkingServer::onSocketDisconnected(SOCKET socket)
@@ -141,4 +191,34 @@ void ModuleNetworkingServer::onSocketDisconnected(SOCKET socket)
 		}
 	}
 }
+
+void ModuleNetworkingServer::BroadcastPacket(SOCKET socket, OutputMemoryStream& packet)
+{
+	for (auto& connectedSocket : connectedSockets)
+	{
+		if (connectedSocket.socket != socket)
+		{
+
+		}
+	}
+}
+
+void ModuleNetworkingServer::EmitPacket(OutputMemoryStream& packet)
+{
+	for (auto& connectedSocket : connectedSockets)
+	{
+		if (!isListenSocket(connectedSocket.socket))
+			sendPacket(packet, connectedSocket.socket);
+	}
+}
+
+void ModuleNetworkingServer::EmitPacket(const char* buffer, uint32 size)
+{
+	for (auto& connectedSocket : connectedSockets)
+	{
+		if (!isListenSocket(connectedSocket.socket))
+			sendPacket(buffer, size, connectedSocket.socket);
+	}
+}
+
 

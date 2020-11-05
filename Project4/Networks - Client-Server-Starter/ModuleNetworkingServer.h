@@ -38,9 +38,15 @@ private:
 
 	void onSocketReceivedData(SOCKET socket, const InputMemoryStream& packet) override;
 
+	void SendWelcomePacket(std::string& playerName, const SOCKET& socket);
+
 	void onSocketDisconnected(SOCKET socket) override;
 
+	void BroadcastPacket(SOCKET socket, OutputMemoryStream& packet);
 
+	void EmitPacket(OutputMemoryStream& packet);
+
+	void EmitPacket(const char* buffer, uint32 size);
 
 	//////////////////////////////////////////////////////////////////////
 	// State

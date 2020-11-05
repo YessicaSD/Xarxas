@@ -5,6 +5,7 @@ class ModuleNetworking : public Module
 public:
 	static bool CreateTCPSocket(SOCKET& socket);
 	static bool sendPacket(const OutputMemoryStream & packet, SOCKET socket);
+	bool sendPacket(const char* buffer, uint32 size, SOCKET socket);
 private:
 
 	//////////////////////////////////////////////////////////////////////

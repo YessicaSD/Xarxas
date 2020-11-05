@@ -183,22 +183,26 @@ inline float fractionalPart(float number)
 ////////////////////////////////////////////////////////////////////////
 // COLORS
 ////////////////////////////////////////////////////////////////////////
+
 ImVec4 white(1, 1, 1, 1);
 ImVec4 yellow(1, 0.95, 64 / 255, 1);
 ImVec4 red(1, 0, 0, 1);
 ImVec4 green(0, 1, 0, 1);
 ImVec4 blue(0, 0, 1, 1);
 ImVec4 cian(1, 0.95, 64 / 255, 1);
-ImVec4 colors[MAX_COLORS] = { yellow };
+
 enum COLORS
 {
 	YELLOW,
 	RED,
 	GREEN,
-	BLUE, 
+	BLUE,
 	CIAN,
 	MAX_COLORS
 };
+
+ImVec4 colors[MAX_COLORS] = { yellow, red, green, blue, cian };
+
 ////////////////////////////////////////////////////////////////////////
 // Message
 ////////////////////////////////////////////////////////////////////////
