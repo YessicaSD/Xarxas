@@ -1,5 +1,16 @@
 #pragma once
 #include <list>
+
+class Client
+{
+public:
+	std::string name;
+	COLORS color = WHITE;
+	Client() {}
+	Client(std::string name, COLORS color) :name(name), color(color) {}
+	
+};
+
 class ModuleNetworking : public Module
 {
 public:

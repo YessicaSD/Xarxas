@@ -122,10 +122,7 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 
 			if (playerSocket != nullptr)
 			{
-				playerSocket->playerName = playerName;
-				SendWelcomePacket(playerName, socket);
-				
-				
+				SendWelcomePacket(playerSocket, playerName, socket);
 			}
 			else
 			{
@@ -136,11 +133,13 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 			}
 		}
 		break;
+
 		case ClientMessage::MESSAGE:
 		{
 			EmitPacket(packet.GetBufferPtr(), packet.GetSize());
 		}
-			break;
+		break;
+
 		default:
 			break;
 	}
@@ -148,9 +147,12 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 
 }
 
-void ModuleNetworkingServer::SendWelcomePacket(std::string& playerName, const SOCKET& socket)
+void ModuleNetworkingServer::SendWelcomePacket(ConnectedSocket* playerSocket, std::string& playerName, const SOCKET& socket)
 {
 	int color = GetColor();
+	playerSocket->playerName = playerName;
+	playerSocket->color = (COLORS)color;
+	
 	OutputMemoryStream packet;
 	packet << ServerMessage::NEW_USER;
 	packet << playerName;
@@ -178,6 +180,7 @@ void ModuleNetworkingServer::SendWelcomePacket(std::string& playerName, const SO
 	wpacket << ServerMessage::WELCOME;
 	wpacket << welcomemsg;
 	wpacket << color;
+	SendConnectedUsers(socket, wpacket);
 	sendPacket(wpacket, socket);
 }
 
@@ -235,4 +238,23 @@ COLORS ModuleNetworkingServer::GetColor()
 	return (COLORS)colorCursor;
 }
 
+void ModuleNetworkingServer::SendConnectedUsers(SOCKET socket, OutputMemoryStream& packet)
+{
+	int numClients = connectedSockets.size();
+	if(numClients==0)
+		packet << numClients;
+	else
+		packet << numClients-1;
 
+	if (numClients > 1)
+	{
+		for (auto iter = connectedSockets.begin(); iter != connectedSockets.end(); ++iter)
+		{
+			if ((*iter).socket != socket)
+			{
+				packet << (*iter).playerName;
+				packet << (*iter).color;
+			}
+		}
+	}
+}

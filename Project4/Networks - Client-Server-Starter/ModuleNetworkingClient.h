@@ -3,14 +3,7 @@
 #include "ModuleNetworking.h"
 #include <map>
 
-class Client
-{
-public:
-	std::string name;
-	COLORS color = WHITE;
-	Client() {}
-	Client(std::string name, COLORS color):name(name), color(color) {}
-};
+
 
 class Message
 {
@@ -64,8 +57,6 @@ private:
 	};
 
 	ClientState state = ClientState::Stopped;
-	COLORS color = WHITE;
-
 	sockaddr_in serverAddress = {};
 	SOCKET socket = INVALID_SOCKET;
 	std::map <std::string, Client > ClientsConnected;

@@ -4,6 +4,7 @@
 
 class ModuleNetworkingServer : public ModuleNetworking
 {
+
 public:
 
 	//////////////////////////////////////////////////////////////////////
@@ -17,6 +18,14 @@ public:
 
 
 private:
+
+	struct ConnectedSocket
+	{
+		sockaddr_in address;
+		SOCKET socket;
+		std::string playerName;
+		COLORS color;
+	};
 
 	//////////////////////////////////////////////////////////////////////
 	// Module virtual methods
@@ -38,7 +47,7 @@ private:
 
 	void onSocketReceivedData(SOCKET socket, const InputMemoryStream& packet) override;
 
-	void SendWelcomePacket(std::string& playerName, const SOCKET& socket);
+	void SendWelcomePacket(ConnectedSocket* playerSocket, std::string& playerName, const SOCKET& socket);
 
 	void onSocketDisconnected(SOCKET socket) override;
 
@@ -49,6 +58,9 @@ private:
 	void EmitPacket(const char* buffer, uint32 size);
 
 	COLORS GetColor();
+
+	void SendConnectedUsers(SOCKET socket, OutputMemoryStream& packet);
+
 	//////////////////////////////////////////////////////////////////////
 	// State
 	//////////////////////////////////////////////////////////////////////
@@ -63,12 +75,7 @@ private:
 
 	SOCKET listenSocket;
 
-	struct ConnectedSocket
-	{
-		sockaddr_in address;
-		SOCKET socket;
-		std::string playerName;
-	};
+
 	int colorCursor = 0;
 	std::vector<ConnectedSocket> connectedSockets;
 };

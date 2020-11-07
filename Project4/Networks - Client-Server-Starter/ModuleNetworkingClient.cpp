@@ -67,8 +67,10 @@ bool ModuleNetworkingClient::gui()
 
 		for (auto iter = msg.begin(); iter != msg.end(); iter++)
 		{
-			COLORS msgColor = ClientsConnected[(*iter).user].color;
-			ImGui::TextColored(colors[msgColor],(*iter).msg.c_str());
+			Client client = ClientsConnected[(*iter).user];
+			std::string msg = client.name + ": "+ (*iter).msg;
+			COLORS msgColor = client.color;
+			ImGui::TextColored(colors[msgColor], msg.c_str());
 		}
 
 		ImGui::SetCursorPosY(ImGui::GetWindowPos().y + ImGui::GetWindowHeight() - 40);
@@ -99,17 +101,29 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemo
 		{
 			std::string strmsg;
 			COLORS color;
-			unsigned int mySocket;
 			packet >> strmsg;
 			packet >> color;
-			this->color = color;
 			Client myClient(playerName, color);
 			ClientsConnected[playerName] = myClient;
+
 			std::string serverName = "Server";
 			Client serverClient(serverName, WHITE);
 			ClientsConnected[serverName] = serverClient;
 			Message newMessage(serverName, strmsg);
 			msg.push_back(newMessage);
+
+			int numClient = 0;
+			packet >> numClient;
+			for (int i = 0; i < numClient; i++)
+			{
+				std::string name;
+				COLORS color;
+				packet >> name;
+				packet >> color;
+
+				Client newClient(name, color); 
+				ClientsConnected[name] = newClient;
+			}
 		}
 	break;
 
@@ -131,6 +145,7 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemo
 		packet >> name;
 		packet >> color;
 		Client newClient(name, color);
+		ClientsConnected[name] = newClient;
 	}
 	break;
 
