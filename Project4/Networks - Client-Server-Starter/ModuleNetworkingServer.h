@@ -75,7 +75,7 @@ private:
 
 	SOCKET listenSocket;
 
-
+	std::string serverName = "Server";
 	int colorCursor = 0;
 	std::vector<ConnectedSocket> connectedSockets;
 };

@@ -10,6 +10,9 @@ class Message
 public:
 	std::string user;
 	std::string msg;
+	std::string GetMessage() {
+		return std::string (user + ": " + msg);
+	}
 	Message(std::string user, std::string msg): user(user), msg(msg) {}
 };
 
@@ -43,7 +46,9 @@ private:
 
 	void onSocketDisconnected(SOCKET socket) override;
 
+	void addMessage(Message newMessage);
 
+	void DeleteClient(std::string name);
 
 	//////////////////////////////////////////////////////////////////////
 	// Client state

@@ -68,9 +68,7 @@ bool ModuleNetworkingClient::gui()
 		for (auto iter = msg.begin(); iter != msg.end(); iter++)
 		{
 			Client client = ClientsConnected[(*iter).user];
-			std::string msg = client.name + ": "+ (*iter).msg;
-			COLORS msgColor = client.color;
-			ImGui::TextColored(colors[msgColor], msg.c_str());
+			ImGui::TextColored(colors[client.color], (*iter).GetMessage().c_str());
 		}
 
 		ImGui::SetCursorPosY(ImGui::GetWindowPos().y + ImGui::GetWindowHeight() - 40);
@@ -109,6 +107,7 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemo
 			std::string serverName = "Server";
 			Client serverClient(serverName, WHITE);
 			ClientsConnected[serverName] = serverClient;
+
 			Message newMessage(serverName, strmsg);
 			msg.push_back(newMessage);
 
@@ -133,8 +132,7 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemo
 			std::string clientName;
 			packet >> clientName;
 			packet >> strmsg;
-			Message newMessage(clientName, strmsg);
-			msg.push_back(newMessage);
+			addMessage(Message(clientName, strmsg));
 		}
 	break;
 
@@ -146,7 +144,21 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemo
 		packet >> color;
 		Client newClient(name, color);
 		ClientsConnected[name] = newClient;
+		std::string nmsg, serverName;
+		packet >> nmsg;
+		packet >> serverName;
+		addMessage(Message(serverName, nmsg));
 	}
+	break;
+
+	case ServerMessage::DISCONECTED:
+		{
+			
+			std::string playerDisconnected;
+			packet >> playerDisconnected;
+			addMessage(Message(std::string("Server"), playerDisconnected + " just left, Good bye we will miss you!"));
+			DeleteClient(playerDisconnected);
+		}
 	break;
 
 	case ServerMessage::NONE_WELCOME:
@@ -156,7 +168,7 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemo
 		ELOG("%s is already taken :(", name.c_str());
 		state = ClientState::Stopped;
 	}
-		break;
+	break;
 	default:
 		break;
 	}
@@ -167,3 +179,12 @@ void ModuleNetworkingClient::onSocketDisconnected(SOCKET socket)
 	state = ClientState::Stopped;
 }
 
+void ModuleNetworkingClient::addMessage(Message newMessage)
+{
+	msg.push_back(newMessage);
+}
+
+void ModuleNetworkingClient::DeleteClient(std::string name)
+{
+	ClientsConnected.erase(name);
+}

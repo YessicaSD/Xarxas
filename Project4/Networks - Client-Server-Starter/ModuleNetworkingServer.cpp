@@ -157,6 +157,8 @@ void ModuleNetworkingServer::SendWelcomePacket(ConnectedSocket* playerSocket, st
 	packet << ServerMessage::NEW_USER;
 	packet << playerName;
 	packet << color;	
+	packet << std::string(playerName + " just joined this server!");
+	packet << serverName;
 	BroadcastPacket(socket, packet);
 
 	OutputMemoryStream wpacket;
@@ -192,6 +194,10 @@ void ModuleNetworkingServer::onSocketDisconnected(SOCKET socket)
 		auto &connectedSocket = *it;
 		if (connectedSocket.socket == socket)
 		{
+			OutputMemoryStream packet;
+			packet << ServerMessage::DISCONECTED;
+			packet << connectedSocket.playerName;
+			BroadcastPacket(socket, packet);
 			connectedSockets.erase(it);
 			break;
 		}
