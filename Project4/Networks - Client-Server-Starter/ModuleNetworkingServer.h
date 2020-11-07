@@ -48,6 +48,7 @@ private:
 
 	void EmitPacket(const char* buffer, uint32 size);
 
+	COLORS GetColor();
 	//////////////////////////////////////////////////////////////////////
 	// State
 	//////////////////////////////////////////////////////////////////////
@@ -68,7 +69,7 @@ private:
 		SOCKET socket;
 		std::string playerName;
 	};
-
+	int colorCursor = 0;
 	std::vector<ConnectedSocket> connectedSockets;
 };
 

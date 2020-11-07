@@ -193,6 +193,7 @@ ImVec4 cian(1, 0.95, 64 / 255, 1);
 
 enum COLORS
 {
+	WHITE,
 	YELLOW,
 	RED,
 	GREEN,
@@ -201,16 +202,8 @@ enum COLORS
 	MAX_COLORS
 };
 
-ImVec4 colors[MAX_COLORS] = { yellow, red, green, blue, cian };
+ImVec4 colors[MAX_COLORS] = { white, yellow, red, green, blue, cian };
 
-////////////////////////////////////////////////////////////////////////
-// Message
-////////////////////////////////////////////////////////////////////////
-class Message
-{
-	std::string text;
-
-};
 
 ////////////////////////////////////////////////////////////////////////
 // FRAMEWORK HEADERS

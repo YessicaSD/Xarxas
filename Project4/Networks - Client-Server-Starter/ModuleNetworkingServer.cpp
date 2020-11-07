@@ -9,12 +9,6 @@
 
 bool ModuleNetworkingServer::start(int port)
 {
-	// x TODO(jesus): TCP listen socket stuff
-	// x - Create the listenSocket
-	// x - Set address reuse
-	// x - Bind the socket to a local interface
-	// x - Enter in listen mode
-	// x - Add the listenSocket to the managed list of sockets using addSocket()
 	CreateTCPSocket(listenSocket);
 	
 	sockaddr_in bindAddr;
@@ -130,12 +124,14 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 			{
 				playerSocket->playerName = playerName;
 				SendWelcomePacket(playerName, socket);
+				
+				
 			}
 			else
 			{
 				OutputMemoryStream wpacket;
-				wpacket << ClientMessage::NONE_WELCOME;
-				wpacket << playerName;
+				wpacket << ServerMessage::NONE_WELCOME;
+				wpacket << playerName;	
 				sendPacket(wpacket, socket);
 			}
 		}
@@ -154,6 +150,13 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 
 void ModuleNetworkingServer::SendWelcomePacket(std::string& playerName, const SOCKET& socket)
 {
+	int color = GetColor();
+	OutputMemoryStream packet;
+	packet << ServerMessage::NEW_USER;
+	packet << playerName;
+	packet << color;	
+	BroadcastPacket(socket, packet);
+
 	OutputMemoryStream wpacket;
 	std::string welcomemsg = R"(
 =============================================================================================
@@ -172,9 +175,9 @@ void ModuleNetworkingServer::SendWelcomePacket(std::string& playerName, const SO
 )";
 	welcomemsg += "\n **Welcome to the GenerationX 3D Revolution server" + playerName + "**";
 
-	wpacket << ClientMessage::WELCOME;
+	wpacket << ServerMessage::WELCOME;
 	wpacket << welcomemsg;
-
+	wpacket << color;
 	sendPacket(wpacket, socket);
 }
 
@@ -196,9 +199,10 @@ void ModuleNetworkingServer::BroadcastPacket(SOCKET socket, OutputMemoryStream& 
 {
 	for (auto& connectedSocket : connectedSockets)
 	{
-		if (connectedSocket.socket != socket)
-		{
 
+		if (connectedSocket.socket != socket && !isListenSocket(connectedSocket.socket))
+		{
+			sendPacket(packet, connectedSocket.socket);
 		}
 	}
 }
@@ -219,6 +223,16 @@ void ModuleNetworkingServer::EmitPacket(const char* buffer, uint32 size)
 		if (!isListenSocket(connectedSocket.socket))
 			sendPacket(buffer, size, connectedSocket.socket);
 	}
+}
+
+COLORS ModuleNetworkingServer::GetColor()
+{
+	++colorCursor;
+	if (colorCursor > COLORS::MAX_COLORS)
+	{
+		colorCursor = 0;
+	}
+	return (COLORS)colorCursor;
 }
 
 

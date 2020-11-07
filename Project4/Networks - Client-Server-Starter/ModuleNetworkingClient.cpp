@@ -67,8 +67,10 @@ bool ModuleNetworkingClient::gui()
 
 		for (auto iter = msg.begin(); iter != msg.end(); iter++)
 		{
-			ImGui::TextColored(yellow,(*iter).c_str());
+			COLORS msgColor = ClientsConnected[(*iter).user].color;
+			ImGui::TextColored(colors[msgColor],(*iter).msg.c_str());
 		}
+
 		ImGui::SetCursorPosY(ImGui::GetWindowPos().y + ImGui::GetWindowHeight() - 40);
 		static char inputText[50];
 		if (ImGui::InputText("## Message", inputText, 50))
@@ -77,6 +79,7 @@ bool ModuleNetworkingClient::gui()
 		{
 			OutputMemoryStream packet;
 			packet << ClientMessage::MESSAGE;
+			packet << this->playerName;
 			packet << std::string(inputText);
 			sendPacket(packet, socket);
 		}
@@ -88,21 +91,50 @@ bool ModuleNetworkingClient::gui()
 
 void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemoryStream& packet)
 {
-	ClientMessage clientMessage;
-	packet >> clientMessage;
-	switch (clientMessage)
+	ServerMessage serverMessage;
+	packet >> serverMessage;
+	switch (serverMessage)
 	{
-	case ClientMessage::HELLO:
-		break;
-	case ClientMessage::WELCOME:
-	case ClientMessage::MESSAGE:
+	case ServerMessage::WELCOME:
 		{
 			std::string strmsg;
+			COLORS color;
+			unsigned int mySocket;
 			packet >> strmsg;
-			msg.push_back(strmsg);
+			packet >> color;
+			this->color = color;
+			Client myClient(playerName, color);
+			ClientsConnected[playerName] = myClient;
+			std::string serverName = "Server";
+			Client serverClient(serverName, WHITE);
+			ClientsConnected[serverName] = serverClient;
+			Message newMessage(serverName, strmsg);
+			msg.push_back(newMessage);
 		}
-		break;
-	case ClientMessage::NONE_WELCOME:
+	break;
+
+	case ServerMessage::MESSAGE:
+		{
+			std::string strmsg;
+			std::string clientName;
+			packet >> clientName;
+			packet >> strmsg;
+			Message newMessage(clientName, strmsg);
+			msg.push_back(newMessage);
+		}
+	break;
+
+	case ServerMessage::NEW_USER:
+	{
+		std::string name;
+		COLORS color;
+		packet >> name;
+		packet >> color;
+		Client newClient(name, color);
+	}
+	break;
+
+	case ServerMessage::NONE_WELCOME:
 	{
 		std::string name;
 		packet >> name;

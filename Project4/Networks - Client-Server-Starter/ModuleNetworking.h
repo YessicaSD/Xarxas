@@ -45,7 +45,7 @@ protected:
 
 	static void reportError(const char *message);
 
-	std::list<std::string> msg;
+	
 
 };
 
