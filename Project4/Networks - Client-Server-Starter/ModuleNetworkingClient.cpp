@@ -91,14 +91,17 @@ bool ModuleNetworkingClient::gui()
 	if (state != ClientState::Stopped)
 	{
 		// NOTE(jesus): You can put ImGui code here for debugging purposes
+		float windowHeight = 600.f;
 		ImGui::Begin("Client Window");
+		//TODO: If the user changes the size, change this variable
+		ImGui::SetWindowSize(ImVec2(400.f, windowHeight));
 
 		Texture *tex = App->modResources->client;
 		ImVec2 texSize(400.0f, 400.0f * tex->height / tex->width);
 		ImGui::Image(tex->shaderResource, texSize);
 
+		ImGui::BeginChild("#Chat");
 		ImGui::Text("%s connected to the server...", playerName.c_str());
-		ImGui::BeginChild("##Chat");
 		for (auto iter = msg.begin(); iter != msg.end(); iter++)
 		{
 			Client client = ClientsConnected[(*iter).user];
@@ -107,6 +110,8 @@ bool ModuleNetworkingClient::gui()
 		ImGui::EndChild();
 
 		static char inputText[255];
+		float buttonHeight = ImGui::GetFontSize() * 1.f + ImGui::GetStyle().FramePadding.y * 2.f + 10.f;
+		ImGui::SetCursorPos(ImVec2(0.f, windowHeight - buttonHeight));
 		ImGui::InputText("## Message", inputText, 50);
 		ImGui::SameLine();
 		if (ImGui::Button("Send"))
