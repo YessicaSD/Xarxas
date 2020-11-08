@@ -185,11 +185,11 @@ inline float fractionalPart(float number)
 ////////////////////////////////////////////////////////////////////////
 
 ImVec4 white(1, 1, 1, 1);
-ImVec4 yellow(1, 0.95, 64 / 255, 1);
+ImVec4 yellow(1, 0.95, 64 / 255.0f, 1);
 ImVec4 red(1, 0, 0, 1);
 ImVec4 green(0, 1, 0, 1);
 ImVec4 blue(0, 0, 1, 1);
-ImVec4 cian(1, 0.95, 64 / 255, 1);
+ImVec4 cian(15/255.0f, 185/255.0f, 241/255.0f, 1);
 
 enum COLORS
 {

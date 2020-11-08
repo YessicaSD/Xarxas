@@ -90,6 +90,7 @@ bool ModuleNetworkingClient::gui()
 {
 	if (state != ClientState::Stopped)
 	{
+		ImGui::ShowDemoWindow();
 		// NOTE(jesus): You can put ImGui code here for debugging purposes
 		ImGui::Begin("Client Window");
 
@@ -329,14 +330,17 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemo
 	case ServerMessage::CHANGE_NAME:
 	{
 		std::string newName;
+		
 		SOCKET newSocket;
 		packet >> newName;
 		packet >> newSocket;
-		if (ClientsConnected[newSocket].name == playerName)
+		std::string lastName(ClientsConnected[newSocket].name);
+		if (lastName == playerName)
 		{
 			playerName = newName;
 		}
 		ClientsConnected[newSocket].name = newName;
+		addMessage(Message(std::string(lastName + " changed name to " + newName)));
 	}
 	break;
 
@@ -365,6 +369,7 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemo
 		packet >> userSocket;
 		packet >> color;
 		ClientsConnected[userSocket].color = (COLORS)color;
+		addMessage(Message(std::string(ClientsConnected[userSocket].name + " changed color")));
 	}
 		break;
 	default:
