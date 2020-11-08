@@ -136,7 +136,13 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 
 		case ClientMessage::MESSAGE:
 		{
-			EmitPacket(packet.GetBufferPtr(), packet.GetSize());
+			OutputMemoryStream outPacket;
+			outPacket << ServerMessage::MESSAGE;
+			std::string msg;
+			packet >> msg;
+			outPacket << msg;
+			outPacket << socket;
+			EmitPacket(outPacket);
 		}
 		break;
 		case ClientMessage::COMMAND_KICK:
@@ -151,7 +157,7 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 				if (connectedSocket.playerName != kickName)
 				{
 					outPacket << ServerMessage::MESSAGE;
-					outPacket << serverName;
+					outPacket << 0;
 					outPacket << std::string(commandedUser + "just kicked " + kickName);
 					sendPacket(outPacket, connectedSocket.socket);
 				}
@@ -162,7 +168,33 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 				}
 			}
 		}
-			break;
+		break;
+		case ClientMessage::WHISPER_MESSAGE:
+		{
+			SOCKET wsocket;
+			std::string msg;
+			packet >> wsocket;
+			packet >> msg;
+			OutputMemoryStream outpacket;
+			outpacket << ServerMessage::MESSAGE;
+			outpacket << msg;
+			outpacket << socket;
+			sendPacket(outpacket, wsocket);
+		}
+		break;
+		case ClientMessage::CHANGE_NAME:
+		{
+			std::string name;
+			packet >> name;
+
+			OutputMemoryStream outpacket;
+			outpacket << ServerMessage::CHANGE_NAME;
+			outpacket << name;
+			outpacket << socket;
+			EmitPacket(outpacket);
+		}
+		break;
+
 		default:
 			break;
 	}
@@ -180,31 +212,14 @@ void ModuleNetworkingServer::SendWelcomePacket(ConnectedSocket* playerSocket, st
 	packet << ServerMessage::NEW_USER;
 	packet << playerName;
 	packet << color;	
-	packet << std::string(playerName + " just joined this server!");
-	packet << serverName;
+	packet << socket;
 	BroadcastPacket(socket, packet);
 
 	OutputMemoryStream wpacket;
-	std::string welcomemsg = R"(
-============================================================================
-
-                         /$$                                                  
-                        | $$                                                  
- /$$  /$$  /$$  /$$$$$$ | $$  /$$$$$$$  /$$$$$$  /$$$$$$/$$$$   /$$$$$$       
-| $$ | $$ | $$ /$$__  $$| $$ /$$_____/ /$$__  $$| $$_  $$_  $$ /$$__  $$      
-| $$ | $$ | $$| $$$$$$$$| $$| $$      | $$  \ $$| $$ \ $$ \ $$| $$$$$$$$      
-| $$ | $$ | $$| $$_____/| $$| $$      | $$  | $$| $$ | $$ | $$| $$_____/      
-|  $$$$$/$$$$/|  $$$$$$$| $$|  $$$$$$$|  $$$$$$/| $$ | $$ | $$|  $$$$$$$      
- \_____/\___/  \_______/|__/ \_______/ \______/ |__/ |__/ |__/ \_______/           
-
-
-=============================================================================
-)";
-	welcomemsg += "\n **Welcome to the GenerationX 3D Revolution server" + playerName + "**";
 
 	wpacket << ServerMessage::WELCOME;
-	wpacket << welcomemsg;
 	wpacket << color;
+	wpacket << socket;
 	SendConnectedUsers(socket, wpacket);
 	sendPacket(wpacket, socket);
 }
@@ -219,7 +234,7 @@ void ModuleNetworkingServer::onSocketDisconnected(SOCKET socket)
 		{
 			OutputMemoryStream packet;
 			packet << ServerMessage::DISCONECTED;
-			packet << connectedSocket.playerName;
+			packet << socket;
 			BroadcastPacket(socket, packet);
 			connectedSockets.erase(it);
 			break;
@@ -283,6 +298,7 @@ void ModuleNetworkingServer::SendConnectedUsers(SOCKET socket, OutputMemoryStrea
 			{
 				packet << (*iter).playerName;
 				packet << (*iter).color;
+				packet << (*iter).socket;
 			}
 		}
 	}

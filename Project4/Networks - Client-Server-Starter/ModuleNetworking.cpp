@@ -93,7 +93,6 @@ bool ModuleNetworking::preUpdate()
 				{
 					onSocketConnected(client, addr);
 					addSocket(client);
-					
 				}
 				else
 				{

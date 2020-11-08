@@ -4,11 +4,12 @@
 class Client
 {
 public:
-	std::string name;
+	std::string name = "";
 	COLORS color = WHITE;
+	SOCKET socket = 0;
 	Client() {}
 	Client(std::string name, COLORS color) :name(name), color(color) {}
-	
+	Client(std::string name, COLORS color, SOCKET socket) :name(name), color(color), socket(socket) {}
 };
 
 class ModuleNetworking : public Module
@@ -55,8 +56,5 @@ protected:
 	void disconnect();
 
 	static void reportError(const char *message);
-
-	
-
 };
 

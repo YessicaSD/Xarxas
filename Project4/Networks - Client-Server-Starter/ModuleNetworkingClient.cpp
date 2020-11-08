@@ -1,5 +1,5 @@
 #include "ModuleNetworkingClient.h"
-
+#include <string>
 
 
 bool  ModuleNetworkingClient::start(const char * serverAddressStr, int serverPort, const char *pplayerName)
@@ -37,11 +37,27 @@ std::vector<std::string> ModuleNetworkingClient::split(std::string str, std::str
 	std::vector<std::string> tokens;
 	auto start = 0U;
 	size_t prev = 0, pos = 0;
+	bool isWhisper = false;
 	do
 	{
 		pos = str.find(delim, prev);
 		if (pos == std::string::npos) pos = str.length();
-		std::string token = str.substr(prev, pos - prev);
+		std::string token;
+
+		if (isWhisper && tokens.size() == 2)
+		{
+			token = str.substr(prev, str.size() - prev);
+			pos = str.size();
+		}
+		else
+		{
+			token = str.substr(prev, pos - prev);
+			if (tokens.size() == 0 && token == "whisper")
+			{
+				isWhisper = true;
+			}
+		}
+
 		if (!token.empty()) tokens.push_back(token);
 		prev = pos + delim.length();
 	}
@@ -82,29 +98,28 @@ bool ModuleNetworkingClient::gui()
 		ImGui::Image(tex->shaderResource, texSize);
 
 		ImGui::Text("%s connected to the server...", playerName.c_str());
-
+		ImGui::BeginChild("##Chat");
 		for (auto iter = msg.begin(); iter != msg.end(); iter++)
 		{
 			Client client = ClientsConnected[(*iter).user];
-			ImGui::TextColored(colors[client.color], (*iter).GetMessage().c_str());
+			(*iter).PrintMessage(client);
 		}
+		ImGui::EndChild();
 
-		ImGui::SetCursorPosY(ImGui::GetWindowPos().y + ImGui::GetWindowHeight() - 40);
 		static char inputText[255];
-		if (ImGui::InputText("## Message", inputText, 50))
+		ImGui::InputText("## Message", inputText, 50);
 		ImGui::SameLine();
 		if (ImGui::Button("Send"))
 		{
-			
+			bool command = false;
 			if (inputText[0] == '/')
 			{
-				CallCommand(inputText, socket);
+				command = CallCommand(inputText, socket);
 			}
-			else
+			if(!command)
 			{
 				OutputMemoryStream packet;
 				packet << ClientMessage::MESSAGE;
-				packet << this->playerName;
 				packet << std::string(inputText);
 				sendPacket(packet, socket);
 			}
@@ -115,13 +130,14 @@ bool ModuleNetworkingClient::gui()
 	return true;
 }
 
-void ModuleNetworkingClient::CallCommand(char  inputText[255], SOCKET serverSocket)
+bool ModuleNetworkingClient::CallCommand(char  inputText[255], SOCKET serverSocket)
 {
 	std::string strInputText(inputText);
 	auto words = split(strInputText.substr(1, strInputText.size() - 1), " ");
 	int numWords = words.size();
+	bool ret = true;
 	if (numWords <= 0)
-		return;
+		return false;
 
 	if(words[0] == "help")
 	{
@@ -130,31 +146,37 @@ void ModuleNetworkingClient::CallCommand(char  inputText[255], SOCKET serverSock
 :::::.\::::::::.\::::::::.\::::::::.\::::::::.\::::::::.\::::::::.\::::::::.\
 '      `--'      `.-'      `--'      `--'      `--'      `-.'      `--'      `
 The command we have are the following ones:
-/users -> List all users connected
+/help -> Show all commands
+/list -> List all users connected
+/kick -> to ban some user from the chat.
+/whisper -> to send a message only to one user.
+/change_name -> to change your username.
 	.--.      .-'.      .--.      .--.      .--.      .--.      .`-.      .--.
 :::::.\::::::::.\::::::::.\::::::::.\::::::::.\::::::::.\::::::::.\::::::::.\
 '      `--'      `.-'      `--'      `--'      `--'      `-.'      `--'      `
 )";
-			addMessage(Message("Server", strhelp));
+			addMessage(Message(strhelp));
 	}
 	else if (words[0] == "list")
 	{
-		std::string strUsers("The users connected are: \n");
+		int numClients = ClientsConnected.size() - 1;
+		
+		std::string strUsers("The number of users connected is " + std::to_string(numClients) +"\nThe users connected are: \n");
 		for (auto iter = ClientsConnected.begin(); iter != ClientsConnected.end(); iter++)
 		{
-			if ((*iter).first != serverName)
+			if ((*iter).first != 0)
 			{
-				strUsers += (*iter).first;
+				strUsers += (*iter).second.name;
 				strUsers += "\n";
 			}
 		}
-		addMessage(Message("Server", strUsers));
+		addMessage(Message(strUsers));
 	}
 	else if (words[0] == "kick")
 	{
 		if (numWords < 2 )
-			return;
-		if (ClientsConnected.find(words[1]) != ClientsConnected.end())
+			return false;
+		if (IsUser(words[1]))
 		{
 			OutputMemoryStream packet;
 			packet << ClientMessage::COMMAND_KICK;
@@ -164,17 +186,40 @@ The command we have are the following ones:
 		}
 		else
 		{
-			addMessage(Message(serverName, words[1] + " is not connected, there is no user name with this name"));
+			addMessage(Message(words[1] + " is not connected, there is no user name with this name"));
 		}
 	}
 	else if (words[0] == "whisper")
 	{
-
+		if (numWords < 3)
+			return false;
+		Client wclient;
+		if (GetClient(words[1], wclient))
+		{
+			OutputMemoryStream packet;
+			packet << ClientMessage::WHISPER_MESSAGE;
+			packet << wclient.socket;
+			packet << words[2];
+			sendPacket(packet, serverSocket);
+		}
 	}
 	else if (words[0] == "change_name")
 	{
-
+		if (numWords < 2)
+			return false;
+		if (IsUserNameFree(words[1]))
+		{
+			OutputMemoryStream packet;
+			packet << ClientMessage::CHANGE_NAME;
+			packet << words[1];
+			sendPacket(packet, socket);
+		}
 	}
+	else
+	{
+		ret = false;
+	}
+	return ret;
 }
 
 void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemoryStream& packet)
@@ -185,18 +230,34 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemo
 	{
 	case ServerMessage::WELCOME:
 		{
-			std::string strmsg;
 			COLORS color;
-			packet >> strmsg;
+			SOCKET mysocket;
 			packet >> color;
-			Client myClient(playerName, color);
-			ClientsConnected[playerName] = myClient;
+			packet >> mysocket;
 
-			std::string serverName = "Server";
+			Client myClient(playerName, color, mysocket);
+			ClientsConnected[mysocket] = myClient;
+
 			Client serverClient(serverName, WHITE);
-			ClientsConnected[serverName] = serverClient;
+			ClientsConnected[0] = serverClient;
 
-			Message newMessage(serverName, strmsg);
+			std::string welcomemsg = R"(
+==========================================================================
+
+                         /$$                                                  
+                        | $$                                                  
+ /$$  /$$  /$$  /$$$$$$ | $$  /$$$$$$$  /$$$$$$  /$$$$$$/$$$$   /$$$$$$       
+| $$ | $$ | $$ /$$__  $$| $$ /$$_____/ /$$__  $$| $$_  $$_  $$ /$$__  $$      
+| $$ | $$ | $$| $$$$$$$$| $$| $$      | $$  \ $$| $$ \ $$ \ $$| $$$$$$$$      
+| $$ | $$ | $$| $$_____/| $$| $$      | $$  | $$| $$ | $$ | $$| $$_____/      
+|  $$$$$/$$$$/|  $$$$$$$| $$|  $$$$$$$|  $$$$$$/| $$ | $$ | $$|  $$$$$$$      
+ \_____/\___/  \_______/|__/ \_______/ \______/ |__/ |__/ |__/ \_______/           
+
+
+===========================================================================
+)";
+			welcomemsg += "\n **Welcome to the GenerationX 3D Revolution server " + playerName + " **";
+			Message newMessage(welcomemsg);
 			msg.push_back(newMessage);
 
 			int numClient = 0;
@@ -205,11 +266,12 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemo
 			{
 				std::string name;
 				COLORS color;
+				SOCKET newSocket;
 				packet >> name;
 				packet >> color;
-
-				Client newClient(name, color); 
-				ClientsConnected[name] = newClient;
+				packet >> newSocket;
+				Client newClient(name, color, newSocket); 
+				ClientsConnected[newSocket] = newClient;
 			}
 		}
 	break;
@@ -217,10 +279,10 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemo
 	case ServerMessage::MESSAGE:
 		{
 			std::string strmsg;
-			std::string clientName;
-			packet >> clientName;
+			SOCKET clientSocket;
 			packet >> strmsg;
-			addMessage(Message(clientName, strmsg));
+			packet >> clientSocket;
+			addMessage(Message(clientSocket, strmsg));
 		}
 	break;
 
@@ -228,14 +290,14 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemo
 	{
 		std::string name;
 		COLORS color;
+		SOCKET newSocket;
 		packet >> name;
 		packet >> color;
-		Client newClient(name, color);
-		ClientsConnected[name] = newClient;
-		std::string nmsg, serverName;
-		packet >> nmsg;
-		packet >> serverName;
-		addMessage(Message(serverName, nmsg));
+		packet >> newSocket;
+
+		Client newClient(name, color, newSocket);
+		ClientsConnected[newSocket] = newClient;
+		addMessage(Message(std::string(name + " just joined this server!")));
 	}
 	break;
 	case ServerMessage::COMMAND_KICK:
@@ -243,13 +305,27 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemo
 		state = ClientState::Stopped;
 		disconnect();
 	}
-		break;
+	break;
+	
+	case ServerMessage::CHANGE_NAME:
+	{
+		std::string newName;
+		SOCKET newSocket;
+		packet >> newName;
+		packet >> newSocket;
+		if (ClientsConnected[newSocket].name == playerName)
+		{
+			playerName = newName;
+		}
+		ClientsConnected[newSocket].name = newName;
+	}
+	break;
+
 	case ServerMessage::DISCONECTED:
 		{
-			
-			std::string playerDisconnected;
+			SOCKET playerDisconnected;
 			packet >> playerDisconnected;
-			addMessage(Message(std::string("Server"), playerDisconnected + " just left, Good bye we will miss you!"));
+			addMessage(Message(ClientsConnected[playerDisconnected].name + " just left, Good bye we will miss you!"));
 			DeleteClient(playerDisconnected);
 		}
 	break;
@@ -262,6 +338,7 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemo
 		state = ClientState::Stopped;
 	}
 	break;
+
 	default:
 		break;
 	}
@@ -277,9 +354,40 @@ void ModuleNetworkingClient::addMessage(Message newMessage)
 	msg.push_back(newMessage);
 }
 
-void ModuleNetworkingClient::DeleteClient(std::string name)
+void ModuleNetworkingClient::DeleteClient(SOCKET name)
 {
 	ClientsConnected.erase(name);
 }
 
+bool ModuleNetworkingClient::IsUser(std::string name)
+{
+	for (auto iter = ClientsConnected.begin(); iter != ClientsConnected.end(); ++iter)
+	{
+		if ((*iter).second.name == name)
+			return true;
+	}
+	return false;
+}
+bool ModuleNetworkingClient::GetClient(const std::string& name, Client& client)
+{
+	for (auto iter = ClientsConnected.begin(); iter != ClientsConnected.end(); ++iter)
+	{
+		if ((*iter).second.name == name)
+		{
+			client = (*iter).second;
+			return true;
+		}
+	}
+	return false;
+}
+
+bool ModuleNetworkingClient::IsUserNameFree(std::string name)
+{
+	for (auto iter = ClientsConnected.begin(); iter != ClientsConnected.end(); ++iter)
+	{
+		if ((*iter).second.name == name)
+			return false;
+	}
+	return true;
+}
 
