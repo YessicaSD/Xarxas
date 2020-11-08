@@ -151,6 +151,8 @@ The command we have are the following ones:
 /kick -> to ban some user from the chat.
 /whisper -> to send a message only to one user.
 /change_name -> to change your username.
+
+This project is made by Yessica Servin Dominguez and Jaume Montagut i Guix
 	.--.      .-'.      .--.      .--.      .--.      .--.      .`-.      .--.
 :::::.\::::::::.\::::::::.\::::::::.\::::::::.\::::::::.\::::::::.\::::::::.\
 '      `--'      `.-'      `--'      `--'      `--'      `-.'      `--'      `
