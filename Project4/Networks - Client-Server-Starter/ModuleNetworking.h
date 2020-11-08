@@ -7,6 +7,7 @@ public:
 	std::string name = "";
 	COLORS color = WHITE;
 	SOCKET socket = 0;
+	bool connected = true;
 	Client() {}
 	Client(std::string name, COLORS color) :name(name), color(color) {}
 	Client(std::string name, COLORS color, SOCKET socket) :name(name), color(color), socket(socket) {}

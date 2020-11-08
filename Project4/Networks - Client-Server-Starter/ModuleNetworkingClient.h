@@ -51,8 +51,6 @@ private:
 
 	void addMessage(Message newMessage);
 
-	void DeleteClient(SOCKET name);
-
 	bool IsUser(std::string name);
 
 	bool GetClient(const std::string& name, Client& client);

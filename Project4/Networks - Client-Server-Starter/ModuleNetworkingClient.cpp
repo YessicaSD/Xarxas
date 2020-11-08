@@ -107,7 +107,7 @@ bool ModuleNetworkingClient::gui()
 		ImGui::EndChild();
 
 		static char inputText[255];
-		ImGui::InputText("## Message", inputText, 50);
+		ImGui::InputText("## Message", inputText, 255);
 		ImGui::SameLine();
 		if (ImGui::Button("Send"))
 		{
@@ -345,7 +345,8 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemo
 			SOCKET playerDisconnected;
 			packet >> playerDisconnected;
 			addMessage(Message(ClientsConnected[playerDisconnected].name + " just left, Good bye we will miss you!"));
-			DeleteClient(playerDisconnected);
+			ClientsConnected[playerDisconnected].connected = false;
+			//DeleteClient(playerDisconnected);
 		}
 	break;
 
@@ -381,16 +382,11 @@ void ModuleNetworkingClient::addMessage(Message newMessage)
 	msg.push_back(newMessage);
 }
 
-void ModuleNetworkingClient::DeleteClient(SOCKET name)
-{
-	ClientsConnected.erase(name);
-}
-
 bool ModuleNetworkingClient::IsUser(std::string name)
 {
 	for (auto iter = ClientsConnected.begin(); iter != ClientsConnected.end(); ++iter)
 	{
-		if ((*iter).second.name == name)
+		if ((*iter).second.name == name && (*iter).second.connected)
 			return true;
 	}
 	return false;
@@ -399,7 +395,7 @@ bool ModuleNetworkingClient::GetClient(const std::string& name, Client& client)
 {
 	for (auto iter = ClientsConnected.begin(); iter != ClientsConnected.end(); ++iter)
 	{
-		if ((*iter).second.name == name)
+		if ((*iter).second.name == name )
 		{
 			client = (*iter).second;
 			return true;
@@ -412,7 +408,7 @@ bool ModuleNetworkingClient::IsUserNameFree(std::string name)
 {
 	for (auto iter = ClientsConnected.begin(); iter != ClientsConnected.end(); ++iter)
 	{
-		if ((*iter).second.name == name)
+		if ((*iter).second.name == name && (*iter).second.connected)
 			return false;
 	}
 	return true;
