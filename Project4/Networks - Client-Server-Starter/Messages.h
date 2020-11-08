@@ -7,7 +7,7 @@ enum class ClientMessage
 {
 	HELLO,
 	MESSAGE,
-	WELCOME_FROM_OTHERS,
+	COMMAND_KICK
 };
 
 enum class ServerMessage
@@ -17,5 +17,6 @@ enum class ServerMessage
 	NONE_WELCOME,
 	NEW_USER,
 	DISCONECTED,
+	COMMAND_KICK
 };
 

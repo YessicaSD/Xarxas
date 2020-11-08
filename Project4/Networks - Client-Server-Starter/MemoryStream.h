@@ -201,7 +201,7 @@ public:
 	}
 
 private:
-
+	std::string serverName;
 	char *mBuffer;
 	uint32 mCapacity;
 	uint32 mSize;

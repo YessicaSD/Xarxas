@@ -1,6 +1,7 @@
 #include "ModuleNetworkingClient.h"
 
 
+
 bool  ModuleNetworkingClient::start(const char * serverAddressStr, int serverPort, const char *pplayerName)
 {
 	playerName = pplayerName;
@@ -22,13 +23,30 @@ bool  ModuleNetworkingClient::start(const char * serverAddressStr, int serverPor
 
 	// If everything was ok... change the state
 	state = ClientState::Start;
-
+	serverName = "Server";
 	return true;
 }
 
 bool ModuleNetworkingClient::isRunning() const
 {
 	return state != ClientState::Stopped;
+}
+
+std::vector<std::string> ModuleNetworkingClient::split(std::string str, std::string delim)
+{
+	std::vector<std::string> tokens;
+	auto start = 0U;
+	size_t prev = 0, pos = 0;
+	do
+	{
+		pos = str.find(delim, prev);
+		if (pos == std::string::npos) pos = str.length();
+		std::string token = str.substr(prev, pos - prev);
+		if (!token.empty()) tokens.push_back(token);
+		prev = pos + delim.length();
+	}
+	while (pos < str.length() && prev < str.length());
+	return tokens;
 }
 
 bool ModuleNetworkingClient::update()
@@ -72,21 +90,91 @@ bool ModuleNetworkingClient::gui()
 		}
 
 		ImGui::SetCursorPosY(ImGui::GetWindowPos().y + ImGui::GetWindowHeight() - 40);
-		static char inputText[50];
+		static char inputText[255];
 		if (ImGui::InputText("## Message", inputText, 50))
 		ImGui::SameLine();
 		if (ImGui::Button("Send"))
 		{
-			OutputMemoryStream packet;
-			packet << ClientMessage::MESSAGE;
-			packet << this->playerName;
-			packet << std::string(inputText);
-			sendPacket(packet, socket);
+			
+			if (inputText[0] == '/')
+			{
+				CallCommand(inputText, socket);
+			}
+			else
+			{
+				OutputMemoryStream packet;
+				packet << ClientMessage::MESSAGE;
+				packet << this->playerName;
+				packet << std::string(inputText);
+				sendPacket(packet, socket);
+			}
 		}
 		ImGui::End();
 	}
 
 	return true;
+}
+
+void ModuleNetworkingClient::CallCommand(char  inputText[255], SOCKET serverSocket)
+{
+	std::string strInputText(inputText);
+	auto words = split(strInputText.substr(1, strInputText.size() - 1), " ");
+	int numWords = words.size();
+	if (numWords <= 0)
+		return;
+
+	if(words[0] == "help")
+	{
+				std::string strhelp = R"(
+	.--.      .-'.      .--.      .--.      .--.      .--.      .`-.      .--.
+:::::.\::::::::.\::::::::.\::::::::.\::::::::.\::::::::.\::::::::.\::::::::.\
+'      `--'      `.-'      `--'      `--'      `--'      `-.'      `--'      `
+The command we have are the following ones:
+/users -> List all users connected
+	.--.      .-'.      .--.      .--.      .--.      .--.      .`-.      .--.
+:::::.\::::::::.\::::::::.\::::::::.\::::::::.\::::::::.\::::::::.\::::::::.\
+'      `--'      `.-'      `--'      `--'      `--'      `-.'      `--'      `
+)";
+			addMessage(Message("Server", strhelp));
+	}
+	else if (words[0] == "list")
+	{
+		std::string strUsers("The users connected are: \n");
+		for (auto iter = ClientsConnected.begin(); iter != ClientsConnected.end(); iter++)
+		{
+			if ((*iter).first != serverName)
+			{
+				strUsers += (*iter).first;
+				strUsers += "\n";
+			}
+		}
+		addMessage(Message("Server", strUsers));
+	}
+	else if (words[0] == "kick")
+	{
+		if (numWords < 2 )
+			return;
+		if (ClientsConnected.find(words[1]) != ClientsConnected.end())
+		{
+			OutputMemoryStream packet;
+			packet << ClientMessage::COMMAND_KICK;
+			packet << words[1];
+			packet << playerName;
+			sendPacket(packet, serverSocket);
+		}
+		else
+		{
+			addMessage(Message(serverName, words[1] + " is not connected, there is no user name with this name"));
+		}
+	}
+	else if (words[0] == "whisper")
+	{
+
+	}
+	else if (words[0] == "change_name")
+	{
+
+	}
 }
 
 void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemoryStream& packet)
@@ -150,7 +238,12 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemo
 		addMessage(Message(serverName, nmsg));
 	}
 	break;
-
+	case ServerMessage::COMMAND_KICK:
+	{
+		state = ClientState::Stopped;
+		disconnect();
+	}
+		break;
 	case ServerMessage::DISCONECTED:
 		{
 			
@@ -188,3 +281,5 @@ void ModuleNetworkingClient::DeleteClient(std::string name)
 {
 	ClientsConnected.erase(name);
 }
+
+

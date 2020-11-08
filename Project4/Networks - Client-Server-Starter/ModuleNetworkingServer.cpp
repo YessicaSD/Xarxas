@@ -24,7 +24,7 @@ bool ModuleNetworkingServer::start(int port)
 	// Where backlog is the maximum number of simultaneous incoming connections allowed.
 
 	state = ServerState::Listening;
-
+	serverName = "Server";
 	return true;
 }
 
@@ -139,7 +139,30 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 			EmitPacket(packet.GetBufferPtr(), packet.GetSize());
 		}
 		break;
+		case ClientMessage::COMMAND_KICK:
+		{
+			std::string kickName, commandedUser;
+			packet >> kickName;
+			packet >> commandedUser;
 
+			for (auto& connectedSocket : connectedSockets)
+			{
+				OutputMemoryStream outPacket;
+				if (connectedSocket.playerName != kickName)
+				{
+					outPacket << ServerMessage::MESSAGE;
+					outPacket << serverName;
+					outPacket << std::string(commandedUser + "just kicked " + kickName);
+					sendPacket(outPacket, connectedSocket.socket);
+				}
+				else
+				{
+					outPacket << ServerMessage::COMMAND_KICK;
+					sendPacket(outPacket, connectedSocket.socket);
+				}
+			}
+		}
+			break;
 		default:
 			break;
 	}
@@ -163,7 +186,7 @@ void ModuleNetworkingServer::SendWelcomePacket(ConnectedSocket* playerSocket, st
 
 	OutputMemoryStream wpacket;
 	std::string welcomemsg = R"(
-=============================================================================================
+============================================================================
 
                          /$$                                                  
                         | $$                                                  
@@ -175,7 +198,7 @@ void ModuleNetworkingServer::SendWelcomePacket(ConnectedSocket* playerSocket, st
  \_____/\___/  \_______/|__/ \_______/ \______/ |__/ |__/ |__/ \_______/           
 
 
-=============================================================================================
+=============================================================================
 )";
 	welcomemsg += "\n **Welcome to the GenerationX 3D Revolution server" + playerName + "**";
 

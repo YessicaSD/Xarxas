@@ -16,6 +16,8 @@ public:
 	Message(std::string user, std::string msg): user(user), msg(msg) {}
 };
 
+
+
 class ModuleNetworkingClient : public ModuleNetworking
 {
 public:
@@ -26,6 +28,9 @@ public:
 	bool start(const char *serverAddress, int serverPort, const char *playerName);
 	bool isRunning() const;
 
+	static std::vector<std::string> split(std::string s, std::string delim);
+	
+
 private:
 
 	//////////////////////////////////////////////////////////////////////
@@ -35,6 +40,8 @@ private:
 	bool update() override;
 
 	bool gui() override;
+
+	void CallCommand(char  inputText[255], SOCKET serverSocket);
 
 
 
@@ -67,5 +74,6 @@ private:
 	std::map <std::string, Client > ClientsConnected;
 	std::string playerName;
 	std::list<Message> msg;
+	std::string serverName;
 };
 
