@@ -359,6 +359,7 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemo
 		packet >> name;
 		ELOG("%s is already taken :(", name.c_str());
 		state = ClientState::Stopped;
+		disconnect();
 	}
 	break;
 	case ServerMessage::CHANGE_COLOR:
