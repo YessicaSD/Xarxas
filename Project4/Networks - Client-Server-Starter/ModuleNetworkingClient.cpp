@@ -99,13 +99,13 @@ bool ModuleNetworkingClient::gui()
 		ImGui::Image(tex->shaderResource, texSize);
 
 		ImGui::Text("%s connected to the server...", playerName.c_str());
-		ImGui::BeginChild("##Chat");
+		//ImGui::BeginChild("##Chat");
 		for (auto iter = msg.begin(); iter != msg.end(); iter++)
 		{
 			Client client = ClientsConnected[(*iter).user];
 			(*iter).PrintMessage(client);
 		}
-		ImGui::EndChild();
+		//ImGui::EndChild();
 
 		static char inputText[255];
 		ImGui::InputText("## Message", inputText, 255);
