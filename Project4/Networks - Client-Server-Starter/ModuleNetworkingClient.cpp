@@ -90,7 +90,6 @@ bool ModuleNetworkingClient::gui()
 {
 	if (state != ClientState::Stopped)
 	{
-		ImGui::ShowDemoWindow();
 		// NOTE(jesus): You can put ImGui code here for debugging purposes
 		ImGui::Begin("Client Window");
 
@@ -99,12 +98,12 @@ bool ModuleNetworkingClient::gui()
 		ImGui::Image(tex->shaderResource, texSize);
 
 		ImGui::Text("%s connected to the server...", playerName.c_str());
-		ImGui::BeginChild("##Chat");
-		for (auto iter = msg.begin(); iter != msg.end(); iter++)
-		{
-			Client client = ClientsConnected[(*iter).user];
-			(*iter).PrintMessage(client);
-		}
+		ImGui::BeginChild("##Chat", ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y - 30));
+			for (auto iter = msg.begin(); iter != msg.end(); iter++)
+			{
+				Client client = ClientsConnected[(*iter).user];
+				(*iter).PrintMessage(client);
+			}
 		ImGui::EndChild();
 
 		static char inputText[255];
