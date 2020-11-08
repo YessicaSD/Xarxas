@@ -194,7 +194,25 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 			EmitPacket(outpacket);
 		}
 		break;
+		case ClientMessage::CHANGE_COLOR:
+		{
+			int color;
+			packet >> color;
+			OutputMemoryStream outpacket;
+			outpacket << ServerMessage::CHANGE_COLOR;
+			outpacket << socket;
+			outpacket << color;
+			for (auto iter = connectedSockets.begin(); iter != connectedSockets.end(); ++iter)
+			{
+				if ((*iter).socket == socket)
+				{
+					(*iter).color = (COLORS)color;
+				}
+			}
+			EmitPacket(outpacket);
 
+		}
+		break;
 		default:
 			break;
 	}

@@ -10,7 +10,7 @@ enum class ClientMessage
 	COMMAND_KICK,
 	WHISPER_MESSAGE,
 	CHANGE_NAME,
-
+	CHANGE_COLOR,
 };
 
 enum class ServerMessage
@@ -22,6 +22,7 @@ enum class ServerMessage
 	NEW_USER,
 	DISCONECTED,
 	COMMAND_KICK,
-	CHANGE_NAME
+	CHANGE_NAME,
+	CHANGE_COLOR,
 };
 

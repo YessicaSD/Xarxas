@@ -111,17 +111,22 @@ bool ModuleNetworkingClient::gui()
 		ImGui::SameLine();
 		if (ImGui::Button("Send"))
 		{
-			bool command = false;
-			if (inputText[0] == '/')
+			std::string inputMsg(inputText);
+			if (inputMsg.size() > 0)
 			{
-				command = CallCommand(inputText, socket);
-			}
-			if(!command)
-			{
-				OutputMemoryStream packet;
-				packet << ClientMessage::MESSAGE;
-				packet << std::string(inputText);
-				sendPacket(packet, socket);
+				bool command = false;
+				if (inputText[0] == '/')
+				{
+					command = CallCommand(inputMsg, socket);
+				}
+				if (!command)
+				{
+					OutputMemoryStream packet;
+					packet << ClientMessage::MESSAGE;
+					packet << inputMsg;
+					sendPacket(packet, socket);
+				}
+				memset(inputText, 0, 255);
 			}
 		}
 		ImGui::End();
@@ -130,9 +135,8 @@ bool ModuleNetworkingClient::gui()
 	return true;
 }
 
-bool ModuleNetworkingClient::CallCommand(char  inputText[255], SOCKET serverSocket)
+bool ModuleNetworkingClient::CallCommand(std::string& strInputText, SOCKET serverSocket)
 {
-	std::string strInputText(inputText);
 	auto words = split(strInputText.substr(1, strInputText.size() - 1), " ");
 	int numWords = words.size();
 	bool ret = true;
@@ -151,7 +155,7 @@ The command we have are the following ones:
 /kick -> to ban some user from the chat.
 /whisper -> to send a message only to one user.
 /change_name -> to change your username.
-
+/change_color -> change user color, the colors are white, yellow, red, green, blue and cian.
 This project is made by Yessica Servin Dominguez and Jaume Montagut i Guix
 	.--.      .-'.      .--.      .--.      .--.      .--.      .`-.      .--.
 :::::.\::::::::.\::::::::.\::::::::.\::::::::.\::::::::.\::::::::.\::::::::.\
@@ -214,6 +218,19 @@ This project is made by Yessica Servin Dominguez and Jaume Montagut i Guix
 			OutputMemoryStream packet;
 			packet << ClientMessage::CHANGE_NAME;
 			packet << words[1];
+			sendPacket(packet, socket);
+		}
+	}
+	else if (words[0] == "change_color")
+	{
+		if (numWords < 2)
+			return false;
+		int color = GetColor(words[1]);
+		if (color != -1)
+		{
+			OutputMemoryStream packet;
+			packet << ClientMessage::CHANGE_COLOR;
+			packet << color;
 			sendPacket(packet, socket);
 		}
 	}
@@ -340,7 +357,15 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemo
 		state = ClientState::Stopped;
 	}
 	break;
-
+	case ServerMessage::CHANGE_COLOR:
+	{
+		SOCKET userSocket;
+		int color;
+		packet >> userSocket;
+		packet >> color;
+		ClientsConnected[userSocket].color = (COLORS)color;
+	}
+		break;
 	default:
 		break;
 	}
@@ -391,5 +416,36 @@ bool ModuleNetworkingClient::IsUserNameFree(std::string name)
 			return false;
 	}
 	return true;
+}
+
+int ModuleNetworkingClient::GetColor(std::string color)
+{
+	if(color.size()==0)
+		return -1;
+	else if (color == "white")
+	{
+		return COLORS::WHITE;
+	}
+	else if (color == "yellow")
+	{
+		return COLORS::YELLOW;
+	}
+	else if (color == "red")
+	{
+		return COLORS::RED;
+	}
+	else if (color == "green")
+	{
+		return COLORS::GREEN;
+	}
+	else if (color == "blue")
+	{
+		return COLORS::BLUE;
+	}
+	else if (color == "cian")
+	{
+		return COLORS::CIAN;
+	}
+	return -1;
 }
 

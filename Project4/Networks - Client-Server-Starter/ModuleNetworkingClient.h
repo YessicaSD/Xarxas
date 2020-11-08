@@ -39,7 +39,7 @@ private:
 
 	bool gui() override;
 
-	bool CallCommand(char  inputText[255], SOCKET serverSocket);
+	bool CallCommand(std::string& strInputText, SOCKET serverSocket);
 
 	//////////////////////////////////////////////////////////////////////
 	// ModuleNetworking virtual methods
@@ -59,6 +59,7 @@ private:
 
 	bool IsUserNameFree(std::string name);
 
+	int GetColor(std::string color);
 	//////////////////////////////////////////////////////////////////////
 	// Client state
 	//////////////////////////////////////////////////////////////////////
