@@ -56,6 +56,7 @@ private:
 
 		uint32 nextExpectedInputSequenceNumber = 0;
 		InputController gamepad;
+		double lastPacketReceivedTime = 0.0;
 	};
 
 	ClientProxy clientProxies[MAX_CLIENTS];

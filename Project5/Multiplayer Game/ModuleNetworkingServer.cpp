@@ -166,6 +166,7 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 			if (proxy != nullptr && IsValid(proxy->gameObject))
 			{
 				// TODO(you): Reliability on top of UDP lab session
+				proxy->lastPacketReceivedTime = Time.time;
 
 				// Read input data
 				while (packet.RemainingByteCount() > 0)
@@ -215,6 +216,9 @@ void ModuleNetworkingServer::onUpdate()
 			if (clientProxy.connected)
 			{
 				// TODO(you): UDP virtual connection lab session
+				if (Time.time > clientProxy.lastPacketReceivedTime + DISCONNECT_TIMEOUT_SECONDS) {
+					destroyClientProxy(&clientProxy);
+				}
 
 				// Don't let the client proxy point to a destroyed game object
 				if (!IsValid(clientProxy.gameObject))
@@ -275,6 +279,7 @@ ModuleNetworkingServer::ClientProxy * ModuleNetworkingServer::createClientProxy(
 	{
 		if (!clientProxies[i].connected)
 		{
+			clientProxies[i].lastPacketReceivedTime = Time.time;
 			return &clientProxies[i];
 		}
 	}
