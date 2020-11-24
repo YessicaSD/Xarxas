@@ -215,6 +215,12 @@ void ModuleNetworkingClient::onUpdate()
 		else
 		{
 			// This means that the player has been destroyed (e.g. killed)
+			OutputMemoryStream packet;
+			packet << PROTOCOL_ID;
+			packet << ClientMessage::Replication;
+			packet << playerGameObject->networkId;
+			packet << ReplicationAction::Destroy;
+			sendPacket(packet, serverAddress);
 		}
 	}
 }
