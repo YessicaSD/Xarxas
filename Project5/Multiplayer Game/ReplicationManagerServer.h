@@ -4,9 +4,9 @@
 class ReplicationManagerServer
 {
 public:
-	void Create(uint32 networking);
-	void Update(uint32 networking);
-	void Destroy(uint32 networking);
+	void Create(uint32 networkId);
+	void Update(uint32 networkId);
+	void Destroy(uint32 networkId);
 
 	void Write(OutputMemoryStream& packet);
 

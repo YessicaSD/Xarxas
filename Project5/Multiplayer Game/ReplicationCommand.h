@@ -10,4 +10,9 @@ struct ReplicationCommand
 {
 	ReplicationAction action;
 	uint32 networkId;
+
+	ReplicationCommand(ReplicationAction action, uint32 networkId) : 
+		action(action), networkId(networkId)
+	{
+	}
 };

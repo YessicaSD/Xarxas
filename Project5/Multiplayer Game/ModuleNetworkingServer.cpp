@@ -143,29 +143,31 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 				uint16 networkGameObjectsCount;
 				GameObject *networkGameObjects[MAX_NETWORK_OBJECTS];
 				App->modLinkingContext->getNetworkGameObjects(networkGameObjects, &networkGameObjectsCount);
+				
+				//INFO: Send a packet with all objects to the new player
+				OutputMemoryStream packet;
+				packet << PROTOCOL_ID;
+				packet << ServerMessage::Replication;
 				for (uint16 i = 0; i < networkGameObjectsCount; ++i)
 				{
 					GameObject *gameObject = networkGameObjects[i];
-					OutputMemoryStream packet;
-					packet << PROTOCOL_ID;
-					packet << ServerMessage::Replication;
-					packet << proxy->gameObject->networkId;
+					packet << gameObject->networkId;
 					packet << ReplicationAction::Create;
 					packet << gameObject->position;
 					packet << gameObject->angle;
-					if(gameObject->sprite->texture == App->modResources->spacecraft1)
-						packet << 0;
-					else if(gameObject->sprite->texture == App->modResources->spacecraft2)
-						packet << 1;
-					else 
-						packet << 2;
-					
-					for (ClientProxy clientProxy : clientProxies) {
-						if(clientProxy.connected == true)
-							sendPacket(packet, clientProxy.address);
+					if (gameObject->sprite->texture == App->modResources->spacecraft1) {
+						packet << (uint8)0;
 					}
-					// TODO(you): World state replication lab session
+					else if (gameObject->sprite->texture == App->modResources->spacecraft2) {
+						packet << (uint8)1;
+					}
+					else {
+						packet << (uint8)2;
+					}
+					ReplicationManagerServer replicationManager;
+					replicationManager.Write(packet);
 				}
+				sendPacket(packet, proxy->address);
 
 				LOG("Message received: hello - from player %s", proxy->name.c_str());
 			}

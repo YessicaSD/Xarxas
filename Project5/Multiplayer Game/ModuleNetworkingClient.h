@@ -30,8 +30,6 @@ private:
 
 	void onPacketReceived(const InputMemoryStream &packet, const sockaddr_in &fromAddress) override;
 
-	void instantiatePlayerGameObject(uint8 spaceshipType, uint32 networkId, vec2 initialPosition, float initialAngle);
-
 	void onUpdate() override;
 
 	void onConnectionReset(const sockaddr_in &fromAddress) override;
@@ -95,7 +93,7 @@ private:
 	//////////////////////////////////////////////////////////////////////
 
 	// TODO(you): World state replication lab session
-
+	ReplicationManagerClient replicationManager;
 
 
 	//////////////////////////////////////////////////////////////////////
