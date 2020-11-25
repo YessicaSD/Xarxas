@@ -24,6 +24,12 @@ void ReplicationManagerClient::Read(const InputMemoryStream& packet)
 			} break;
 			case ReplicationAction::Update:
 			{
+				GameObject* obj = App->modLinkingContext->getNetworkGameObject(command.networkId);
+				if (obj)
+				{
+					packet >> obj->position;
+					packet >> obj->angle;
+				}
 			}break;
 		}
 	}
