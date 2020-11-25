@@ -121,17 +121,7 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 					float initialAngle = 360.0f * Random.next();
 					proxy->gameObject = spawnPlayer(spaceshipType, initialPosition, initialAngle);
 
-					OutputMemoryStream packet;
-					packet << PROTOCOL_ID;
-					packet << ServerMessage::Replication;
-					packet << proxy->gameObject->networkId;
-					packet << ReplicationAction::Create;
-					packet << initialPosition;
-					packet << initialAngle;
-					packet << spaceshipType;
-					for (ClientProxy clientProxy : clientProxies) {
-						sendPacket(packet, clientProxy.address);
-					}
+					
 				}
 				else
 				{
@@ -156,7 +146,24 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 				for (uint16 i = 0; i < networkGameObjectsCount; ++i)
 				{
 					GameObject *gameObject = networkGameObjects[i];
+					OutputMemoryStream packet;
+					packet << PROTOCOL_ID;
+					packet << ServerMessage::Replication;
+					packet << proxy->gameObject->networkId;
+					packet << ReplicationAction::Create;
+					packet << gameObject->position;
+					packet << gameObject->angle;
+					if(gameObject->sprite->texture == App->modResources->spacecraft1)
+						packet << 0;
+					else if(gameObject->sprite->texture == App->modResources->spacecraft2)
+						packet << 1;
+					else 
+						packet << 2;
 					
+					for (ClientProxy clientProxy : clientProxies) {
+						if(clientProxy.connected == true)
+							sendPacket(packet, clientProxy.address);
+					}
 					// TODO(you): World state replication lab session
 				}
 
