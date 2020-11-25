@@ -243,22 +243,26 @@ void ModuleNetworkingServer::onUpdate()
 			}
 		}
 
-		for (ClientProxy &clientProxy : clientProxies)
-		{
-			if (clientProxy.connected)
-			{
+		for (int i = 0; i < MAX_CLIENTS; ++i) {
+			if (clientProxies[i].connected) {
 				// TODO(you): UDP virtual connection lab session
-				if (Time.time > clientProxy.lastPacketReceivedTime + DISCONNECT_TIMEOUT_SECONDS) {
-					destroyClientProxy(&clientProxy);
+				if (Time.time > clientProxies[i].lastPacketReceivedTime + DISCONNECT_TIMEOUT_SECONDS) {
+					destroyClientProxy(&clientProxies[i]);
 				}
 
 				// Don't let the client proxy point to a destroyed game object
-				if (!IsValid(clientProxy.gameObject))
+				if (!IsValid(clientProxies[i].gameObject))
 				{
-					clientProxy.gameObject = nullptr;
+					clientProxies[i].gameObject = nullptr;
 				}
 
 				// TODO(you): World state replication lab session
+				if (Time.time > clientProxies[i].lastReplicationSendTime + REPLICATION_SEND_INTERVAL) {
+					OutputMemoryStream packet;
+					replicationManagers[i].Write(packet);
+					sendPacket(packet, clientProxies[i].address);
+					clientProxies[i].lastReplicationSendTime = Time.time + REPLICATION_SEND_INTERVAL;
+				}
 
 				// TODO(you): Reliability on top of UDP lab session
 			}
