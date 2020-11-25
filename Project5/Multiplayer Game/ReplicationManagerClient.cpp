@@ -4,21 +4,30 @@
 // TODO(you): World state replication lab session
 void ReplicationManagerClient::Read(const InputMemoryStream& packet)
 {
-	ReplicationCommand command;
-	packet >> command.networkId;
-	packet >> command.action;
-	switch (command.action)
+
+	while (packet.RemainingByteCount() != 0)
 	{
-	case ReplicationAction::Destroy: {
-		GameObject* obj = App->modLinkingContext->getNetworkGameObject(command.networkId);
-		Destroy(obj);
-	} break;
-	case ReplicationAction::Create: {
-		//TODO JAUME: Differentiate between different objects
-		instantiatePlayerGameObject(command.networkId, packet);
-		//TODO JAUME: Put gameObject->isLocalPlayer to true when it's your spaceship
-	} break;
+		ReplicationCommand command;
+		packet >> command.networkId;
+		packet >> command.action;
+
+		switch (command.action)
+		{
+		case ReplicationAction::Destroy: {
+			GameObject* obj = App->modLinkingContext->getNetworkGameObject(command.networkId);
+			Destroy(obj);
+		} break;
+		case ReplicationAction::Create: {
+			//TODO JAUME: Differentiate between different objects
+			instantiatePlayerGameObject(command.networkId, packet);
+			//TODO JAUME: Put gameObject->isLocalPlayer to true when it's your spaceship
+		} break;
+		case ReplicationAction::Update:
+		{
+		}break;
+		}
 	}
+	
 }
 
 void ReplicationManagerClient::instantiatePlayerGameObject(uint32 networkId, const InputMemoryStream& packet) {
