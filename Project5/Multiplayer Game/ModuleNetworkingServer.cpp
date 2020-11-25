@@ -147,7 +147,6 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 				uint16 networkGameObjectsCount;
 				GameObject *networkGameObjects[MAX_NETWORK_OBJECTS];
 				App->modLinkingContext->getNetworkGameObjects(networkGameObjects, &networkGameObjectsCount);
-				
 				ReplicationManagerServer* currReplicationManager = &replicationManagers[GetProxyIndex(proxy)];
 				for (uint16 i = 0; i < networkGameObjectsCount; ++i)
 				{

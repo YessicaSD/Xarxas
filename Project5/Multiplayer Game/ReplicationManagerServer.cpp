@@ -38,16 +38,7 @@ void ReplicationManagerServer::Write(OutputMemoryStream& packet)
 			case ReplicationAction::Update:{
 					//TODO JAUME: Fill this
 				}break;
-			case ReplicationAction::None: {
-				//Ignored...
-				}break;
-			case ReplicationAction::Destroy: {
-
-				} break;
 		}
 	}
-
-	//TODO JAUME: Clear the vector after it's been written
-	//Or put all actions to none if we decide to create a plain C array
-	//We may not need the "None" case if we're using a vector
+	commands.clear();
 }
