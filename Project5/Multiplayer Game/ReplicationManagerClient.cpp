@@ -13,18 +13,18 @@ void ReplicationManagerClient::Read(const InputMemoryStream& packet)
 
 		switch (command.action)
 		{
-		case ReplicationAction::Destroy: {
-			GameObject* obj = App->modLinkingContext->getNetworkGameObject(command.networkId);
-			Destroy(obj);
-		} break;
-		case ReplicationAction::Create: {
-			//TODO JAUME: Differentiate between different objects
-			instantiatePlayerGameObject(command.networkId, packet);
-			//TODO JAUME: Put gameObject->isLocalPlayer to true when it's your spaceship
-		} break;
-		case ReplicationAction::Update:
-		{
-		}break;
+			case ReplicationAction::Destroy: {
+				GameObject* obj = App->modLinkingContext->getNetworkGameObject(command.networkId);
+				Destroy(obj);
+			} break;
+			case ReplicationAction::Create: {
+				//TODO JAUME: Differentiate between different objects
+				instantiatePlayerGameObject(command.networkId, packet);
+				//TODO JAUME: Put gameObject->isLocalPlayer to true when it's your spaceship
+			} break;
+			case ReplicationAction::Update:
+			{
+			}break;
 		}
 	}
 	
