@@ -22,9 +22,11 @@ void ReplicationManagerServer::Write(OutputMemoryStream& packet)
 {
 	packet << PROTOCOL_ID;
 	packet << ServerMessage::Replication;
+	
 	for (ReplicationCommand command : commands) {
 		packet << command.networkId;
 		packet << command.action;
+
 		switch (command.action) {
 			case ReplicationAction::Create: {
 				GameObject* gameObject = App->modLinkingContext->getNetworkGameObject(command.networkId);

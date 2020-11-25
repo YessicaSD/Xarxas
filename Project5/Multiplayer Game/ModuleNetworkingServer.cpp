@@ -122,7 +122,7 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 					proxy->gameObject = spawnPlayer(spaceshipType, initialPosition, initialAngle);
 					
 					for (int i = 0; i < MAX_CLIENTS; ++i) {
-						if (clientProxies[i].connected == true) {
+						if (clientProxies[i].connected == true && &clientProxies[i]!= proxy) {
 							replicationManagers[i].Create(proxy->gameObject->networkId);
 						}
 					}
