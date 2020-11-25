@@ -95,7 +95,8 @@ void ModuleGameObject::Destroy(GameObject * gameObject)
 
 void ModuleGameObject::Destroy(GameObject * gameObject, float delaySeconds)
 {
-	for (uint32 i = 0; i < MAX_GAME_OBJECTS; ++i)
+	uint32 i = 0;
+	for (; i < MAX_GAME_OBJECTS; ++i)
 	{
 		if (App->modGameObject->gameObjectsWithDelayedDestruction[i].object == nullptr)
 		{
@@ -103,6 +104,9 @@ void ModuleGameObject::Destroy(GameObject * gameObject, float delaySeconds)
 			App->modGameObject->gameObjectsWithDelayedDestruction[i].delaySeconds = delaySeconds;
 			break;
 		}
+	}
+	if (i == MAX_GAME_OBJECTS) {
+		LOG("Error: Destroy list is full.");
 	}
 }
 

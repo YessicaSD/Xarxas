@@ -120,6 +120,18 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 					vec2 initialPosition = 500.0f * vec2{ Random.next() - 0.5f, Random.next() - 0.5f};
 					float initialAngle = 360.0f * Random.next();
 					proxy->gameObject = spawnPlayer(spaceshipType, initialPosition, initialAngle);
+
+					OutputMemoryStream packet;
+					packet << PROTOCOL_ID;
+					packet << ServerMessage::Replication;
+					packet << proxy->gameObject->networkId;
+					packet << ReplicationAction::Create;
+					packet << initialPosition;
+					packet << initialAngle;
+					packet << spaceshipType;
+					for (ClientProxy clientProxy : clientProxies) {
+						sendPacket(packet, clientProxy.address);
+					}
 				}
 				else
 				{
@@ -186,6 +198,18 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 						proxy->nextExpectedInputSequenceNumber = inputData.sequenceNumber + 1;
 					}
 				}
+			}
+		}
+		else if (message == ClientMessage::Replication) {
+			ReplicationCommand command;
+			packet >> command.networkId;
+			packet >> command.action;
+			switch (command.action)
+			{
+				case ReplicationAction::Destroy:
+					GameObject* obj = App->modLinkingContext->getNetworkGameObject(command.networkId);
+					Destroy(obj);
+					break;
 			}
 		}
 
