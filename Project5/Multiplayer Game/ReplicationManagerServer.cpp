@@ -32,6 +32,7 @@ void ReplicationManagerServer::Write(OutputMemoryStream& packet)
 				GameObject* gameObject = App->modLinkingContext->getNetworkGameObject(command.networkId);
 				packet << gameObject->position;
 				packet << gameObject->angle;
+				packet << gameObject->size;
 				packet << std::string(gameObject->sprite->texture->filename);
 				//TODO JAUME: Add behaviour (is it a spaceship or a bullet?)
 				}break;
