@@ -165,7 +165,7 @@ public:
 		}
 	}
 
-	void Read(vec2 outVec) const {
+	void Read(vec2& outVec) const {
 		Read(outVec.x);
 		Read(outVec.y);
 	}
