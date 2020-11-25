@@ -120,8 +120,12 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 					vec2 initialPosition = 500.0f * vec2{ Random.next() - 0.5f, Random.next() - 0.5f};
 					float initialAngle = 360.0f * Random.next();
 					proxy->gameObject = spawnPlayer(spaceshipType, initialPosition, initialAngle);
-
 					
+					for (int i = 0; i < MAX_CLIENTS; ++i) {
+						if (clientProxies[i].connected == true) {
+							replicationManagers[i].Create(proxy->gameObject->networkId);
+						}
+					}
 				}
 				else
 				{
@@ -146,28 +150,11 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 				
 				//INFO: Send a packet with all objects to the new player
 				OutputMemoryStream packet;
-				packet << PROTOCOL_ID;
-				packet << ServerMessage::Replication;
 				for (uint16 i = 0; i < networkGameObjectsCount; ++i)
 				{
 					GameObject *gameObject = networkGameObjects[i];
-					packet << gameObject->networkId;
-					packet << ReplicationAction::Create;
-					packet << gameObject->position;
-					packet << gameObject->angle;
-					if (gameObject->sprite->texture == App->modResources->spacecraft1) {
-						packet << (uint8)0;
-					}
-					else if (gameObject->sprite->texture == App->modResources->spacecraft2) {
-						packet << (uint8)1;
-					}
-					else {
-						packet << (uint8)2;
-					}
-					ReplicationManagerServer replicationManager;
-					replicationManager.Write(packet);
+					replicationManagers[GetProxyIndex(proxy)].Create(gameObject->networkId);
 				}
-				sendPacket(packet, proxy->address);
 
 				LOG("Message received: hello - from player %s", proxy->name.c_str());
 			}
@@ -224,6 +211,17 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 
 		// TODO(you): UDP virtual connection lab session
 	}
+}
+
+//TODO JAUME: Maybe this function would be better off on another module
+//INFO: Returns MAX_CLIENTS if no client was found
+int ModuleNetworkingServer::GetProxyIndex(ClientProxy * proxy) {
+	for (int i = 0; i < MAX_CLIENTS; ++i) {
+		if (&clientProxies[i] == proxy) {
+			return i;
+		}
+	}
+	return MAX_CLIENTS;
 }
 
 void ModuleNetworkingServer::onUpdate()

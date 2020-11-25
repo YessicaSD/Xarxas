@@ -11,8 +11,8 @@ struct ReplicationCommand
 	ReplicationAction action;
 	uint32 networkId;
 
+	ReplicationCommand() {};
+
 	ReplicationCommand(ReplicationAction action, uint32 networkId) : 
-		action(action), networkId(networkId)
-	{
-	}
+		action(action), networkId(networkId) {}
 };

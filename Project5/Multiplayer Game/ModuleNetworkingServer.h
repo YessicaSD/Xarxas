@@ -60,6 +60,7 @@ private:
 	};
 
 	ClientProxy clientProxies[MAX_CLIENTS];
+	ReplicationManagerServer replicationManagers [MAX_CLIENTS];
 
 	ClientProxy * createClientProxy();
 
@@ -67,6 +68,7 @@ private:
 
     void destroyClientProxy(ClientProxy *clientProxy);
 
+	int GetProxyIndex(ClientProxy* proxy);
 
 
 public:

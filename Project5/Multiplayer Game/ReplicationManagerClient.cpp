@@ -14,36 +14,32 @@ void ReplicationManagerClient::read(const InputMemoryStream& packet)
 		Destroy(obj);
 	} break;
 	case ReplicationAction::Create: {
-		vec2 pos;
-		packet >> pos;
-		float angle;
-		packet >> angle;
-		uint8 spaceshipType;
-		packet >> spaceshipType;
-		instantiatePlayerGameObject(spaceshipType, command.networkId, pos, angle);
+		//TODO JAUME: Differentiate between different objects
+		instantiatePlayerGameObject(command.networkId, packet);
 		//TODO JAUME: Put gameObject->isLocalPlayer to true when it's your spaceship
 	} break;
 	}
 }
 
-void ReplicationManagerClient::instantiatePlayerGameObject(uint8 spaceshipType, uint32 networkId, vec2 initialPosition, float initialAngle) {
-	// Create a new game object with the player properties
+void ReplicationManagerClient::instantiatePlayerGameObject(uint32 networkId, const InputMemoryStream& packet) {
 	GameObject* gameObject = App->modGameObject->Instantiate();
 	App->modLinkingContext->registerNetworkGameObjectWithNetworkId(gameObject, networkId);
-	gameObject->position = initialPosition;
+	
+	packet >> gameObject->position;
 	gameObject->size = { 100, 100 };
-	gameObject->angle = initialAngle;
+	packet >> gameObject->angle;
 
-	// Create sprite
 	gameObject->sprite = App->modRender->addSprite(gameObject);
 	gameObject->sprite->order = 5;
-	if (spaceshipType == 0) {
+	std::string texture_filename;
+	packet >> texture_filename;
+	if (texture_filename == App->modResources->spacecraft1->filename) {
 		gameObject->sprite->texture = App->modResources->spacecraft1;
 	}
-	else if (spaceshipType == 1) {
+	else if (texture_filename == App->modResources->spacecraft2->filename) {
 		gameObject->sprite->texture = App->modResources->spacecraft2;
 	}
-	else {
+	else if (texture_filename == App->modResources->spacecraft3->filename) {
 		gameObject->sprite->texture = App->modResources->spacecraft3;
 	}
 
