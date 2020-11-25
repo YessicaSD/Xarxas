@@ -45,11 +45,6 @@ void ReplicationManagerServer::Write(OutputMemoryStream& packet)
 		}
 	}
 
-	//INFO: Go through the command vector
-	//INFO: Write it
-	//INFO: Create a big packet
-	//INFO: Send it
-
 	//TODO JAUME: Clear the vector after it's been written
 	//Or put all actions to none if we decide to create a plain C array
 	//We may not need the "None" case if we're using a vector

@@ -136,7 +136,7 @@ void ModuleNetworkingClient::onPacketReceived(const InputMemoryStream &packet, c
 
 	//TODO: Put this inside the Connected state, we're just testing atm
 	if (message == ServerMessage::Replication) {
-		replicationManager.read(packet);
+		replicationManager.Read(packet);
 	}
 }
 

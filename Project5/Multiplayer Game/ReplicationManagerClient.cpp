@@ -2,7 +2,7 @@
 #include "ReplicationManagerClient.h"
 
 // TODO(you): World state replication lab session
-void ReplicationManagerClient::read(const InputMemoryStream& packet)
+void ReplicationManagerClient::Read(const InputMemoryStream& packet)
 {
 	ReplicationCommand command;
 	packet >> command.networkId;

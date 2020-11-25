@@ -148,13 +148,15 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 				GameObject *networkGameObjects[MAX_NETWORK_OBJECTS];
 				App->modLinkingContext->getNetworkGameObjects(networkGameObjects, &networkGameObjectsCount);
 				
-				//INFO: Send a packet with all objects to the new player
-				OutputMemoryStream packet;
+				ReplicationManagerServer* currReplicationManager = &replicationManagers[GetProxyIndex(proxy)];
 				for (uint16 i = 0; i < networkGameObjectsCount; ++i)
 				{
-					GameObject *gameObject = networkGameObjects[i];
-					replicationManagers[GetProxyIndex(proxy)].Create(gameObject->networkId);
+					currReplicationManager->Create(networkGameObjects[i]->networkId);
 				}
+
+				OutputMemoryStream packet;
+				currReplicationManager->Write(packet);
+				sendPacket(packet, proxy->address);
 
 				LOG("Message received: hello - from player %s", proxy->name.c_str());
 			}

@@ -4,6 +4,6 @@
 class ReplicationManagerClient
 {
 public:
-	void read(const InputMemoryStream &packet);
+	void Read(const InputMemoryStream &packet);
 	void instantiatePlayerGameObject(uint32 networkId, const InputMemoryStream &packet);
 };
