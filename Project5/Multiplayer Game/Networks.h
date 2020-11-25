@@ -43,6 +43,8 @@
 #define DEFAULT_PACKET_SIZE                     Kilobytes(4)
 #define PING_INTERVAL_SECONDS                           0.5f
 
+#define REPLICATION_SEND_INTERVAL						0.1f
+
 
 ////////////////////////////////////////////////////////////////////////
 // BASIC TYPES
