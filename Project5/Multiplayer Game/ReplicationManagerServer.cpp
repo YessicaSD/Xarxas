@@ -30,17 +30,18 @@ void ReplicationManagerServer::Write(OutputMemoryStream& packet)
 		switch (command.action) {
 			case ReplicationAction::Create: {
 				GameObject* gameObject = App->modLinkingContext->getNetworkGameObject(command.networkId);
+				packet << gameObject->behaviour->type();
 				packet << gameObject->position;
 				packet << gameObject->angle;
 				packet << gameObject->size;
 				packet << std::string(gameObject->sprite->texture->filename);
-				//TODO JAUME: Add behaviour (is it a spaceship or a bullet?)
 				}break;
 			case ReplicationAction::Update:{
 				GameObject* gameObject = App->modLinkingContext->getNetworkGameObject(command.networkId);
+				if (gameObject != nullptr) {
 					packet << gameObject->position;
 					packet << gameObject->angle;
-					//TODO JAUME: Fill this
+				}
 				}break;
 		}
 	}

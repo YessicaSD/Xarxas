@@ -120,12 +120,6 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 					vec2 initialPosition = 500.0f * vec2{ Random.next() - 0.5f, Random.next() - 0.5f};
 					float initialAngle = 360.0f * Random.next();
 					proxy->gameObject = spawnPlayer(spaceshipType, initialPosition, initialAngle);
-					
-				/*	for (int i = 0; i < MAX_CLIENTS; ++i) {
-						if (clientProxies[i].connected == true && &clientProxies[i]!= proxy) {
-							replicationManagers[i].Create(proxy->gameObject->networkId);
-						}
-					}*/
 				}
 				else
 				{
@@ -150,8 +144,10 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 				ReplicationManagerServer* currReplicationManager = &replicationManagers[GetProxyIndex(proxy)];
 				for (uint16 i = 0; i < networkGameObjectsCount; ++i)
 				{
-					if(proxy->gameObject->networkId != networkGameObjects[i]->networkId)
+					if (proxy->gameObject->networkId != networkGameObjects[i]->networkId)
+					{
 						currReplicationManager->Create(networkGameObjects[i]->networkId);
+					}
 				}
 
 				OutputMemoryStream packet;
@@ -203,18 +199,6 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 						}
 					}
 				}
-			}
-		}
-		else if (message == ClientMessage::Replication) {
-			ReplicationCommand command;
-			packet >> command.networkId;
-			packet >> command.action;
-			switch (command.action)
-			{
-				case ReplicationAction::Destroy:
-					GameObject* obj = App->modLinkingContext->getNetworkGameObject(command.networkId);
-					Destroy(obj);
-					break;
 			}
 		}
 
