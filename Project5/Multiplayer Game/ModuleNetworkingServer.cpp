@@ -121,11 +121,11 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 					float initialAngle = 360.0f * Random.next();
 					proxy->gameObject = spawnPlayer(spaceshipType, initialPosition, initialAngle);
 					
-					for (int i = 0; i < MAX_CLIENTS; ++i) {
+				/*	for (int i = 0; i < MAX_CLIENTS; ++i) {
 						if (clientProxies[i].connected == true && &clientProxies[i]!= proxy) {
 							replicationManagers[i].Create(proxy->gameObject->networkId);
 						}
-					}
+					}*/
 				}
 				else
 				{
@@ -150,7 +150,8 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 				ReplicationManagerServer* currReplicationManager = &replicationManagers[GetProxyIndex(proxy)];
 				for (uint16 i = 0; i < networkGameObjectsCount; ++i)
 				{
-					currReplicationManager->Create(networkGameObjects[i]->networkId);
+					if(proxy->gameObject->networkId != networkGameObjects[i]->networkId)
+						currReplicationManager->Create(networkGameObjects[i]->networkId);
 				}
 
 				OutputMemoryStream packet;
@@ -193,6 +194,13 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 						unpackInputControllerButtons(inputData.buttonBits, proxy->gamepad);
 						proxy->gameObject->behaviour->onInput(proxy->gamepad);
 						proxy->nextExpectedInputSequenceNumber = inputData.sequenceNumber + 1;
+						for (int i = 0; i < MAX_CLIENTS; i++)
+						{
+							if (clientProxies[i].connected == true)
+							{
+								replicationManagers[i].Update(proxy->gameObject->networkId);
+							}
+						}
 					}
 				}
 			}
@@ -408,6 +416,7 @@ GameObject * ModuleNetworkingServer::instantiateNetworkObject()
 		if (clientProxies[i].connected)
 		{
 			// TODO(you): World state replication lab session
+			replicationManagers[i].Create(gameObject->networkId);
 		}
 	}
 
@@ -434,6 +443,7 @@ void ModuleNetworkingServer::destroyNetworkObject(GameObject * gameObject)
 		if (clientProxies[i].connected)
 		{
 			// TODO(you): World state replication lab session
+			replicationManagers[i].Destroy(gameObject->networkId);
 		}
 	}
 

@@ -37,7 +37,7 @@ struct GameObject
 		STATE_COUNT
 	};
 	State state = NON_EXISTING;
-
+	
 private:
 
 	void * operator new(size_t size) = delete;
