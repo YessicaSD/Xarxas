@@ -258,9 +258,11 @@ void ModuleNetworkingServer::onUpdate()
 
 				// TODO(you): World state replication lab session
 				if (Time.time > clientProxies[i].lastReplicationSendTime + REPLICATION_SEND_INTERVAL) {
-					OutputMemoryStream packet;
-					replicationManagers[i].Write(packet);
-					sendPacket(packet, clientProxies[i].address);
+					if (replicationManagers[i].commands.size() > 0) {
+						OutputMemoryStream packet;
+						replicationManagers[i].Write(packet);
+						sendPacket(packet, clientProxies[i].address);
+					}
 					clientProxies[i].lastReplicationSendTime = Time.time + REPLICATION_SEND_INTERVAL;
 				}
 
