@@ -13,5 +13,5 @@ enum class ServerMessage : uint8
 	Unwelcome,
 	Ping,   // NOTE(jesus): Use this message type in the virtual connection lab session
 	Replication,
-	Input
+	InputConfirmation
 };
