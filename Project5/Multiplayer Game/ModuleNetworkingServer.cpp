@@ -190,6 +190,7 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 						unpackInputControllerButtons(inputData.buttonBits, proxy->gamepad);
 						proxy->gameObject->behaviour->onInput(proxy->gamepad);
 						proxy->nextExpectedInputSequenceNumber = inputData.sequenceNumber + 1;
+						proxy->sendInputConfirmation = true;
 						for (int i = 0; i < MAX_CLIENTS; i++)
 						{
 							if (clientProxies[i].connected == true)
@@ -240,13 +241,16 @@ void ModuleNetworkingServer::onUpdate()
 		{
 			if (clientProxies[i].connected) {
 				// TODO(you): UDP virtual connection lab session
-				if (Time.time > clientProxies[i].lastPacketReceivedTime + 0.5f)
+				if (clientProxies[i].sendInputConfirmation == true && Time.time > clientProxies[i].lastInputConfirmationTime + INPUT_CONFIRMATION_INTERVAL )
 				{
 					OutputMemoryStream packet;
-					packet << ServerMessage::Input;
-					packet << clientProxies[i].nextExpectedInputSequenceNumber;
+					packet << PROTOCOL_ID;
+					packet << ServerMessage::InputConfirmation;
+					packet << clientProxies[i].nextExpectedInputSequenceNumber-1;
 					sendPacket(packet, clientProxies[i].address);
+					clientProxies[i].lastInputConfirmationTime = Time.time;
 				}
+
 				if (Time.time > clientProxies[i].lastPacketReceivedTime + DISCONNECT_TIMEOUT_SECONDS) {
 					destroyClientProxy(&clientProxies[i]);
 				}
@@ -259,12 +263,14 @@ void ModuleNetworkingServer::onUpdate()
 
 				// TODO(you): World state replication lab session
 				if (Time.time > clientProxies[i].lastReplicationSendTime + REPLICATION_SEND_INTERVAL) {
+					OutputMemoryStream packet;
+
 					if (replicationManagers[i].commands.size() > 0) {
-						OutputMemoryStream packet;
+						
 						replicationManagers[i].Write(packet);
 						sendPacket(packet, clientProxies[i].address);
 					}
-					clientProxies[i].lastReplicationSendTime = Time.time + REPLICATION_SEND_INTERVAL;
+					clientProxies[i].lastReplicationSendTime = Time.time;
 				}
 				// TODO(you): Reliability on top of UDP lab session
 			}

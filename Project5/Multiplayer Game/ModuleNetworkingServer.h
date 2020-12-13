@@ -56,9 +56,11 @@ private:
 		// TODO(you): Reliability on top of UDP lab session
 
 		uint32 nextExpectedInputSequenceNumber = 0;
+		bool sendInputConfirmation = false;
 		InputController gamepad;
 		double lastPacketReceivedTime = 0.0;
 		double lastReplicationSendTime = 0.0;
+		double lastInputConfirmationTime = 0.0;
 	};
 
 	ClientProxy clientProxies[MAX_CLIENTS];
