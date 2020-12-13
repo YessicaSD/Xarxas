@@ -235,9 +235,18 @@ void ModuleNetworkingServer::onUpdate()
 			}
 		}
 
-		for (int i = 0; i < MAX_CLIENTS; ++i) {
+
+		for (int i = 0; i < MAX_CLIENTS; ++i) 
+		{
 			if (clientProxies[i].connected) {
 				// TODO(you): UDP virtual connection lab session
+				if (Time.time > clientProxies[i].lastPacketReceivedTime + 0.5f)
+				{
+					OutputMemoryStream packet;
+					packet << ServerMessage::Input;
+					packet << clientProxies[i].nextExpectedInputSequenceNumber;
+					sendPacket(packet, clientProxies[i].address);
+				}
 				if (Time.time > clientProxies[i].lastPacketReceivedTime + DISCONNECT_TIMEOUT_SECONDS) {
 					destroyClientProxy(&clientProxies[i]);
 				}
@@ -257,7 +266,6 @@ void ModuleNetworkingServer::onUpdate()
 					}
 					clientProxies[i].lastReplicationSendTime = Time.time + REPLICATION_SEND_INTERVAL;
 				}
-
 				// TODO(you): Reliability on top of UDP lab session
 			}
 		}

@@ -132,6 +132,13 @@ void ModuleNetworkingClient::onPacketReceived(const InputMemoryStream &packet, c
 		// TODO(you): World state replication lab session
 
 		// TODO(you): Reliability on top of UDP lab session
+		if (message == ServerMessage::Input)
+		{
+			// Resive the last input resived
+			packet >> inputDataFront;
+			//// Clear the queue
+			//inputDataFront = inputDataBack;
+		}
 	}
 
 	//TODO: Put this inside the Connected state, we're just testing atm
@@ -202,10 +209,6 @@ void ModuleNetworkingClient::onUpdate()
 				packet << inputPacketData.verticalAxis;
 				packet << inputPacketData.buttonBits;
 			}
-
-			// Clear the queue
-			inputDataFront = inputDataBack;
-
 			sendPacket(packet, serverAddress);
 		}
 
