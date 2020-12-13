@@ -1,5 +1,7 @@
 #pragma once
 
+struct DeliveryManager;
+
 // TODO(you): World state replication lab session
 class ReplicationManagerServer
 {
@@ -8,7 +10,7 @@ public:
 	void Update(uint32 networkId);
 	void Destroy(uint32 networkId);
 
-	void Write(OutputMemoryStream& packet);
+	void Write(OutputMemoryStream& packet, DeliveryManager* deliveryManager);
 
 	std::vector<ReplicationCommand> commands;
 };
