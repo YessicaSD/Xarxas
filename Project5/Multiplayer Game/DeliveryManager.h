@@ -5,7 +5,7 @@ class DeliveryDelegate
 {
 public:
 	virtual void onDeliverySuccess(DeliveryManager* deliveryManager) = 0;
-	virtual void onDeliveryFailure(DeliveryManager* deliveryMa)
+	virtual void onDeliveryFailure(DeliveryManager* deliveryMa) = 0;
 };
 struct Delivery
 {
