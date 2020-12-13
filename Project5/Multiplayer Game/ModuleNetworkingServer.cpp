@@ -151,7 +151,7 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 				}
 
 				OutputMemoryStream packet;
-				currReplicationManager->Write(packet);
+				currReplicationManager->Write(packet, &proxy->deliveryManager);
 				sendPacket(packet, proxy->address);
 
 				LOG("Message received: hello - from player %s", proxy->name.c_str());
@@ -241,7 +241,7 @@ void ModuleNetworkingServer::onUpdate()
 		{
 			if (clientProxies[i].connected) {
 				// TODO(you): UDP virtual connection lab session
-				if (clientProxies[i].sendInputConfirmation == true && Time.time > clientProxies[i].lastInputConfirmationTime + INPUT_CONFIRMATION_INTERVAL )
+				if (clientProxies[i].sendInputConfirmation == true && Time.time > clientProxies[i].lastInputConfirmationTime + INPUT_CONFIRMATION_INTERVAL)
 				{
 					OutputMemoryStream packet;
 					packet << PROTOCOL_ID;
@@ -267,7 +267,7 @@ void ModuleNetworkingServer::onUpdate()
 
 					if (replicationManagers[i].commands.size() > 0) {
 						
-						replicationManagers[i].Write(packet);
+						replicationManagers[i].Write(packet, &clientProxies[i].deliveryManager);
 						sendPacket(packet, clientProxies[i].address);
 					}
 					clientProxies[i].lastReplicationSendTime = Time.time;

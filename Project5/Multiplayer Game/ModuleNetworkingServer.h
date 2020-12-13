@@ -61,10 +61,12 @@ private:
 		double lastPacketReceivedTime = 0.0;
 		double lastReplicationSendTime = 0.0;
 		double lastInputConfirmationTime = 0.0;
+
+		DeliveryManager deliveryManager;
 	};
 
 	ClientProxy clientProxies[MAX_CLIENTS];
-	ReplicationManagerServer replicationManagers [MAX_CLIENTS];
+	ReplicationManagerServer replicationManagers[MAX_CLIENTS];
 
 	ClientProxy * createClientProxy();
 

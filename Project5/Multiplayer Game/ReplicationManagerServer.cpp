@@ -1,5 +1,6 @@
 #include "Networks.h"
 #include "ReplicationManagerServer.h"
+#include "DeliveryManager.h";
 
 // TODO(you): World state replication lab session
 
@@ -18,11 +19,11 @@ void ReplicationManagerServer::Destroy(uint32 networkId)
 	commands.push_back(ReplicationCommand(ReplicationAction::Destroy, networkId));
 }
 
-void ReplicationManagerServer::Write(OutputMemoryStream& packet)
+void ReplicationManagerServer::Write(OutputMemoryStream& packet, DeliveryManager* deliveryManager)
 {
 	packet << PROTOCOL_ID;
 	packet << ServerMessage::Replication;
-	
+	deliveryManager->writeSequenceNumber(packet);
 	for (ReplicationCommand command : commands) {
 		packet << command.networkId;
 		packet << command.action;
