@@ -19,13 +19,14 @@ void ReplicationManagerServer::Destroy(uint32 networkId)
 	replicationCommands.push_back(ReplicationCommand(ReplicationAction::Destroy, networkId));
 }
 
-void ReplicationManagerServer::Write(OutputMemoryStream& packet, DeliveryManagerServer* deliveryManager, std::vector<ReplicationCommand> commands)
+void ReplicationManagerServer::Write(OutputMemoryStream& packet, DeliveryManagerServer* deliveryManager, std::vector<ReplicationCommand> &commands)
 {
 	packet << PROTOCOL_ID;
 	packet << ServerMessage::Replication;
 	
 
 	Delivery * newDelivery = deliveryManager->writeSequenceNumber(packet);
+	
 	//TODO JAUME: Register callbacks onto the next delivery
 
 	for (ReplicationCommand command : commands) {
@@ -52,7 +53,7 @@ void ReplicationManagerServer::Write(OutputMemoryStream& packet, DeliveryManager
 				//If we're destroying, we want to make sure that that packet gets sent
 				newDelivery->indispensableCommands.push_back(command);
 				if (newDelivery->delegate == nullptr) {
-					newDelivery->delegate = new DeliveryDelegateDestroy(&newDelivery);
+					newDelivery->delegate = new DeliveryDelegateDestroy(newDelivery);
 				}
 				break;
 			}

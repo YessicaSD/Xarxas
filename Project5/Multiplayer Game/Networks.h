@@ -45,6 +45,7 @@
 
 #define REPLICATION_SEND_INTERVAL						0.1f
 #define INPUT_CONFIRMATION_INTERVAL						0.2f
+#define PACKET_TIMEOUT_INTERVAL							0.5f
 
 
 ////////////////////////////////////////////////////////////////////////

@@ -5,6 +5,8 @@
 // TODO(you): Reliability on top of UDP lab session
 
 class DeliveryManagerServer;
+class Delivery;
+struct ReplicationCommand;
 
 class DeliveryDelegate
 {

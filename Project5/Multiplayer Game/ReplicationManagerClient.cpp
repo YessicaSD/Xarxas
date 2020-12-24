@@ -5,7 +5,7 @@
 // TODO(you): World state replication lab session
 void ReplicationManagerClient::Read(const InputMemoryStream& packet, DeliveryManagerClient * deliveryManager)
 {
-	deliveryManager->processSequenceNumber(packet);
+	bool processPacket = deliveryManager->processSequenceNumber(packet);
 
 	while (packet.RemainingByteCount() != 0)
 	{
@@ -15,7 +15,8 @@ void ReplicationManagerClient::Read(const InputMemoryStream& packet, DeliveryMan
 
 		switch (command.action)
 		{
-			case ReplicationAction::Destroy: {
+			case ReplicationAction::Destroy: 
+			{
 				GameObject* obj = App->modLinkingContext->getNetworkGameObject(command.networkId);
 				App->modLinkingContext->unregisterNetworkGameObject(obj);
 				Destroy(obj);
