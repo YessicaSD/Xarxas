@@ -25,10 +25,19 @@ bool DeliveryManagerClient::processSequenceNumber(const InputMemoryStream& packe
     if (sequenceNumber >= expectedSequenceNum) {
         //send success
         expectedSequenceNum = expectedSequenceNum + 1;
+
+        //if we update a gameobject that has not been created, create it
     }
     else if (sequenceNumber < expectedSequenceNum) {
+        //only process if it's a destroy
+        
         //send success
     }
 
     return false;
+}
+
+void DeliveryDelegateCreate::onDeliverySuccess(DeliveryManagerServer* deliveryManager)
+{
+    deliveryManager->pendingDeliveries.erase();
 }
