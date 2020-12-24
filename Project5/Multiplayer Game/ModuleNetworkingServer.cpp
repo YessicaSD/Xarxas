@@ -151,7 +151,7 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 				}
 
 				OutputMemoryStream packet;
-				currReplicationManager->Write(packet, &proxy->deliveryManager);
+				currReplicationManager->Write(packet, &proxy->deliveryManager, currReplicationManager->replicationCommands);
 				sendPacket(packet, proxy->address);
 
 				LOG("Message received: hello - from player %s", proxy->name.c_str());
@@ -246,41 +246,40 @@ void ModuleNetworkingServer::onUpdate()
 
 		for (int i = 0; i < MAX_CLIENTS; ++i) 
 		{
-			if (clientProxies[i].connected) {
+			ClientProxy clientProxy = clientProxies[i];
+			if (clientProxy.connected) {
 				// TODO(you): UDP virtual connection lab session
-				if (clientProxies[i].sendInputConfirmation == true && Time.time > clientProxies[i].lastInputConfirmationTime + INPUT_CONFIRMATION_INTERVAL)
+				if (clientProxy.sendInputConfirmation == true && Time.time > clientProxy.lastInputConfirmationTime + INPUT_CONFIRMATION_INTERVAL)
 				{
 					OutputMemoryStream packet;
 					packet << PROTOCOL_ID;
 					packet << ServerMessage::InputConfirmation;
-					packet << clientProxies[i].nextExpectedInputSequenceNumber-1;
-					sendPacket(packet, clientProxies[i].address);
-					clientProxies[i].lastInputConfirmationTime = Time.time;
+					packet << clientProxy.nextExpectedInputSequenceNumber-1;
+					sendPacket(packet, clientProxy.address);
+					clientProxy.lastInputConfirmationTime = Time.time;
 				}
 
-				if (Time.time > clientProxies[i].lastPacketReceivedTime + DISCONNECT_TIMEOUT_SECONDS) {
-					destroyClientProxy(&clientProxies[i]);
+				if (Time.time > clientProxy.lastPacketReceivedTime + DISCONNECT_TIMEOUT_SECONDS) {
+					destroyClientProxy(&clientProxy);
 				}
 
 				// Don't let the client proxy point to a destroyed game object
-				if (!IsValid(clientProxies[i].gameObject))
+				if (!IsValid(clientProxy.gameObject))
 				{
-					clientProxies[i].gameObject = nullptr;
+					clientProxy.gameObject = nullptr;
 				}
 
 				// TODO(you): World state replication lab session
-				if (Time.time > clientProxies[i].lastReplicationSendTime + REPLICATION_SEND_INTERVAL) {
-					OutputMemoryStream packet;
-
-					if (replicationManagers[i].commands.size() > 0) {
-						
-						replicationManagers[i].Write(packet, &clientProxies[i].deliveryManager);
-						sendPacket(packet, clientProxies[i].address);
+				if (Time.time > clientProxy.lastReplicationSendTime + REPLICATION_SEND_INTERVAL) {
+					if (replicationManagers[i].replicationCommands.size() > 0) {
+						OutputMemoryStream packet;
+						replicationManagers[i].Write(packet, &clientProxy.deliveryManager, replicationManagers[i].replicationCommands);
+						sendPacket(packet, clientProxy.address);
 					}
-					clientProxies[i].lastReplicationSendTime = Time.time;
+					clientProxy.lastReplicationSendTime = Time.time;
 				}
 				// TODO(you): Reliability on top of UDP lab session
-				clientProxies[i].deliveryManager.processTimedOutPackets();
+				clientProxy.deliveryManager.processTimedOutPackets();
 			}
 		}
 	}

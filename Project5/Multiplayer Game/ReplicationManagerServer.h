@@ -10,7 +10,7 @@ public:
 	void Update(uint32 networkId);
 	void Destroy(uint32 networkId);
 
-	void Write(OutputMemoryStream& packet, DeliveryManagerServer* deliveryManager);
+	static void Write(OutputMemoryStream& packet, DeliveryManagerServer* deliveryManager, std::vector<ReplicationCommand> &commands);
 
-	std::vector<ReplicationCommand> commands;
+	std::vector<ReplicationCommand> replicationCommands;
 };

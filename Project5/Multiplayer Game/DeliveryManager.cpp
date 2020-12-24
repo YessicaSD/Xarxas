@@ -1,5 +1,6 @@
 #include "Networks.h"
 #include "DeliveryManager.h"
+#include <algorithm>
 
 // TODO(you): Reliability on top of UDP lab session
 
@@ -8,23 +9,43 @@ Delivery::Delivery(uint32 sequenceNumber, double dispatchTime) : sequenceNumber(
 
 Delivery* DeliveryManagerServer::writeSequenceNumber(OutputMemoryStream& packet)
 {
+
     Delivery* newDelivery = new Delivery(nextSequenceNum, Time.time + PACKET_TIMEOUT_INTERVAL);
     packet << nextSequenceNum;
-    nextSequenceNum++;
+    this->nextSequenceNum += 1;
     pendingDeliveries.push_back(newDelivery);
     return newDelivery;
 }
 
+void DeliveryManagerServer::processAckdSequenceNumbers(const InputMemoryStream& packet)
+{
+    int numberOfPacketRecived = 0;
+    packet >> numberOfPacketRecived;
+    for (int i = 0; i < numberOfPacketRecived; i++)
+    {
+        uint32 packetResivedIndex;
+        packet >> packetResivedIndex;
+        if (pendingDeliveries.size() > 0)
+        {
+            auto iter = std::find_if(pendingDeliveries.begin(), pendingDeliveries.end(), [packetResivedIndex](Delivery* d) {return d->sequenceNumber == packetResivedIndex; });
+            if (iter != pendingDeliveries.end())
+            {
+                pendingDeliveries.erase(iter);
+            }
+        }
+    }
+}
+
 void DeliveryManagerServer::processTimedOutPackets()
 {
-    for (auto i = pendingDeliveries.begin(); i != pendingDeliveries.end();)
+    auto i = pendingDeliveries.begin();
+    while (i != pendingDeliveries.end())
     {
         if ((*i)->dispatchTime < Time.time)
         {
-            // TODO execute callback onDeliveryFailed()
-          /*  if((*i)->delegate != nullptr)
-                (*i)->delegate->onDeliveryFailure(this);*/
-
+            if ((*i)->delegate != nullptr) {
+                (*i)->delegate->onDeliveryFailure(this);
+            }
             i = pendingDeliveries.erase(i);
         }
         else
@@ -42,15 +63,16 @@ bool DeliveryManagerClient::processSequenceNumber(const InputMemoryStream& packe
     pendingAck.push_back(sequenceNumber);
 
     if (sequenceNumber >= expectedSequenceNum) {
-        //send success
         expectedSequenceNum = expectedSequenceNum + 1;
+        //send success
+        //if we update a gameobject that has not been created, create it
         return true;
     }
     else if (sequenceNumber < expectedSequenceNum) {
         return false;
         //send success
+        return false;
     }
-
     return false;
 }
 
@@ -66,6 +88,23 @@ void DeliveryManagerClient::writeSequenceNumbersPendingAck(OutputMemoryStream& p
     {
         packet << (*i);
     }
-
+    pendingAck.clear();
 }
 
+DeliveryDelegate::DeliveryDelegate(Delivery* parent)
+    : parent(parent)
+{}
+
+DeliveryDelegateDestroy::DeliveryDelegateDestroy(Delivery* parent)
+    : DeliveryDelegate::DeliveryDelegate(parent)
+{}
+
+void DeliveryDelegateDestroy::onDeliverySuccess(DeliveryManagerServer* deliveryManager)
+{}
+
+void DeliveryDelegateDestroy::onDeliveryFailure(DeliveryManagerServer* deliveryManager)
+{
+    //ReplicationManagerServer;
+    OutputMemoryStream packet;
+    ReplicationManagerServer::Write(packet, deliveryManager, parent->indispensableCommands);
+}
