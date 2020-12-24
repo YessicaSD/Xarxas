@@ -5,7 +5,7 @@
 // TODO(you): World state replication lab session
 void ReplicationManagerClient::Read(const InputMemoryStream& packet, DeliveryManagerClient * deliveryManager)
 {
-	deliveryManager->processSequenceNumber(packet);
+	bool processPacket = deliveryManager->processSequenceNumber(packet);
 
 	while (packet.RemainingByteCount() != 0)
 	{
@@ -15,23 +15,31 @@ void ReplicationManagerClient::Read(const InputMemoryStream& packet, DeliveryMan
 
 		switch (command.action)
 		{
-			case ReplicationAction::Destroy: {
+			case ReplicationAction::Destroy: 
+			{
 				GameObject* obj = App->modLinkingContext->getNetworkGameObject(command.networkId);
 				App->modLinkingContext->unregisterNetworkGameObject(obj);
 				Destroy(obj);
 			} break;
 			case ReplicationAction::Create: {
-				instantiateGameObject(command.networkId, packet);
+				if (processPacket)
+				{
+					instantiateGameObject(command.networkId, packet);
+				}
 				//TODO JAUME: Put gameObject->isLocalPlayer to true when it's your spaceship
 			} break;
 			case ReplicationAction::Update:
 			{
-				GameObject* obj = App->modLinkingContext->getNetworkGameObject(command.networkId);
-				if (obj != nullptr)
+				if (processPacket)
 				{
-					packet >> obj->position;
-					packet >> obj->angle;
+					GameObject* obj = App->modLinkingContext->getNetworkGameObject(command.networkId);
+					if (obj != nullptr)
+					{
+						packet >> obj->position;
+						packet >> obj->angle;
+					}
 				}
+				
 			}break;
 		}
 	}

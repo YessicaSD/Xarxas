@@ -44,8 +44,10 @@ bool DeliveryManagerClient::processSequenceNumber(const InputMemoryStream& packe
     if (sequenceNumber >= expectedSequenceNum) {
         //send success
         expectedSequenceNum = expectedSequenceNum + 1;
+        return true;
     }
     else if (sequenceNumber < expectedSequenceNum) {
+        return false;
         //send success
     }
 
