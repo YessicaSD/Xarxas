@@ -55,7 +55,6 @@ void DeliveryManagerServer::processTimedOutPackets()
             }
 
             delete (*i);
-
             i = pendingDeliveries.erase(i);
         }
         else
