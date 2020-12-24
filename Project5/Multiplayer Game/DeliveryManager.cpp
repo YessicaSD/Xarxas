@@ -22,8 +22,8 @@ void DeliveryManagerServer::processTimedOutPackets()
         if ((*i)->dispatchTime < Time.time)
         {
             // TODO execute callback onDeliveryFailed()
-            if((*i)->delegate != nullptr)
-                (*i)->delegate->onDeliveryFailure(this);
+          /*  if((*i)->delegate != nullptr)
+                (*i)->delegate->onDeliveryFailure(this);*/
 
             i = pendingDeliveries.erase(i);
         }
@@ -54,7 +54,3 @@ bool DeliveryManagerClient::processSequenceNumber(const InputMemoryStream& packe
     return false;
 }
 
-void DeliveryDelegateCreate::onDeliverySuccess(DeliveryManagerServer* deliveryManager)
-{
-    deliveryManager->pendingDeliveries.erase();
-}
