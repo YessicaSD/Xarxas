@@ -53,3 +53,8 @@ bool DeliveryManagerClient::processSequenceNumber(const InputMemoryStream& packe
 
     return false;
 }
+
+void DeliveryDelegateCreate::onDeliverySuccess(DeliveryManagerServer* deliveryManager)
+{
+    deliveryManager->pendingDeliveries.erase();
+}

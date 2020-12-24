@@ -26,7 +26,7 @@ void ReplicationManagerServer::Write(OutputMemoryStream& packet, DeliveryManager
 	
 
 	Delivery * newDelivery = deliveryManager->writeSequenceNumber(packet);
-
+	newDelivery
 
 	//TODO JAUME: Register callbacks onto the next delivery
 

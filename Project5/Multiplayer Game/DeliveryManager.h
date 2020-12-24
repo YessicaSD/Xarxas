@@ -8,8 +8,8 @@ class DeliveryManagerServer;
 class DeliveryDelegate
 {
 public:
-	virtual void onDeliverySuccess(DeliveryManagerServer* deliveryManager) = 0;
-	virtual void onDeliveryFailure(DeliveryManagerServer* deliveryManager) = 0;
+	void onDeliverySuccess(DeliveryManagerServer* deliveryManager);
+	void onDeliveryFailure(DeliveryManagerServer* deliveryManager);
 };
 
 struct Delivery
@@ -32,6 +32,8 @@ private:
 	//Sender variables
 	uint32 nextSequenceNum;
 	std::vector<Delivery*> pendingDeliveries;
+
+	friend class DeliveryDelegateCreate;
 };
 
 class DeliveryManagerClient {
