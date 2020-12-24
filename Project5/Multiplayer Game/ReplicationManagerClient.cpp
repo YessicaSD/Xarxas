@@ -1,11 +1,11 @@
 #include "Networks.h"
 #include "ReplicationManagerClient.h"
+#include "DeliveryManager.h"
 
 // TODO(you): World state replication lab session
-void ReplicationManagerClient::Read(const InputMemoryStream& packet)
+void ReplicationManagerClient::Read(const InputMemoryStream& packet, DeliveryManagerClient * deliveryManager)
 {
-	uint32 packetNumber = 0;
-	packet >> packetNumber;
+	deliveryManager->processSequenceNumber(packet);
 
 	while (packet.RemainingByteCount() != 0)
 	{

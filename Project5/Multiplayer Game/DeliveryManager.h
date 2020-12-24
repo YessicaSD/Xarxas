@@ -35,6 +35,7 @@ private:
 };
 
 class DeliveryManagerClient {
+public:
 	bool processSequenceNumber(const InputMemoryStream& packet);
 	bool hasSequenceNumbersPendingAck() const;
 	void writeSequenceNumbersPendingAck(OutputMemoryStream& packet);

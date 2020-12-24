@@ -31,3 +31,21 @@ void DeliveryManagerServer::processTimedOutPackets()
         }
     }
 }
+
+bool DeliveryManagerClient::processSequenceNumber(const InputMemoryStream& packet)
+{
+    uint32 sequenceNumber = 0;
+    packet >> sequenceNumber;
+    
+    pendingAck.push_back(sequenceNumber);
+
+    if (sequenceNumber >= expectedSequenceNum) {
+        //send success
+        expectedSequenceNum = expectedSequenceNum + 1;
+    }
+    else if (sequenceNumber < expectedSequenceNum) {
+        //send success
+    }
+
+    return false;
+}
