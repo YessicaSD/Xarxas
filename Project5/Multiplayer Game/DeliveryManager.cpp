@@ -30,6 +30,11 @@ void DeliveryManagerServer::processAckdSequenceNumbers(const InputMemoryStream& 
             auto iter = std::find_if(pendingDeliveries.begin(), pendingDeliveries.end(), [packetResivedIndex](Delivery* d) {return d->sequenceNumber == packetResivedIndex; });
             if (iter != pendingDeliveries.end())
             {
+                if ((*iter)->delegate != nullptr)
+                {
+                    (*iter)->delegate->onDeliverySuccess(this);
+                }
+                delete (*iter);
                 pendingDeliveries.erase(iter);
             }
         }
