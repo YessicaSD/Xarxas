@@ -22,7 +22,9 @@ void DeliveryManagerServer::processTimedOutPackets()
         if ((*i)->dispatchTime < Time.time)
         {
             // TODO execute callback onDeliveryFailed()
-            // Remove delivery
+            if((*i)->delegate != nullptr)
+                (*i)->delegate->onDeliveryFailure(this);
+
             i = pendingDeliveries.erase(i);
         }
         else
