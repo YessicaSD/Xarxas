@@ -8,11 +8,30 @@ Delivery::Delivery(uint32 sequenceNumber, double dispatchTime) : sequenceNumber(
 
 Delivery* DeliveryManagerServer::writeSequenceNumber(OutputMemoryStream& packet)
 {
-    Delivery* newDelivery = new Delivery(nextSequenceNum, Time.time);
+    Delivery* newDelivery = new Delivery(nextSequenceNum, Time.time + PACKET_TIMEOUT_INTERVAL);
     packet << nextSequenceNum;
     nextSequenceNum++;
     pendingDeliveries.push_back(newDelivery);
     return newDelivery;
+}
+
+void DeliveryManagerServer::processTimedOutPackets()
+{
+    for (auto i = pendingDeliveries.begin(); i != pendingDeliveries.end();)
+    {
+        if ((*i)->dispatchTime < Time.time)
+        {
+            // TODO execute callback onDeliveryFailed()
+            if((*i)->delegate != nullptr)
+                (*i)->delegate->onDeliveryFailure(this);
+
+            i = pendingDeliveries.erase(i);
+        }
+        else
+        {
+            i++;
+        }
+    }
 }
 
 bool DeliveryManagerClient::processSequenceNumber(const InputMemoryStream& packet)

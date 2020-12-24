@@ -273,6 +273,7 @@ void ModuleNetworkingServer::onUpdate()
 					clientProxies[i].lastReplicationSendTime = Time.time;
 				}
 				// TODO(you): Reliability on top of UDP lab session
+				clientProxies[i].deliveryManager.processTimedOutPackets();
 			}
 		}
 	}
