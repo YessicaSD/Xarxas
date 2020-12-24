@@ -6,28 +6,26 @@
 
 void ReplicationManagerServer::Create(uint32 networkId)
 {
-	commands.push_back(ReplicationCommand(ReplicationAction::Create, networkId));
+	replicationCommands.push_back(ReplicationCommand(ReplicationAction::Create, networkId));
 }
 
 void ReplicationManagerServer::Update(uint32 networkId)
 {
-	commands.push_back(ReplicationCommand(ReplicationAction::Update, networkId));
+	replicationCommands.push_back(ReplicationCommand(ReplicationAction::Update, networkId));
 }
 
 void ReplicationManagerServer::Destroy(uint32 networkId)
 {
-	commands.push_back(ReplicationCommand(ReplicationAction::Destroy, networkId));
+	replicationCommands.push_back(ReplicationCommand(ReplicationAction::Destroy, networkId));
 }
 
-void ReplicationManagerServer::Write(OutputMemoryStream& packet, DeliveryManagerServer* deliveryManager)
+void ReplicationManagerServer::Write(OutputMemoryStream& packet, DeliveryManagerServer* deliveryManager, std::vector<ReplicationCommand> commands)
 {
 	packet << PROTOCOL_ID;
 	packet << ServerMessage::Replication;
 	
 
 	Delivery * newDelivery = deliveryManager->writeSequenceNumber(packet);
-	newDelivery
-
 	//TODO JAUME: Register callbacks onto the next delivery
 
 	for (ReplicationCommand command : commands) {
@@ -50,6 +48,14 @@ void ReplicationManagerServer::Write(OutputMemoryStream& packet, DeliveryManager
 					packet << gameObject->angle;
 				}
 				}break;
+			case ReplicationAction::Destroy: {
+				//If we're destroying, we want to make sure that that packet gets sent
+				newDelivery->indispensableCommands.push_back(command);
+				if (newDelivery->delegate == nullptr) {
+					newDelivery->delegate = new DeliveryDelegateDestroy(&newDelivery);
+				}
+				break;
+			}
 		}
 	}
 	commands.clear();

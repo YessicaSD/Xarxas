@@ -151,7 +151,7 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 				}
 
 				OutputMemoryStream packet;
-				currReplicationManager->Write(packet, &proxy->deliveryManager);
+				currReplicationManager->Write(packet, &proxy->deliveryManager, currReplicationManager->replicationCommands);
 				sendPacket(packet, proxy->address);
 
 				LOG("Message received: hello - from player %s", proxy->name.c_str());
@@ -265,9 +265,9 @@ void ModuleNetworkingServer::onUpdate()
 				if (Time.time > clientProxies[i].lastReplicationSendTime + REPLICATION_SEND_INTERVAL) {
 					OutputMemoryStream packet;
 
-					if (replicationManagers[i].commands.size() > 0) {
+					if (replicationManagers[i].replicationCommands.size() > 0) {
 						
-						replicationManagers[i].Write(packet, &clientProxies[i].deliveryManager);
+						replicationManagers[i].Write(packet, &clientProxies[i].deliveryManager, );
 						sendPacket(packet, clientProxies[i].address);
 					}
 					clientProxies[i].lastReplicationSendTime = Time.time;

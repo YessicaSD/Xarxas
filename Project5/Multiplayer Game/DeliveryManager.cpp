@@ -17,15 +17,15 @@ Delivery* DeliveryManagerServer::writeSequenceNumber(OutputMemoryStream& packet)
 
 void DeliveryManagerServer::processTimedOutPackets()
 {
-    for (auto i = pendingDeliveries.begin(); i != pendingDeliveries.end();)
+    auto i = pendingDeliveries.begin();
+    while (i != pendingDeliveries.end())
     {
         if ((*i)->dispatchTime < Time.time)
         {
-            // TODO execute callback onDeliveryFailed()
-            if((*i)->delegate != nullptr)
+            if ((*i)->delegate != nullptr) {
                 (*i)->delegate->onDeliveryFailure(this);
-
-            i = pendingDeliveries.erase(i);
+            }
+            pendingDeliveries.erase(i);
         }
         else
         {
@@ -46,17 +46,31 @@ bool DeliveryManagerClient::processSequenceNumber(const InputMemoryStream& packe
         expectedSequenceNum = expectedSequenceNum + 1;
 
         //if we update a gameobject that has not been created, create it
+        return true;
     }
     else if (sequenceNumber < expectedSequenceNum) {
         //only process if it's a destroy
         
         //send success
+        return false;
     }
-
     return false;
 }
 
-void DeliveryDelegateCreate::onDeliverySuccess(DeliveryManagerServer* deliveryManager)
+DeliveryDelegateDestroy::DeliveryDelegateDestroy(Delivery* parent) : DeliveryDelegate::DeliveryDelegate(parent)
 {
-    deliveryManager->pendingDeliveries.erase();
+}
+
+void DeliveryDelegateDestroy::onDeliverySuccess(DeliveryManagerServer* deliveryManager)
+{}
+
+void DeliveryDelegateDestroy::onDeliveryFailure(DeliveryManagerServer* deliveryManager)
+{
+    //ReplicationManagerServer;
+    OutputMemoryStream packet;
+    ReplicationManagerServer::Write(packet, deliveryManager, parent->indispensableCommands);
+}
+
+DeliveryDelegate::DeliveryDelegate(Delivery* parent) : parent(parent)
+{
 }
