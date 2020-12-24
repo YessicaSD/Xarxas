@@ -8,9 +8,20 @@ Delivery::Delivery(uint32 sequenceNumber, double dispatchTime) : sequenceNumber(
 
 Delivery* DeliveryManagerServer::writeSequenceNumber(OutputMemoryStream& packet)
 {
-    Delivery* newDelivery = new Delivery(nextSequenceNum, Time.time);
+    Delivery* newDelivery = new Delivery(nextSequenceNum, Time.time + PACKET_TIMEOUT_INTERVAL);
     packet << nextSequenceNum;
     nextSequenceNum++;
     pendingDeliveries.push_back(newDelivery);
     return newDelivery;
+}
+
+void DeliveryManagerServer::processTimedOutPackets()
+{
+    for (auto i = pendingDeliveries.begin(); i != pendingDeliveries.end(); i++)
+    {
+        if ((*i)->dispatchTime < Time.time)
+        {
+
+        }
+    }
 }
