@@ -33,6 +33,7 @@ struct Delivery
 	DeliveryDelegate* delegate = nullptr;
 	
 	std::vector<ReplicationCommand> indispensableCommands;
+
 };
 
 class DeliveryManagerServer
@@ -45,7 +46,7 @@ public:
 
 private:
 	//Sender variables
-	uint32 nextSequenceNum;
+	uint32 nextSequenceNum = 0;
 	std::vector<Delivery*> pendingDeliveries;
 
 	friend class DeliveryDelegate;
@@ -62,6 +63,6 @@ private:
 	//Receiver variables
 	uint32 expectedSequenceNum;
 	//- List of sequence number pending acknoweledgment
-	std::vector<int> pendingAck;
+	std::vector<uint32> pendingAck;
 };
 

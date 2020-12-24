@@ -173,13 +173,7 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 			{
 				proxy->lastPacketReceivedTime = Time.time;
 
-				int numberOfPacketRecived = 0;
-				packet >> numberOfPacketRecived;
-				for (int i = 0; i < numberOfPacketRecived; i++)
-				{
-					int packetResivedIndex;
-					packet >> packetResivedIndex;
-				}
+				proxy->deliveryManager.processAckdSequenceNumbers(packet);
 
 				// Read input data
 				while (packet.RemainingByteCount() > 0)
@@ -246,7 +240,7 @@ void ModuleNetworkingServer::onUpdate()
 
 		for (int i = 0; i < MAX_CLIENTS; ++i) 
 		{
-			ClientProxy clientProxy = clientProxies[i];
+			ClientProxy& clientProxy = clientProxies[i];
 			if (clientProxy.connected) {
 				// TODO(you): UDP virtual connection lab session
 				if (clientProxy.sendInputConfirmation == true && Time.time > clientProxy.lastInputConfirmationTime + INPUT_CONFIRMATION_INTERVAL)
