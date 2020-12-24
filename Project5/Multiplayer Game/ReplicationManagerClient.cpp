@@ -4,6 +4,8 @@
 // TODO(you): World state replication lab session
 void ReplicationManagerClient::Read(const InputMemoryStream& packet)
 {
+	uint32 packetNumber = 0;
+	packet >> packetNumber;
 
 	while (packet.RemainingByteCount() != 0)
 	{

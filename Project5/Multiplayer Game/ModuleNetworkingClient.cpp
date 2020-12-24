@@ -137,7 +137,7 @@ void ModuleNetworkingClient::onPacketReceived(const InputMemoryStream &packet, c
 			// Receive the last input received
 			packet >> inputDataFront;
 			//// Clear the queue
-			//inputDataFront = inputDataBack;
+			inputDataFront = inputDataBack;
 		}
 	}
 

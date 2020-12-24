@@ -46,3 +46,4 @@ private:
 	//- List of sequence number pending acknoweledgment
 	std::vector<int> pendingAck;
 };
+
