@@ -3,13 +3,13 @@
 
 // TODO(you): Reliability on top of UDP lab session
 
-class DeliveryManager;
+class DeliveryManagerServer;
 
 class DeliveryDelegate
 {
 public:
-	virtual void onDeliverySuccess(DeliveryManager* deliveryManager) = 0;
-	virtual void onDeliveryFailure(DeliveryManager* deliveryManager) = 0;
+	virtual void onDeliverySuccess(DeliveryManagerServer* deliveryManager) = 0;
+	virtual void onDeliveryFailure(DeliveryManagerServer* deliveryManager) = 0;
 };
 
 struct Delivery
@@ -20,13 +20,10 @@ struct Delivery
 	DeliveryDelegate* delegate = nullptr;
 };
 
-class DeliveryManager
+class DeliveryManagerServer
 {
 public:
 	Delivery* writeSequenceNumber(OutputMemoryStream& packet);
-	bool processSequenceNumber(const InputMemoryStream& packet);
-	bool hasSequenceNumbersPendingAck() const;
-	void writeSequenceNumbersPendingAck(OutputMemoryStream& packet);
 	void processAckdSequenceNumbers(const InputMemoryStream& packet);
 	void processTimedOutPackets();
 	void clear();
@@ -35,7 +32,15 @@ private:
 	//Sender variables
 	uint32 nextSequenceNum;
 	std::vector<Delivery*> pendingDeliveries;
+};
 
+class DeliveryManagerClient {
+	bool processSequenceNumber(const InputMemoryStream& packet);
+	bool hasSequenceNumbersPendingAck() const;
+	void writeSequenceNumbersPendingAck(OutputMemoryStream& packet);
+	void clear();
+
+private:
 	//Receiver variables
 	uint32 expectedSequenceNum;
 	//- List of sequence number pending acknoweledgment

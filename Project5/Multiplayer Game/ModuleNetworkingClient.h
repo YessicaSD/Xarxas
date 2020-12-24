@@ -87,7 +87,7 @@ private:
 	// TODO(you): UDP virtual connection lab session
 
 	ReplicationManagerClient replicationManager;
-	DeliveryManager deliveryManager;
+	DeliveryManagerClient deliveryManager;
 
 
 

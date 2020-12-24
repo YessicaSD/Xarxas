@@ -62,7 +62,7 @@ private:
 		double lastReplicationSendTime = 0.0;
 		double lastInputConfirmationTime = 0.0;
 
-		DeliveryManager deliveryManager;
+		DeliveryManagerServer deliveryManager;
 	};
 
 	ClientProxy clientProxies[MAX_CLIENTS];

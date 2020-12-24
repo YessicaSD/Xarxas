@@ -19,7 +19,7 @@ void ReplicationManagerServer::Destroy(uint32 networkId)
 	commands.push_back(ReplicationCommand(ReplicationAction::Destroy, networkId));
 }
 
-void ReplicationManagerServer::Write(OutputMemoryStream& packet, DeliveryManager* deliveryManager)
+void ReplicationManagerServer::Write(OutputMemoryStream& packet, DeliveryManagerServer* deliveryManager)
 {
 	packet << PROTOCOL_ID;
 	packet << ServerMessage::Replication;

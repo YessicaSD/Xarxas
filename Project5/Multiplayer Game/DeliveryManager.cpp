@@ -6,7 +6,7 @@
 Delivery::Delivery(uint32 sequenceNumber, double dispatchTime) : sequenceNumber(sequenceNumber), dispatchTime(dispatchTime)
 {}
 
-Delivery* DeliveryManager::writeSequenceNumber(OutputMemoryStream& packet)
+Delivery* DeliveryManagerServer::writeSequenceNumber(OutputMemoryStream& packet)
 {
     Delivery* newDelivery = new Delivery(nextSequenceNum, Time.time);
     packet << nextSequenceNum;
