@@ -199,7 +199,15 @@ void ModuleNetworkingClient::onUpdate()
 			packet << PROTOCOL_ID;
 			packet << ClientMessage::Input;
 
-			// TODO(you): Reliability on top of UDP lab session
+			// acknowledgment packet
+			if (this->deliveryManager.hasSequenceNumbersPendingAck())
+			{
+				this->deliveryManager.writeSequenceNumbersPendingAck(packet);
+			}
+			else
+			{
+				packet << (int)0;
+			}
 
 			for (uint32 i = inputDataFront; i < inputDataBack; ++i)
 			{
@@ -209,6 +217,9 @@ void ModuleNetworkingClient::onUpdate()
 				packet << inputPacketData.verticalAxis;
 				packet << inputPacketData.buttonBits;
 			}
+
+
+			
 
 			sendPacket(packet, serverAddress);
 		}

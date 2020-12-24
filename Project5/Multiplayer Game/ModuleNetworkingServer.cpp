@@ -171,8 +171,15 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 			// Process the input packet and update the corresponding game object
 			if (proxy != nullptr && IsValid(proxy->gameObject))
 			{
-				// TODO(you): Reliability on top of UDP lab session
 				proxy->lastPacketReceivedTime = Time.time;
+
+				int numberOfPacketRecived = 0;
+				packet >> numberOfPacketRecived;
+				for (int i = 0; i < numberOfPacketRecived; i++)
+				{
+					int packetResivedIndex;
+					packet >> packetResivedIndex;
+				}
 
 				// Read input data
 				while (packet.RemainingByteCount() > 0)

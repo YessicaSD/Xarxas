@@ -54,3 +54,18 @@ bool DeliveryManagerClient::processSequenceNumber(const InputMemoryStream& packe
     return false;
 }
 
+bool DeliveryManagerClient::hasSequenceNumbersPendingAck() const
+{
+    return pendingAck.size()!=0;
+}
+
+void DeliveryManagerClient::writeSequenceNumbersPendingAck(OutputMemoryStream& packet)
+{
+    packet << (int)pendingAck.size();
+    for (auto i = pendingAck.begin(); i < pendingAck.end(); i++)
+    {
+        packet << (*i);
+    }
+
+}
+
