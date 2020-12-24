@@ -47,15 +47,15 @@ void ReplicationManagerClient::instantiateGameObject(uint32 networkId, const Inp
 {
 	GameObject* gameObject;
 	GameObject helperGO;
-	//if (processCommand)
-	//{
+	if (processCommand)
+	{
 		gameObject = App->modGameObject->Instantiate();
 		App->modLinkingContext->registerNetworkGameObjectWithNetworkId(gameObject, networkId);
-	//}
-	//else
-	//{
-	//	gameObject = &helperGO;
-	//}
+	}
+	else
+	{
+		gameObject = &helperGO;
+	}
 
 	BehaviourType behaviour;
 	packet >> behaviour;
@@ -65,43 +65,43 @@ void ReplicationManagerClient::instantiateGameObject(uint32 networkId, const Inp
 	std::string texture_filename;
 	packet >> texture_filename;
 
+	if (processCommand)
+	{
+		switch (behaviour) {
+		case BehaviourType::Spaceship:
+		{
+			gameObject->behaviour = App->modBehaviour->addSpaceship(gameObject);
+			gameObject->sprite = App->modRender->addSprite(gameObject);
+			gameObject->sprite->order = 5;
+			if (texture_filename == App->modResources->spacecraft1->filename) {
+				gameObject->sprite->texture = App->modResources->spacecraft1;
+			}
+			else if (texture_filename == App->modResources->spacecraft2->filename) {
+				gameObject->sprite->texture = App->modResources->spacecraft2;
+			}
+			else if (texture_filename == App->modResources->spacecraft3->filename) {
+				gameObject->sprite->texture = App->modResources->spacecraft3;
+			}
+			gameObject->collider = App->modCollision->addCollider(ColliderType::Player, gameObject);
+			gameObject->collider->isTrigger = true;
+		} break;
+		case BehaviourType::Laser:
+		{
+			gameObject->behaviour = App->modBehaviour->addLaser(gameObject);
+			gameObject->sprite = App->modRender->addSprite(gameObject);
+			gameObject->sprite->order = 5;
+			gameObject->sprite->texture = App->modResources->laser;
+			gameObject->collider = App->modCollision->addCollider(ColliderType::Laser, gameObject);
+			gameObject->collider->isTrigger = true;
+		} break;
+		case BehaviourType::None:
+		{
 
-	switch (behaviour) {
-	case BehaviourType::Spaceship:
-	{
-		gameObject->behaviour = App->modBehaviour->addSpaceship(gameObject);
-		gameObject->sprite = App->modRender->addSprite(gameObject);
-		gameObject->sprite->order = 5;
-		if (texture_filename == App->modResources->spacecraft1->filename) {
-			gameObject->sprite->texture = App->modResources->spacecraft1;
-		}
-		else if (texture_filename == App->modResources->spacecraft2->filename) {
-			gameObject->sprite->texture = App->modResources->spacecraft2;
-		}
-		else if (texture_filename == App->modResources->spacecraft3->filename) {
-			gameObject->sprite->texture = App->modResources->spacecraft3;
-		}
-		gameObject->collider = App->modCollision->addCollider(ColliderType::Player, gameObject);
-		gameObject->collider->isTrigger = true;
-	} break;
-	case BehaviourType::Laser:
-	{
-		gameObject->behaviour = App->modBehaviour->addLaser(gameObject);
-		gameObject->sprite = App->modRender->addSprite(gameObject);
-		gameObject->sprite->order = 5;
-		gameObject->sprite->texture = App->modResources->laser;
-		gameObject->collider = App->modCollision->addCollider(ColliderType::Laser, gameObject);
-		gameObject->collider->isTrigger = true;
-	} break;
-	case BehaviourType::None:
-	{
+		} break;
+		default:
+		{
 
-	} break;
-	default:
-	{
-
-	} break;
+		} break;
+		}
 	}
-
-	
 }

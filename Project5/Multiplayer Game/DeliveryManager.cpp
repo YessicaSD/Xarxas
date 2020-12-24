@@ -27,7 +27,9 @@ void DeliveryManagerServer::processAckdSequenceNumbers(const InputMemoryStream& 
         packet >> packetResivedIndex;
         if (pendingDeliveries.size() > 0)
         {
-            auto iter = std::find_if(pendingDeliveries.begin(), pendingDeliveries.end(), [packetResivedIndex](Delivery* d) {return d->sequenceNumber == packetResivedIndex; });
+            auto iter = std::find_if(pendingDeliveries.begin(), pendingDeliveries.end(),
+                        [packetResivedIndex](Delivery* d) {return d->sequenceNumber == packetResivedIndex; });
+            
             if (iter != pendingDeliveries.end())
             {
                 if ((*iter)->delegate != nullptr)
@@ -51,6 +53,9 @@ void DeliveryManagerServer::processTimedOutPackets()
             if ((*i)->delegate != nullptr) {
                 (*i)->delegate->onDeliveryFailure(this);
             }
+
+            delete (*i);
+
             i = pendingDeliveries.erase(i);
         }
         else
