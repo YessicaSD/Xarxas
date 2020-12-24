@@ -17,11 +17,17 @@ Delivery* DeliveryManagerServer::writeSequenceNumber(OutputMemoryStream& packet)
 
 void DeliveryManagerServer::processTimedOutPackets()
 {
-    for (auto i = pendingDeliveries.begin(); i != pendingDeliveries.end(); i++)
+    for (auto i = pendingDeliveries.begin(); i != pendingDeliveries.end();)
     {
         if ((*i)->dispatchTime < Time.time)
         {
-
+            // TODO execute callback onDeliveryFailed()
+            // Remove delivery
+            i = pendingDeliveries.erase(i);
+        }
+        else
+        {
+            i++;
         }
     }
 }
