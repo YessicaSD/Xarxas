@@ -23,7 +23,11 @@ void ReplicationManagerServer::Write(OutputMemoryStream& packet, DeliveryManager
 {
 	packet << PROTOCOL_ID;
 	packet << ServerMessage::Replication;
+	
+
 	Delivery * newDelivery = deliveryManager->writeSequenceNumber(packet);
+
+
 	//TODO JAUME: Register callbacks onto the next delivery
 
 	for (ReplicationCommand command : commands) {
