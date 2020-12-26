@@ -27,10 +27,8 @@ void ReplicationManagerClient::Read(const InputMemoryStream& packet, DeliveryMan
 			case ReplicationAction::Create: 
 			{
 				instantiateGameObject(command.networkId, packet, processPacket);
-<<<<<<< HEAD
 				//TODO JAUME: Put gameObject->isLocalPlayer to true when it's your spaceship
-=======
->>>>>>> be643306649ddcf2583b7fc009a8f1b2da6a866c
+
 			}
 			break;
 			case ReplicationAction::Update:
@@ -97,14 +95,12 @@ void ReplicationManagerClient::instantiateGameObject(uint32 networkId, const Inp
 		case BehaviourType::Spaceship:
 		{
 			gameObject->behaviour = App->modBehaviour->addSpaceship(gameObject);
-<<<<<<< HEAD
 			if (processCommand && gameObject->interpolation == nullptr)
 			{
 				 //gameObject->interpolation = (Interpolation*) App->modComponent->GetComponent<Interpolation>(gameObject);
 			}
-=======
 			packet >> gameObject->behaviour->isLocalPlayer;
->>>>>>> be643306649ddcf2583b7fc009a8f1b2da6a866c
+
 
 			gameObject->sprite = App->modRender->addSprite(gameObject);
 			gameObject->sprite->order = 5;
