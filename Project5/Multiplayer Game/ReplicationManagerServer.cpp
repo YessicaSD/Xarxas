@@ -27,36 +27,43 @@ void ReplicationManagerServer::Write(OutputMemoryStream& packet, DeliveryManager
 	Delivery * newDelivery = deliveryManager->writeSequenceNumber(packet);
 
 	for (ReplicationCommand command : commands) {
-		packet << command.networkId;
-		packet << command.action;
-
 		switch (command.action) {
 			case ReplicationAction::Create: {
 				GameObject* gameObject = App->modLinkingContext->getNetworkGameObject(command.networkId);
-				BehaviourType behaviour = gameObject->behaviour == nullptr ? BehaviourType::None : gameObject->behaviour->type();
-				packet << behaviour;
-				packet << gameObject->position;
-				packet << gameObject->angle;
-				packet << gameObject->size;
-				packet << std::string(gameObject->sprite->texture->filename);
-				switch (behaviour) {
-					case BehaviourType::Spaceship: {
-						//Is isLocalPlayer true on the client?
-						packet << (gameObject->networkId == playerNetworkId);
-					} break;
-					default: {
+				if (gameObject != nullptr) {
+					packet << command.networkId;
+					packet << command.action;
 
-					} break;
+					BehaviourType behaviour = gameObject->behaviour == nullptr ? BehaviourType::None : gameObject->behaviour->type();
+					packet << behaviour;
+					packet << gameObject->position;
+					packet << gameObject->angle;
+					packet << gameObject->size;
+					packet << std::string(gameObject->sprite->texture->filename);
+					switch (behaviour) {
+						case BehaviourType::Spaceship: {
+							//Is isLocalPlayer true on the client?
+							packet << (bool)(gameObject->networkId == playerNetworkId);
+						} break;
+						default: {
+						} break;
+					}
 				}
 				}break;
 			case ReplicationAction::Update:{
 				GameObject* gameObject = App->modLinkingContext->getNetworkGameObject(command.networkId);
 				if (gameObject != nullptr) {
+					packet << command.networkId;
+					packet << command.action;
+
 					packet << gameObject->position;
 					packet << gameObject->angle;
 				}
 				}break;
 			case ReplicationAction::Destroy: {
+				packet << command.networkId;
+				packet << command.action;
+
 				//If we're destroying, we want to make sure that that packet gets sent
 				newDelivery->indispensableCommands.push_back(command);
 				if (newDelivery->delegate == nullptr) {

@@ -45,21 +45,16 @@ void DeliveryManagerServer::processAckdSequenceNumbers(const InputMemoryStream& 
 
 void DeliveryManagerServer::processTimedOutPackets()
 {
-    auto i = pendingDeliveries.begin();
-    while (i != pendingDeliveries.end())
+    for (int i = pendingDeliveries.size() - 1; i >= 0; --i)
     {
-        if ((*i)->dispatchTime < Time.time)
+        if (pendingDeliveries[i]->dispatchTime < Time.time)
         {
-            if ((*i)->delegate != nullptr) {
-                (*i)->delegate->onDeliveryFailure(this);
+            if (pendingDeliveries[i]->delegate != nullptr) {
+                pendingDeliveries[i]->delegate->onDeliveryFailure(this);
             }
 
-            delete (*i);
-            i = pendingDeliveries.erase(i);
-        }
-        else
-        {
-            i++;
+            delete pendingDeliveries[i];
+            pendingDeliveries.erase(pendingDeliveries.begin() + i);
         }
     }
 }
