@@ -19,58 +19,58 @@ void ReplicationManagerServer::Destroy(uint32 networkId)
 	replicationCommands.push_back(ReplicationCommand(ReplicationAction::Destroy, networkId));
 }
 
-void ReplicationManagerServer::Write(OutputMemoryStream& packet, DeliveryManagerServer* deliveryManager, std::vector<ReplicationCommand> &commands, uint32 playerNetworkId)
+void ReplicationManagerServer::Write(OutputMemoryStream& packet, DeliveryManagerServer* deliveryManager, std::vector<ReplicationCommand>& commands, uint32 playerNetworkId)
 {
 	packet << PROTOCOL_ID;
 	packet << ServerMessage::Replication;
 
-	Delivery * newDelivery = deliveryManager->writeSequenceNumber(packet);
+	Delivery* newDelivery = deliveryManager->writeSequenceNumber(packet);
 
 	for (ReplicationCommand command : commands) {
 		switch (command.action) {
-			case ReplicationAction::Create: {
-				GameObject* gameObject = App->modLinkingContext->getNetworkGameObject(command.networkId);
-				if (gameObject != nullptr) {
-					packet << command.networkId;
-					packet << command.action;
-
-					BehaviourType behaviour = gameObject->behaviour == nullptr ? BehaviourType::None : gameObject->behaviour->type();
-					packet << behaviour;
-					packet << gameObject->position;
-					packet << gameObject->angle;
-					packet << gameObject->size;
-					packet << std::string(gameObject->sprite->texture->filename);
-					switch (behaviour) {
-						case BehaviourType::Spaceship: {
-							//Is isLocalPlayer true on the client?
-							packet << (bool)(gameObject->networkId == playerNetworkId);
-						} break;
-						default: {
-						} break;
-					}
-				}
-				}break;
-			case ReplicationAction::Update:{
-				GameObject* gameObject = App->modLinkingContext->getNetworkGameObject(command.networkId);
-				if (gameObject != nullptr) {
-					packet << command.networkId;
-					packet << command.action;
-
-					packet << gameObject->position;
-					packet << gameObject->angle;
-				}
-				}break;
-			case ReplicationAction::Destroy: {
+		case ReplicationAction::Create: {
+			GameObject* gameObject = App->modLinkingContext->getNetworkGameObject(command.networkId);
+			if (gameObject != nullptr) {
 				packet << command.networkId;
 				packet << command.action;
 
-				//If we're destroying, we want to make sure that that packet gets sent
-				newDelivery->indispensableCommands.push_back(command);
-				if (newDelivery->delegate == nullptr) {
-					newDelivery->delegate = new DeliveryDelegateDestroy(newDelivery);
+				BehaviourType behaviour = gameObject->behaviour == nullptr ? BehaviourType::None : gameObject->behaviour->type();
+				packet << behaviour;
+				packet << gameObject->position;
+				packet << gameObject->angle;
+				packet << gameObject->size;
+				packet << std::string(gameObject->sprite->texture->filename);
+				switch (behaviour) {
+				case BehaviourType::Spaceship: {
+					//Is isLocalPlayer true on the client?
+					packet << (bool)(gameObject->networkId == playerNetworkId);
+				} break;
+				default: {
+				} break;
 				}
-				break;
 			}
+		}break;
+		case ReplicationAction::Update: {
+			GameObject* gameObject = App->modLinkingContext->getNetworkGameObject(command.networkId);
+			if (gameObject != nullptr) {
+				packet << command.networkId;
+				packet << command.action;
+
+				packet << gameObject->position;
+				packet << gameObject->angle;
+			}
+		}break;
+		case ReplicationAction::Destroy: {
+			packet << command.networkId;
+			packet << command.action;
+
+			//If we're destroying, we want to make sure that that packet gets sent
+			newDelivery->indispensableCommands.push_back(command);
+			if (newDelivery->delegate == nullptr) {
+				newDelivery->delegate = new DeliveryDelegateDestroy(newDelivery);
+			}
+			break;
+		}
 		}
 	}
 	commands.clear();

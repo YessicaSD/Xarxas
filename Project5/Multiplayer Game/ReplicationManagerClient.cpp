@@ -5,7 +5,7 @@
 
 
 // TODO(you): World state replication lab session
-void ReplicationManagerClient::Read(const InputMemoryStream& packet, DeliveryManagerClient * deliveryManager)
+void ReplicationManagerClient::Read(const InputMemoryStream& packet, DeliveryManagerClient* deliveryManager)
 {
 	bool processPacket = deliveryManager->processSequenceNumber(packet);
 
@@ -14,7 +14,7 @@ void ReplicationManagerClient::Read(const InputMemoryStream& packet, DeliveryMan
 		ReplicationCommand command;
 		packet >> command.networkId;
 		packet >> command.action;
-		
+
 		GameObject* gObj = App->modLinkingContext->getNetworkGameObject(command.networkId);
 		if (gObj != nullptr
 			&& gObj->behaviour != nullptr) {
@@ -23,66 +23,60 @@ void ReplicationManagerClient::Read(const InputMemoryStream& packet, DeliveryMan
 		else {
 			LOG("behaviour: unknown");
 		}
-		
+
 		LOG("action:    %i", command.action);
 
 		switch (command.action)
 		{
-			case ReplicationAction::Destroy: 
-			{
-				GameObject* obj = App->modLinkingContext->getNetworkGameObject(command.networkId);
-				App->modLinkingContext->unregisterNetworkGameObject(obj);
-				Destroy(obj);
-			} break;
+		case ReplicationAction::Destroy:
+		{
+			GameObject* obj = App->modLinkingContext->getNetworkGameObject(command.networkId);
+			App->modLinkingContext->unregisterNetworkGameObject(obj);
+			Destroy(obj);
+		} break;
 
-			case ReplicationAction::Create: 
-			{
-				instantiateGameObject(command.networkId, packet, processPacket);
-				//TODO JAUME: Put gameObject->isLocalPlayer to true when it's your spaceship
+		case ReplicationAction::Create:
+		{
+			instantiateGameObject(command.networkId, packet, processPacket);
+			//TODO JAUME: Put gameObject->isLocalPlayer to true when it's your spaceship
 
-			}
-			break;
-			case ReplicationAction::Update:
+		}
+		break;
+		case ReplicationAction::Update:
+		{
+			GameObject helperObj;
+			GameObject* obj = (processPacket) ? App->modLinkingContext->getNetworkGameObject(command.networkId) : &helperObj;
+
+			ASSERT(obj != nullptr);
+			if (obj != nullptr)
 			{
-				GameObject helperObj;
-				GameObject* obj = (processPacket) ? App->modLinkingContext->getNetworkGameObject(command.networkId) : &helperObj;
-			
-				ASSERT(obj != nullptr);
-				if (obj != nullptr)
+				if (obj->interpolation != nullptr)
 				{
-					if (obj->interpolation != nullptr)
-					{
-						vec2 final_pos;
-						float final_angle;
+					obj->interpolation->doLerp = true;
+					obj->interpolation->initial_position = obj->position;
+					obj->interpolation->initial_angle = obj->angle;
 
-						packet >> final_pos;
-						packet >> final_angle;
-						
-						obj->interpolation->SetFinal(final_pos, final_angle);
-						obj->interpolation->doLerp = true;
-						/*obj->interpolation->initial_position = obj->position;
-						obj->interpolation->initial_angle = obj->angle;*/
-
-						
-					}
-					else
-					{
-						packet >> obj->position;
-						packet >> obj->angle;
-					}
-					
+					packet >> obj->interpolation->final_position;
+					packet >> obj->interpolation->final_angle;
+				}
+				else
+				{
+					packet >> obj->position;
+					packet >> obj->angle;
 				}
 
-			}break;
-			default: {
-				LOG("Invalid case");
-			} break;
+			}
+
+		}break;
+		default: {
+			LOG("Invalid case");
+		} break;
 		}
 	}
-	
+
 }
 
-void ReplicationManagerClient::instantiateGameObject(uint32 networkId, const InputMemoryStream& packet, bool processCommand) 
+void ReplicationManagerClient::instantiateGameObject(uint32 networkId, const InputMemoryStream& packet, bool processCommand)
 {
 	//TODO JAUME: Put gameObject->isLocalPlayer to true when it's your spaceship
 
@@ -109,49 +103,10 @@ void ReplicationManagerClient::instantiateGameObject(uint32 networkId, const Inp
 	switch (behaviour) {
 	case BehaviourType::Spaceship:
 	{
-		switch (behaviour) {
-		case BehaviourType::Spaceship:
+		gameObject->behaviour = App->modBehaviour->addSpaceship(gameObject);
+		if (processCommand && gameObject->interpolation == nullptr)
 		{
-			gameObject->behaviour = App->modBehaviour->addSpaceship(gameObject);
-			if (processCommand && gameObject->interpolation == nullptr)
-			{
-				 gameObject->interpolation = (Interpolation*) App->modComponent->GetComponent<Interpolation>(gameObject);
-			}
-			packet >> gameObject->behaviour->isLocalPlayer;
-
-
-			gameObject->sprite = App->modRender->addSprite(gameObject);
-			gameObject->sprite->order = 5;
-			if (texture_filename == App->modResources->spacecraft1->filename) {
-				gameObject->sprite->texture = App->modResources->spacecraft1;
-			}
-			else if (texture_filename == App->modResources->spacecraft2->filename) {
-				gameObject->sprite->texture = App->modResources->spacecraft2;
-			}
-			else if (texture_filename == App->modResources->spacecraft3->filename) {
-				gameObject->sprite->texture = App->modResources->spacecraft3;
-			}
-			gameObject->collider = App->modCollision->addCollider(ColliderType::Player, gameObject);
-			gameObject->collider->isTrigger = true;
-
-
-		} break;
-		case BehaviourType::Laser:
-		{
-			gameObject->behaviour = App->modBehaviour->addLaser(gameObject);
-			gameObject->sprite = App->modRender->addSprite(gameObject);
-			gameObject->sprite->order = 5;
-			gameObject->sprite->texture = App->modResources->laser;
-			gameObject->collider = App->modCollision->addCollider(ColliderType::Laser, gameObject);
-			gameObject->collider->isTrigger = true;
-		} break;
-		case BehaviourType::None:
-		{
-
-		} break;
-		default:
-		{
-			 //gameObject->interpolation = (Interpolation*) App->modComponent->GetComponent<Interpolation>(gameObject);
+			//gameObject->interpolation = (Interpolation*) App->modComponent->GetComponent<Interpolation>(gameObject);
 		}
 		packet >> gameObject->behaviour->isLocalPlayer;
 
