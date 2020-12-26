@@ -14,6 +14,17 @@ void ReplicationManagerClient::Read(const InputMemoryStream& packet, DeliveryMan
 		ReplicationCommand command;
 		packet >> command.networkId;
 		packet >> command.action;
+		
+		GameObject* gObj = App->modLinkingContext->getNetworkGameObject(command.networkId);
+		if (gObj != nullptr
+			&& gObj->behaviour != nullptr) {
+			LOG("behaviour: %i", gObj->behaviour->type());
+		}
+		else {
+			LOG("behaviour: unknown");
+		}
+		
+		LOG("action:    %i", command.action);
 
 		switch (command.action)
 		{
@@ -36,6 +47,7 @@ void ReplicationManagerClient::Read(const InputMemoryStream& packet, DeliveryMan
 				GameObject helperObj;
 				GameObject* obj = (processPacket) ? App->modLinkingContext->getNetworkGameObject(command.networkId) : &helperObj;
 			
+				ASSERT(obj != nullptr);
 				if (obj != nullptr)
 				{
 					if (obj->interpolation != nullptr)
@@ -60,7 +72,6 @@ void ReplicationManagerClient::Read(const InputMemoryStream& packet, DeliveryMan
 					}
 					
 				}
-				
 
 			}break;
 			default: {
@@ -76,7 +87,7 @@ void ReplicationManagerClient::instantiateGameObject(uint32 networkId, const Inp
 	//TODO JAUME: Put gameObject->isLocalPlayer to true when it's your spaceship
 
 	GameObject* gameObject = nullptr;
-	GameObject helperGO;
+	GameObject disposableGObj;
 	if (processCommand)
 	{
 		gameObject = App->modGameObject->Instantiate();
@@ -84,7 +95,7 @@ void ReplicationManagerClient::instantiateGameObject(uint32 networkId, const Inp
 	}
 	else
 	{
-		gameObject = &helperGO;
+		gameObject = &disposableGObj;
 	}
 
 	BehaviourType behaviour;
@@ -95,7 +106,8 @@ void ReplicationManagerClient::instantiateGameObject(uint32 networkId, const Inp
 	std::string texture_filename;
 	packet >> texture_filename;
 
-	if (processCommand)
+	switch (behaviour) {
+	case BehaviourType::Spaceship:
 	{
 		switch (behaviour) {
 		case BehaviourType::Spaceship:
@@ -139,8 +151,36 @@ void ReplicationManagerClient::instantiateGameObject(uint32 networkId, const Inp
 		} break;
 		default:
 		{
-
-		} break;
+			 //gameObject->interpolation = (Interpolation*) App->modComponent->GetComponent<Interpolation>(gameObject);
 		}
+		packet >> gameObject->behaviour->isLocalPlayer;
+
+		gameObject->sprite = App->modRender->addSprite(gameObject);
+		gameObject->sprite->order = 5;
+		if (texture_filename == App->modResources->spacecraft1->filename) {
+			gameObject->sprite->texture = App->modResources->spacecraft1;
+		}
+		else if (texture_filename == App->modResources->spacecraft2->filename) {
+			gameObject->sprite->texture = App->modResources->spacecraft2;
+		}
+		else if (texture_filename == App->modResources->spacecraft3->filename) {
+			gameObject->sprite->texture = App->modResources->spacecraft3;
+		}
+		gameObject->collider = App->modCollision->addCollider(ColliderType::Player, gameObject);
+		gameObject->collider->isTrigger = true;
+	} break;
+	case BehaviourType::Laser:
+	{
+		gameObject->behaviour = App->modBehaviour->addLaser(gameObject);
+		gameObject->sprite = App->modRender->addSprite(gameObject);
+		gameObject->sprite->order = 5;
+		gameObject->sprite->texture = App->modResources->laser;
+		gameObject->collider = App->modCollision->addCollider(ColliderType::Laser, gameObject);
+		gameObject->collider->isTrigger = true;
+	} break;
+	default:
+	{
+
+	} break;
 	}
 }

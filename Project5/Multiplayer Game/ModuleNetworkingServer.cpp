@@ -246,7 +246,7 @@ void ModuleNetworkingServer::onUpdate()
 				if (Time.time > proxy.lastReplicationSendTime + REPLICATION_SEND_INTERVAL) {
 					if (proxy.replicationManager.replicationCommands.size() > 0) {
 						OutputMemoryStream packet;
-						proxy.replicationManager.Write(packet, &proxy.deliveryManager, proxy.replicationManager.replicationCommands, proxy.gameObject->networkId);
+						proxy.replicationManager.Write(packet, &proxy.deliveryManager, proxy.replicationManager.replicationCommands, (proxy.gameObject == nullptr ? 0 : proxy.gameObject->networkId));
 						sendPacket(packet, proxy.address);
 					}
 					proxy.lastReplicationSendTime = Time.time;
