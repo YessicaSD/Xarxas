@@ -13,6 +13,9 @@ void ReplicationManagerClient::Read(const InputMemoryStream& packet, DeliveryMan
 		packet >> command.networkId;
 		packet >> command.action;
 
+		//TODO: Remove, just for debugging
+		uint32 remainingByte = packet.RemainingByteCount();
+
 		switch (command.action)
 		{
 			case ReplicationAction::Destroy: 
@@ -24,9 +27,7 @@ void ReplicationManagerClient::Read(const InputMemoryStream& packet, DeliveryMan
 
 			case ReplicationAction::Create: 
 			{
-					instantiateGameObject(command.networkId, packet, processPacket);
-				
-				//TODO JAUME: Put gameObject->isLocalPlayer to true when it's your spaceship
+				instantiateGameObject(command.networkId, packet, processPacket);
 			}
 			break;
 			case ReplicationAction::Update:
@@ -49,6 +50,8 @@ void ReplicationManagerClient::Read(const InputMemoryStream& packet, DeliveryMan
 
 void ReplicationManagerClient::instantiateGameObject(uint32 networkId, const InputMemoryStream& packet, bool processCommand) 
 {
+	//TODO JAUME: Put gameObject->isLocalPlayer to true when it's your spaceship
+
 	GameObject* gameObject = nullptr;
 	GameObject helperGO;
 	if (processCommand)

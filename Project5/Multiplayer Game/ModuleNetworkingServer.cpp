@@ -192,13 +192,6 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 						proxy->gameObject->behaviour->onInput(proxy->gamepad);
 						proxy->nextExpectedInputSequenceNumber = inputData.sequenceNumber + 1;
 						proxy->sendInputConfirmation = true;
-						for (int i = 0; i < MAX_CLIENTS; i++)
-						{
-							if (clientProxies[i].connected == true)
-							{
-								replicationManagers[i].Update(proxy->gameObject->networkId);
-							}
-						}
 					}
 				}
 			}
@@ -427,9 +420,11 @@ void ModuleNetworkingServer::updateNetworkObject(GameObject * gameObject)
 	// Notify all client proxies' replication manager to destroy the object remotely
 	for (int i = 0; i < MAX_CLIENTS; ++i)
 	{
-		if (clientProxies[i].connected)
+		if (clientProxies[i].connected
+			&& !replicationManagers[i].HasReplicationCommmand(ReplicationAction::Update, gameObject->networkId))
 		{
 			// TODO(you): World state replication lab session
+			replicationManagers[i].Update(gameObject->networkId);
 		}
 	}
 }

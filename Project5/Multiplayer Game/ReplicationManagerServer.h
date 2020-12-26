@@ -12,5 +12,7 @@ public:
 
 	static void Write(OutputMemoryStream& packet, DeliveryManagerServer* deliveryManager, std::vector<ReplicationCommand> &commands);
 
+	bool HasReplicationCommmand(ReplicationAction action, uint32 networkId);
+
 	std::vector<ReplicationCommand> replicationCommands;
 };

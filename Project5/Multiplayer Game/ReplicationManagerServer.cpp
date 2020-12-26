@@ -36,7 +36,7 @@ void ReplicationManagerServer::Write(OutputMemoryStream& packet, DeliveryManager
 		switch (command.action) {
 			case ReplicationAction::Create: {
 				GameObject* gameObject = App->modLinkingContext->getNetworkGameObject(command.networkId);
-				packet << gameObject->behaviour->type();
+				packet << (gameObject->behaviour == nullptr ? BehaviourType::None : gameObject->behaviour->type());
 				packet << gameObject->position;
 				packet << gameObject->angle;
 				packet << gameObject->size;
@@ -60,4 +60,17 @@ void ReplicationManagerServer::Write(OutputMemoryStream& packet, DeliveryManager
 		}
 	}
 	commands.clear();
+}
+
+bool ReplicationManagerServer::HasReplicationCommmand(ReplicationAction action, uint32 networkId)
+{
+	for (ReplicationCommand command : replicationCommands)
+	{
+		if (command.action == action
+			&& command.networkId == networkId)
+		{
+			return true;
+		}
+	}
+	return false;
 }
