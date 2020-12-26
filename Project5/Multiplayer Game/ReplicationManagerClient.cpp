@@ -15,17 +15,6 @@ void ReplicationManagerClient::Read(const InputMemoryStream& packet, DeliveryMan
 		packet >> command.networkId;
 		packet >> command.action;
 
-		GameObject* gObj = App->modLinkingContext->getNetworkGameObject(command.networkId);
-		if (gObj != nullptr
-			&& gObj->behaviour != nullptr) {
-			LOG("behaviour: %i", gObj->behaviour->type());
-		}
-		else {
-			LOG("behaviour: unknown");
-		}
-
-		LOG("action:    %i", command.action);
-
 		switch (command.action)
 		{
 		case ReplicationAction::Destroy:
