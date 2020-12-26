@@ -51,6 +51,7 @@ void ModuleNetworkingClient::onStart()
 
 	secondsSinceLastHello = 9999.0f;
 	secondsSinceLastInputDelivery = 0.0f;
+	timeSinceLastReplication = Time.deltaTime;
 }
 
 void ModuleNetworkingClient::onGui()
@@ -128,6 +129,9 @@ void ModuleNetworkingClient::onPacketReceived(const InputMemoryStream &packet, c
 	else if (state == ClientState::Connected)
 	{
 		if (message == ServerMessage::Replication) {
+			secondsSinceLastReplication = Time.time - timeSinceLastReplication;
+			timeSinceLastReplication = Time.time;
+
 			replicationManager.Read(packet, &deliveryManager);
 		}
 		if (message == ServerMessage::InputConfirmation)

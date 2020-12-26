@@ -40,12 +40,18 @@ void ReplicationManagerClient::Read(const InputMemoryStream& packet, DeliveryMan
 				{
 					if (obj->interpolation != nullptr)
 					{
-						obj->interpolation->doLerp = true;
-						obj->interpolation->initial_position = obj->position;
-						obj->interpolation->initial_angle = obj->angle;
+						vec2 final_pos;
+						float final_angle;
 
-						packet >> obj->interpolation->final_position;
-						packet >> obj->interpolation->final_angle;
+						packet >> final_pos;
+						packet >> final_angle;
+						
+						obj->interpolation->SetFinal(final_pos, final_angle);
+						obj->interpolation->doLerp = true;
+						/*obj->interpolation->initial_position = obj->position;
+						obj->interpolation->initial_angle = obj->angle;*/
+
+						
 					}
 					else
 					{
@@ -97,7 +103,7 @@ void ReplicationManagerClient::instantiateGameObject(uint32 networkId, const Inp
 			gameObject->behaviour = App->modBehaviour->addSpaceship(gameObject);
 			if (processCommand && gameObject->interpolation == nullptr)
 			{
-				 //gameObject->interpolation = (Interpolation*) App->modComponent->GetComponent<Interpolation>(gameObject);
+				 gameObject->interpolation = (Interpolation*) App->modComponent->GetComponent<Interpolation>(gameObject);
 			}
 			packet >> gameObject->behaviour->isLocalPlayer;
 

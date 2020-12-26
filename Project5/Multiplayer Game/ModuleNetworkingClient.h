@@ -14,7 +14,7 @@ public:
 
 	void setPlayerInfo(const char *playerName, uint8 spaceshipType);
 
-
+	float secondsSinceLastReplication = 0.1;
 
 private:
 
@@ -77,7 +77,8 @@ private:
 
 	float inputDeliveryIntervalSeconds = 0.05f;
 	float secondsSinceLastInputDelivery = 0.0f;
-
+	float timeSinceLastReplication = 0;
+	
 
 
 	//////////////////////////////////////////////////////////////////////

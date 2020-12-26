@@ -29,11 +29,14 @@ struct Interpolation : Component
 	float final_angle = 0.0f;
 
 	float secondsElapsed = 0.0f;
+
 	Interpolation(GameObject* owner)
 	{
 		this->owner = owner;
+		
+		//secondsElapsed = Time.time;
 	}
-
+	void SetFinal(vec2 f_pos, float f_angle);
 	void Update() override;
 
 };

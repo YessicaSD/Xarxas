@@ -22,17 +22,41 @@ void ModuleComponents::DeleteComponent(Component* component)
 	}
 }
 
+void Interpolation::SetFinal(vec2 f_pos, float f_angle)
+{
+	initial_angle = owner->angle;
+	initial_position = owner->position;
+
+	final_position = f_pos;
+	final_angle = f_angle;
+
+	secondsElapsed = 0;
+	doLerp = true;
+	//secondsElapsed = Time.time - secondsElapsed;
+}
+
 void Interpolation::Update()
 {
 	if (doLerp)
 	{
-			//Lerp position
-			owner->position = lerp(initial_position, final_position, Time.deltaTime / REPLICATION_SEND_INTERVAL);
-	
+		secondsElapsed += Time.deltaTime;
+
+		float t = secondsElapsed / App->modNetClient->secondsSinceLastReplication;
+		//LOG("%f",t);
+		if (t > 1)
+		{
+			t = 1;
+			doLerp = false;
+		}
+		
+		//Lerp position
+		owner->position = lerp(initial_position, final_position, t);
+		
+		//Lerp angle
+		owner->angle = lerp(initial_angle, final_angle, t);
 		
 
-		//Lerp angle
-		owner->angle = lerp(initial_angle, final_angle, Time.deltaTime/ REPLICATION_SEND_INTERVAL);
+		
 	}
 	
 }
