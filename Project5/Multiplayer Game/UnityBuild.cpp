@@ -12,6 +12,7 @@
 #include "ModuleLinkingContext.cpp"
 #include "ModuleGameObject.cpp"
 #include "ModuleBehaviour.cpp"
+#include "ModuleComponents.cpp"
 #include "ModuleCollision.cpp"
 #include "ModulePlatform.cpp"
 #include "ModuleRender.cpp"

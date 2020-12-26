@@ -1,6 +1,8 @@
 #include "Networks.h"
 #include "ReplicationManagerClient.h"
 #include "DeliveryManager.h"
+//#include "Application.h"
+
 
 // TODO(you): World state replication lab session
 void ReplicationManagerClient::Read(const InputMemoryStream& packet, DeliveryManagerClient * deliveryManager)
@@ -24,9 +26,11 @@ void ReplicationManagerClient::Read(const InputMemoryStream& packet, DeliveryMan
 
 			case ReplicationAction::Create: 
 			{
-					instantiateGameObject(command.networkId, packet, processPacket);
-				
+				instantiateGameObject(command.networkId, packet, processPacket);
+<<<<<<< HEAD
 				//TODO JAUME: Put gameObject->isLocalPlayer to true when it's your spaceship
+=======
+>>>>>>> be643306649ddcf2583b7fc009a8f1b2da6a866c
 			}
 			break;
 			case ReplicationAction::Update:
@@ -36,12 +40,28 @@ void ReplicationManagerClient::Read(const InputMemoryStream& packet, DeliveryMan
 			
 				if (obj != nullptr)
 				{
-					packet >> obj->position;
-					packet >> obj->angle;
+					if (obj->interpolation != nullptr)
+					{
+						obj->interpolation->doLerp = true;
+						obj->interpolation->initial_position = obj->position;
+						obj->interpolation->initial_angle = obj->angle;
+
+						packet >> obj->interpolation->final_position;
+						packet >> obj->interpolation->final_angle;
+					}
+					else
+					{
+						packet >> obj->position;
+						packet >> obj->angle;
+					}
+					
 				}
 				
 
 			}break;
+			default: {
+				LOG("Invalid case");
+			} break;
 		}
 	}
 	
@@ -49,6 +69,8 @@ void ReplicationManagerClient::Read(const InputMemoryStream& packet, DeliveryMan
 
 void ReplicationManagerClient::instantiateGameObject(uint32 networkId, const InputMemoryStream& packet, bool processCommand) 
 {
+	//TODO JAUME: Put gameObject->isLocalPlayer to true when it's your spaceship
+
 	GameObject* gameObject = nullptr;
 	GameObject helperGO;
 	if (processCommand)
@@ -75,6 +97,15 @@ void ReplicationManagerClient::instantiateGameObject(uint32 networkId, const Inp
 		case BehaviourType::Spaceship:
 		{
 			gameObject->behaviour = App->modBehaviour->addSpaceship(gameObject);
+<<<<<<< HEAD
+			if (processCommand && gameObject->interpolation == nullptr)
+			{
+				 //gameObject->interpolation = (Interpolation*) App->modComponent->GetComponent<Interpolation>(gameObject);
+			}
+=======
+			packet >> gameObject->behaviour->isLocalPlayer;
+>>>>>>> be643306649ddcf2583b7fc009a8f1b2da6a866c
+
 			gameObject->sprite = App->modRender->addSprite(gameObject);
 			gameObject->sprite->order = 5;
 			if (texture_filename == App->modResources->spacecraft1->filename) {
@@ -88,6 +119,8 @@ void ReplicationManagerClient::instantiateGameObject(uint32 networkId, const Inp
 			}
 			gameObject->collider = App->modCollision->addCollider(ColliderType::Player, gameObject);
 			gameObject->collider->isTrigger = true;
+
+
 		} break;
 		case BehaviourType::Laser:
 		{

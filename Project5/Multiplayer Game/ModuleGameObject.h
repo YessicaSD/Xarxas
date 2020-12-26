@@ -1,5 +1,7 @@
 #pragma once
 
+struct Interpolation;
+
 struct GameObject
 {
 	uint32 id;
@@ -18,6 +20,9 @@ struct GameObject
 
 	// "Script" component
 	Behaviour *behaviour = nullptr;
+
+	// Interpolation component
+	Interpolation* interpolation = nullptr;
 
 	// Tag for custom usage
 	uint32 tag = 0;
@@ -66,9 +71,8 @@ public:
 
 	static void Destroy(GameObject * gameObject, float delaySeconds);
 
-
-
 	GameObject gameObjects[MAX_GAME_OBJECTS] = {};
+	
 
 private:
 
@@ -97,3 +101,5 @@ inline bool IsValid(GameObject *gameObject)
 		gameObject->state >= GameObject::INSTANTIATE &&
 		gameObject->state <= GameObject::UPDATING;
 }
+
+

@@ -52,22 +52,22 @@ void ModuleNetworkingServer::onGui()
 		{
 			int count = 0;
 
-			for (int i = 0; i < MAX_CLIENTS; ++i)
+			for (ClientProxy &proxy : clientProxies)
 			{
-				if (clientProxies[i].connected)
+				if (proxy.connected)
 				{
 					ImGui::Text("CLIENT %d", count++);
 					ImGui::Text(" - address: %d.%d.%d.%d",
-						clientProxies[i].address.sin_addr.S_un.S_un_b.s_b1,
-						clientProxies[i].address.sin_addr.S_un.S_un_b.s_b2,
-						clientProxies[i].address.sin_addr.S_un.S_un_b.s_b3,
-						clientProxies[i].address.sin_addr.S_un.S_un_b.s_b4);
-					ImGui::Text(" - port: %d", ntohs(clientProxies[i].address.sin_port));
-					ImGui::Text(" - name: %s", clientProxies[i].name.c_str());
-					ImGui::Text(" - id: %d", clientProxies[i].clientId);
-					if (clientProxies[i].gameObject != nullptr)
+						proxy.address.sin_addr.S_un.S_un_b.s_b1,
+						proxy.address.sin_addr.S_un.S_un_b.s_b2,
+						proxy.address.sin_addr.S_un.S_un_b.s_b3,
+						proxy.address.sin_addr.S_un.S_un_b.s_b4);
+					ImGui::Text(" - port: %d", ntohs(proxy.address.sin_port));
+					ImGui::Text(" - name: %s", proxy.name.c_str());
+					ImGui::Text(" - id: %d", proxy.clientId);
+					if (proxy.gameObject != nullptr)
 					{
-						ImGui::Text(" - gameObject net id: %d", clientProxies[i].gameObject->networkId);
+						ImGui::Text(" - gameObject net id: %d", proxy.gameObject->networkId);
 					}
 					else
 					{
@@ -141,17 +141,16 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 				uint16 networkGameObjectsCount;
 				GameObject *networkGameObjects[MAX_NETWORK_OBJECTS];
 				App->modLinkingContext->getNetworkGameObjects(networkGameObjects, &networkGameObjectsCount);
-				ReplicationManagerServer* currReplicationManager = &replicationManagers[GetProxyIndex(proxy)];
 				for (uint16 i = 0; i < networkGameObjectsCount; ++i)
 				{
 					if (proxy->gameObject->networkId != networkGameObjects[i]->networkId)
 					{
-						currReplicationManager->Create(networkGameObjects[i]->networkId);
+						proxy->replicationManager.Create(networkGameObjects[i]->networkId);
 					}
 				}
 
 				OutputMemoryStream packet;
-				currReplicationManager->Write(packet, &proxy->deliveryManager, currReplicationManager->replicationCommands);
+				proxy->replicationManager.Write(packet, &proxy->deliveryManager, proxy->replicationManager.replicationCommands);
 				sendPacket(packet, proxy->address);
 
 				LOG("Message received: hello - from player %s", proxy->name.c_str());
@@ -192,13 +191,6 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 						proxy->gameObject->behaviour->onInput(proxy->gamepad);
 						proxy->nextExpectedInputSequenceNumber = inputData.sequenceNumber + 1;
 						proxy->sendInputConfirmation = true;
-						for (int i = 0; i < MAX_CLIENTS; i++)
-						{
-							if (clientProxies[i].connected == true)
-							{
-								replicationManagers[i].Update(proxy->gameObject->networkId);
-							}
-						}
 					}
 				}
 			}
@@ -206,17 +198,6 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 
 		// TODO(you): UDP virtual connection lab session
 	}
-}
-
-//TODO JAUME: Maybe this function would be better off on another module
-//INFO: Returns MAX_CLIENTS if no client was found
-int ModuleNetworkingServer::GetProxyIndex(ClientProxy * proxy) {
-	for (int i = 0; i < MAX_CLIENTS; ++i) {
-		if (&clientProxies[i] == proxy) {
-			return i;
-		}
-	}
-	return MAX_CLIENTS;
 }
 
 void ModuleNetworkingServer::onUpdate()
@@ -238,42 +219,40 @@ void ModuleNetworkingServer::onUpdate()
 		}
 
 
-		for (int i = 0; i < MAX_CLIENTS; ++i) 
+		for (ClientProxy& proxy : clientProxies)
 		{
-			ClientProxy& clientProxy = clientProxies[i];
-			if (clientProxy.connected) {
+			if (proxy.connected) {
 				// TODO(you): UDP virtual connection lab session
-				if (clientProxy.sendInputConfirmation == true && Time.time > clientProxy.lastInputConfirmationTime + INPUT_CONFIRMATION_INTERVAL)
+				if (proxy.sendInputConfirmation == true && Time.time > proxy.lastInputConfirmationTime + INPUT_CONFIRMATION_INTERVAL)
 				{
 					OutputMemoryStream packet;
 					packet << PROTOCOL_ID;
 					packet << ServerMessage::InputConfirmation;
-					packet << clientProxy.nextExpectedInputSequenceNumber-1;
-					sendPacket(packet, clientProxy.address);
-					clientProxy.lastInputConfirmationTime = Time.time;
+					packet << proxy.nextExpectedInputSequenceNumber-1;
+					sendPacket(packet, proxy.address);
+					proxy.lastInputConfirmationTime = Time.time;
 				}
 
-				if (Time.time > clientProxy.lastPacketReceivedTime + DISCONNECT_TIMEOUT_SECONDS) {
-					destroyClientProxy(&clientProxy);
+				if (Time.time > proxy.lastPacketReceivedTime + DISCONNECT_TIMEOUT_SECONDS) {
+					destroyClientProxy(&proxy);
 				}
 
 				// Don't let the client proxy point to a destroyed game object
-				if (!IsValid(clientProxy.gameObject))
+				if (!IsValid(proxy.gameObject))
 				{
-					clientProxy.gameObject = nullptr;
+					proxy.gameObject = nullptr;
 				}
 
-				// TODO(you): World state replication lab session
-				if (Time.time > clientProxy.lastReplicationSendTime + REPLICATION_SEND_INTERVAL) {
-					if (replicationManagers[i].replicationCommands.size() > 0) {
+				if (Time.time > proxy.lastReplicationSendTime + REPLICATION_SEND_INTERVAL) {
+					if (proxy.replicationManager.replicationCommands.size() > 0) {
 						OutputMemoryStream packet;
-						replicationManagers[i].Write(packet, &clientProxy.deliveryManager, replicationManagers[i].replicationCommands);
-						sendPacket(packet, clientProxy.address);
+						proxy.replicationManager.Write(packet, &proxy.deliveryManager, proxy.replicationManager.replicationCommands, proxy.gameObject->networkId);
+						sendPacket(packet, proxy.address);
 					}
-					clientProxy.lastReplicationSendTime = Time.time;
+					proxy.lastReplicationSendTime = Time.time;
 				}
 				// TODO(you): Reliability on top of UDP lab session
-				clientProxy.deliveryManager.processTimedOutPackets();
+				proxy.deliveryManager.processTimedOutPackets();
 			}
 		}
 	}
@@ -410,12 +389,12 @@ GameObject * ModuleNetworkingServer::instantiateNetworkObject()
 	App->modLinkingContext->registerNetworkGameObject(gameObject);
 
 	// Notify all client proxies' replication manager to create the object remotely
-	for (int i = 0; i < MAX_CLIENTS; ++i)
+	for (ClientProxy &proxy : clientProxies)
 	{
-		if (clientProxies[i].connected)
+		if (proxy.connected)
 		{
 			// TODO(you): World state replication lab session
-			replicationManagers[i].Create(gameObject->networkId);
+			proxy.replicationManager.Create(gameObject->networkId);
 		}
 	}
 
@@ -425,11 +404,13 @@ GameObject * ModuleNetworkingServer::instantiateNetworkObject()
 void ModuleNetworkingServer::updateNetworkObject(GameObject * gameObject)
 {
 	// Notify all client proxies' replication manager to destroy the object remotely
-	for (int i = 0; i < MAX_CLIENTS; ++i)
+	for (ClientProxy &proxy : clientProxies)
 	{
-		if (clientProxies[i].connected)
+		if (proxy.connected
+			&& !proxy.replicationManager.HasReplicationCommmand(ReplicationAction::Update, gameObject->networkId))
 		{
 			// TODO(you): World state replication lab session
+			proxy.replicationManager.Update(gameObject->networkId);
 		}
 	}
 }
@@ -437,12 +418,11 @@ void ModuleNetworkingServer::updateNetworkObject(GameObject * gameObject)
 void ModuleNetworkingServer::destroyNetworkObject(GameObject * gameObject)
 {
 	// Notify all client proxies' replication manager to destroy the object remotely
-	for (int i = 0; i < MAX_CLIENTS; ++i)
+	for (ClientProxy &proxy : clientProxies)
 	{
-		if (clientProxies[i].connected)
+		if (proxy.connected)
 		{
-			// TODO(you): World state replication lab session
-			replicationManagers[i].Destroy(gameObject->networkId);
+			proxy.replicationManager.Destroy(gameObject->networkId);
 		}
 	}
 

@@ -113,7 +113,7 @@ void DeliveryDelegateDestroy::onDeliverySuccess(DeliveryManagerServer* deliveryM
 
 void DeliveryDelegateDestroy::onDeliveryFailure(DeliveryManagerServer* deliveryManager)
 {
-    //ReplicationManagerServer;
     OutputMemoryStream packet;
     ReplicationManagerServer::Write(packet, deliveryManager, parent->indispensableCommands);
+    //TODO: send
 }

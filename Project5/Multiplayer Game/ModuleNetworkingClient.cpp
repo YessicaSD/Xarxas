@@ -102,8 +102,6 @@ void ModuleNetworkingClient::onGui()
 
 void ModuleNetworkingClient::onPacketReceived(const InputMemoryStream &packet, const sockaddr_in &fromAddress)
 {
-	// TODO(you): UDP virtual connection lab session
-
 	uint32 protoId;
 	packet >> protoId;
 	if (protoId != PROTOCOL_ID) return;
@@ -129,30 +127,22 @@ void ModuleNetworkingClient::onPacketReceived(const InputMemoryStream &packet, c
 	}
 	else if (state == ClientState::Connected)
 	{
-		// TODO(you): World state replication lab session
-
-		// TODO(you): Reliability on top of UDP lab session
+		if (message == ServerMessage::Replication) {
+			replicationManager.Read(packet, &deliveryManager);
+		}
 		if (message == ServerMessage::InputConfirmation)
 		{
 			// Receive the last input received
 			packet >> inputDataFront;
-			//// Clear the queue
+			// Clear the queue
 			inputDataFront = inputDataBack;
 		}
-	}
-
-	//TODO: Put this inside the Connected state, we're just testing atm
-	if (message == ServerMessage::Replication) {
-		replicationManager.Read(packet, &deliveryManager);
 	}
 }
 
 void ModuleNetworkingClient::onUpdate()
 {
 	if (state == ClientState::Stopped) return;
-
-
-	// TODO(you): UDP virtual connection lab session
 
 
 	if (state == ClientState::Connecting)
@@ -217,9 +207,6 @@ void ModuleNetworkingClient::onUpdate()
 				packet << inputPacketData.verticalAxis;
 				packet << inputPacketData.buttonBits;
 			}
-
-
-			
 
 			sendPacket(packet, serverAddress);
 		}

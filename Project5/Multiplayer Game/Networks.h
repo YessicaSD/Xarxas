@@ -319,6 +319,7 @@ extern RandomNumberGenerator Random;
 #include "ModuleNetworkingServer.h"
 #include "ModuleLinkingContext.h"
 #include "ModuleGameObject.h"
+#include "ModuleComponents.h"
 #include "ModuleCollision.h"
 #include "ModuleBehaviour.h"
 #include "ModulePlatform.h"

@@ -19,15 +19,12 @@ void ReplicationManagerServer::Destroy(uint32 networkId)
 	replicationCommands.push_back(ReplicationCommand(ReplicationAction::Destroy, networkId));
 }
 
-void ReplicationManagerServer::Write(OutputMemoryStream& packet, DeliveryManagerServer* deliveryManager, std::vector<ReplicationCommand> &commands)
+void ReplicationManagerServer::Write(OutputMemoryStream& packet, DeliveryManagerServer* deliveryManager, std::vector<ReplicationCommand> &commands, uint32 playerNetworkId)
 {
 	packet << PROTOCOL_ID;
 	packet << ServerMessage::Replication;
-	
 
 	Delivery * newDelivery = deliveryManager->writeSequenceNumber(packet);
-	
-	//TODO JAUME: Register callbacks onto the next delivery
 
 	for (ReplicationCommand command : commands) {
 		packet << command.networkId;
@@ -36,11 +33,21 @@ void ReplicationManagerServer::Write(OutputMemoryStream& packet, DeliveryManager
 		switch (command.action) {
 			case ReplicationAction::Create: {
 				GameObject* gameObject = App->modLinkingContext->getNetworkGameObject(command.networkId);
-				packet << gameObject->behaviour->type();
+				BehaviourType behaviour = gameObject->behaviour == nullptr ? BehaviourType::None : gameObject->behaviour->type();
+				packet << behaviour;
 				packet << gameObject->position;
 				packet << gameObject->angle;
 				packet << gameObject->size;
 				packet << std::string(gameObject->sprite->texture->filename);
+				switch (behaviour) {
+					case BehaviourType::Spaceship: {
+						//Is isLocalPlayer true on the client?
+						packet << (gameObject->networkId == playerNetworkId);
+					} break;
+					default: {
+
+					} break;
+				}
 				}break;
 			case ReplicationAction::Update:{
 				GameObject* gameObject = App->modLinkingContext->getNetworkGameObject(command.networkId);
@@ -60,4 +67,17 @@ void ReplicationManagerServer::Write(OutputMemoryStream& packet, DeliveryManager
 		}
 	}
 	commands.clear();
+}
+
+bool ReplicationManagerServer::HasReplicationCommmand(ReplicationAction action, uint32 networkId)
+{
+	for (ReplicationCommand command : replicationCommands)
+	{
+		if (command.action == action
+			&& command.networkId == networkId)
+		{
+			return true;
+		}
+	}
+	return false;
 }
