@@ -102,8 +102,6 @@ void ModuleNetworkingClient::onGui()
 
 void ModuleNetworkingClient::onPacketReceived(const InputMemoryStream &packet, const sockaddr_in &fromAddress)
 {
-	// TODO(you): UDP virtual connection lab session
-
 	uint32 protoId;
 	packet >> protoId;
 	if (protoId != PROTOCOL_ID) return;
@@ -145,9 +143,6 @@ void ModuleNetworkingClient::onPacketReceived(const InputMemoryStream &packet, c
 void ModuleNetworkingClient::onUpdate()
 {
 	if (state == ClientState::Stopped) return;
-
-
-	// TODO(you): UDP virtual connection lab session
 
 
 	if (state == ClientState::Connecting)

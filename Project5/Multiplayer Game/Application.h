@@ -53,6 +53,7 @@ public:
 	ModuleLinkingContext *modLinkingContext = nullptr;
 	ModuleTextures *modTextures = nullptr;
 	ModuleResources *modResources = nullptr;
+	ModuleComponents* modComponent = nullptr;
 	ModuleGameObject *modGameObject = nullptr;
 	ModuleCollision *modCollision = nullptr;
 	ModuleBehaviour *modBehaviour = nullptr;

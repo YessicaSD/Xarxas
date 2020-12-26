@@ -21,6 +21,7 @@ Application::Application()
 	ADD_MODULE          (ModuleTaskManager,      modTaskManager);
 	ADD_MODULE          (ModuleTextures,         modTextures);
 	ADD_MODULE          (ModuleResources,        modResources);
+	ADD_MODULE			(ModuleComponents,		 modComponent);
 	ADD_MODULE          (ModuleGameObject,       modGameObject);
 	ADD_MODULE          (ModuleCollision,        modCollision);
 	ADD_MODULE          (ModuleBehaviour,        modBehaviour);

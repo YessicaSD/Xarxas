@@ -1,6 +1,8 @@
 #include "Networks.h"
 #include "ReplicationManagerClient.h"
 #include "DeliveryManager.h"
+//#include "Application.h"
+
 
 // TODO(you): World state replication lab session
 void ReplicationManagerClient::Read(const InputMemoryStream& packet, DeliveryManagerClient * deliveryManager)
@@ -36,6 +38,8 @@ void ReplicationManagerClient::Read(const InputMemoryStream& packet, DeliveryMan
 			case ReplicationAction::Create: 
 			{
 				instantiateGameObject(command.networkId, packet, processPacket);
+				//TODO JAUME: Put gameObject->isLocalPlayer to true when it's your spaceship
+
 			}
 			break;
 			case ReplicationAction::Update:
@@ -46,8 +50,21 @@ void ReplicationManagerClient::Read(const InputMemoryStream& packet, DeliveryMan
 				ASSERT(obj != nullptr);
 				if (obj != nullptr)
 				{
-					packet >> obj->position;
-					packet >> obj->angle;
+					if (obj->interpolation != nullptr)
+					{
+						obj->interpolation->doLerp = true;
+						obj->interpolation->initial_position = obj->position;
+						obj->interpolation->initial_angle = obj->angle;
+
+						packet >> obj->interpolation->final_position;
+						packet >> obj->interpolation->final_angle;
+					}
+					else
+					{
+						packet >> obj->position;
+						packet >> obj->angle;
+					}
+					
 				}
 
 			}break;
@@ -87,6 +104,10 @@ void ReplicationManagerClient::instantiateGameObject(uint32 networkId, const Inp
 	case BehaviourType::Spaceship:
 	{
 		gameObject->behaviour = App->modBehaviour->addSpaceship(gameObject);
+		if (processCommand && gameObject->interpolation == nullptr)
+		{
+			 //gameObject->interpolation = (Interpolation*) App->modComponent->GetComponent<Interpolation>(gameObject);
+		}
 		packet >> gameObject->behaviour->isLocalPlayer;
 
 		gameObject->sprite = App->modRender->addSprite(gameObject);
@@ -111,10 +132,6 @@ void ReplicationManagerClient::instantiateGameObject(uint32 networkId, const Inp
 		gameObject->sprite->texture = App->modResources->laser;
 		gameObject->collider = App->modCollision->addCollider(ColliderType::Laser, gameObject);
 		gameObject->collider->isTrigger = true;
-	} break;
-	case BehaviourType::None:
-	{
-
 	} break;
 	default:
 	{
