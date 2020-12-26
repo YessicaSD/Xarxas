@@ -85,6 +85,7 @@ public:
 
 	GameObject * spawnPlayer(uint8 spaceshipType, vec2 initialPosition, float initialAngle);
 
+	bool IsPlayerSpaceship();
 
 
 private:

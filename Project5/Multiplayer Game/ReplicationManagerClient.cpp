@@ -13,9 +13,6 @@ void ReplicationManagerClient::Read(const InputMemoryStream& packet, DeliveryMan
 		packet >> command.networkId;
 		packet >> command.action;
 
-		//TODO: Remove, just for debugging
-		uint32 remainingByte = packet.RemainingByteCount();
-
 		switch (command.action)
 		{
 			case ReplicationAction::Destroy: 
@@ -78,6 +75,8 @@ void ReplicationManagerClient::instantiateGameObject(uint32 networkId, const Inp
 		case BehaviourType::Spaceship:
 		{
 			gameObject->behaviour = App->modBehaviour->addSpaceship(gameObject);
+			packet >> gameObject->behaviour->isLocalPlayer;
+
 			gameObject->sprite = App->modRender->addSprite(gameObject);
 			gameObject->sprite->order = 5;
 			if (texture_filename == App->modResources->spacecraft1->filename) {

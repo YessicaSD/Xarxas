@@ -256,11 +256,10 @@ void ModuleNetworkingServer::onUpdate()
 					clientProxy.gameObject = nullptr;
 				}
 
-				// TODO(you): World state replication lab session
 				if (Time.time > clientProxy.lastReplicationSendTime + REPLICATION_SEND_INTERVAL) {
 					if (replicationManagers[i].replicationCommands.size() > 0) {
 						OutputMemoryStream packet;
-						replicationManagers[i].Write(packet, &clientProxy.deliveryManager, replicationManagers[i].replicationCommands);
+						replicationManagers[i].Write(packet, &clientProxy.deliveryManager, replicationManagers[i].replicationCommands, clientProxy.gameObject->networkId);
 						sendPacket(packet, clientProxy.address);
 					}
 					clientProxy.lastReplicationSendTime = Time.time;
