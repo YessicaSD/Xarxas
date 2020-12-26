@@ -213,9 +213,6 @@ void ModuleNetworkingClient::onUpdate()
 				packet << inputPacketData.buttonBits;
 			}
 
-
-			
-
 			sendPacket(packet, serverAddress);
 		}
 

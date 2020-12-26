@@ -62,19 +62,17 @@ private:
 		double lastReplicationSendTime = 0.0;
 		double lastInputConfirmationTime = 0.0;
 
+		ReplicationManagerServer replicationManager;
 		DeliveryManagerServer deliveryManager;
 	};
 
 	ClientProxy clientProxies[MAX_CLIENTS];
-	ReplicationManagerServer replicationManagers[MAX_CLIENTS];
 
 	ClientProxy * createClientProxy();
 
 	ClientProxy * getClientProxy(const sockaddr_in &clientAddress);
 
     void destroyClientProxy(ClientProxy *clientProxy);
-
-	int GetProxyIndex(ClientProxy* proxy);
 
 
 public:

@@ -40,6 +40,9 @@ void ReplicationManagerClient::Read(const InputMemoryStream& packet, DeliveryMan
 				
 
 			}break;
+			default: {
+				LOG("Invalid case");
+			} break;
 		}
 	}
 	
