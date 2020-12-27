@@ -58,7 +58,7 @@ void Spaceship::onInput(const InputController &input)
 		}
 	}
 
-	if (input.actionDown == ButtonState::Pressed)
+	if (input.actionDown == ButtonState::Pressed || input.actionDown == ButtonState::Press)
 	{
 		const float advanceSpeed = 200.0f;
 		gameObject->position += vec2FromDegrees(gameObject->angle) * advanceSpeed * Time.deltaTime;

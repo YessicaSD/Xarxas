@@ -9,6 +9,9 @@ void ReplicationManagerClient::Read(const InputMemoryStream& packet, DeliveryMan
 {
 	bool processPacket = deliveryManager->processSequenceNumber(packet);
 
+	uint32 lastInput;
+	packet >> App->modNetClient->inputIndex;
+	
 	while (packet.RemainingByteCount() != 0)
 	{
 		ReplicationCommand command;
@@ -27,35 +30,31 @@ void ReplicationManagerClient::Read(const InputMemoryStream& packet, DeliveryMan
 		case ReplicationAction::Create:
 		{
 			instantiateGameObject(command.networkId, packet, processPacket);
-			//TODO JAUME: Put gameObject->isLocalPlayer to true when it's your spaceship
-
 		}
 		break;
 		case ReplicationAction::Update:
 		{
-			GameObject helperObj;
-			GameObject* obj = (processPacket) ? App->modLinkingContext->getNetworkGameObject(command.networkId) : &helperObj;
+			GameObject disposableObj;
+			GameObject* obj = (processPacket) ? App->modLinkingContext->getNetworkGameObject(command.networkId) : &disposableObj;
 
 			ASSERT(obj != nullptr);
 			if (obj != nullptr)
 			{
+				vec2 final_pos;
+				float final_angle;
+
+				packet >> final_pos;
+				packet >> final_angle;
+				if (command.networkId == App->modNetClient->getNetworkId())
+				{
+					obj->position = final_pos;
+					obj->angle = final_angle;
+				}
+
 				if (obj->interpolation != nullptr)
 				{
-					vec2 final_pos;
-					float final_angle;
-
-					packet >> final_pos;
-					packet >> final_angle;
-
 					obj->interpolation->SetFinal(final_pos, final_angle);
-
 				}
-				else
-				{
-					packet >> obj->position;
-					packet >> obj->angle;
-				}
-
 			}
 
 		}break;
@@ -95,11 +94,13 @@ void ReplicationManagerClient::instantiateGameObject(uint32 networkId, const Inp
 	case BehaviourType::Spaceship:
 	{
 		gameObject->behaviour = App->modBehaviour->addSpaceship(gameObject);
-		if (processCommand && gameObject->interpolation == nullptr)
-		{
-			gameObject->interpolation = (Interpolation*) App->modComponent->GetComponent<Interpolation>(gameObject);
-		}
+		
 		gameObject->behaviour->isLocalPlayer = (networkId == App->modNetClient->getNetworkId());
+		if (processCommand && gameObject->interpolation == nullptr && !gameObject->behaviour->isLocalPlayer)
+		{
+			gameObject->interpolation = (Interpolation*)App->modComponent->GetComponent<Interpolation>(gameObject);
+		}
+
 		gameObject->sprite = App->modRender->addSprite(gameObject);
 		gameObject->sprite->order = 5;
 		if (texture_filename == App->modResources->spacecraft1->filename) {

@@ -8,6 +8,7 @@ uint16 packInputControllerButtons(const InputController & input)
 	{
 		uint16 bit = (int)(buttonState == ButtonState::Press ||
 			               buttonState == ButtonState::Pressed);
+		
 		buttonBits |= (bit << buttonIndex);
 		buttonIndex++;
 	}
@@ -24,6 +25,7 @@ void unpackInputControllerButtons(uint16 buttonBits, InputController & input)
 		{ButtonState::Release, ButtonState::Pressed} // 1 0, 1 1
 	};
 
+	
 	int buttonIndex = 0;
 	for (ButtonState &buttonState : input.buttons)
 	{

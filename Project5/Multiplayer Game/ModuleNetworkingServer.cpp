@@ -189,6 +189,7 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 						proxy->gamepad.verticalAxis = inputData.verticalAxis;
 						unpackInputControllerButtons(inputData.buttonBits, proxy->gamepad);
 						proxy->gameObject->behaviour->onInput(proxy->gamepad);
+						proxy->replicationManager.lastInput = inputData.sequenceNumber;
 						proxy->nextExpectedInputSequenceNumber = inputData.sequenceNumber + 1;
 						proxy->sendInputConfirmation = true;
 					}
@@ -222,7 +223,6 @@ void ModuleNetworkingServer::onUpdate()
 		for (ClientProxy& proxy : clientProxies)
 		{
 			if (proxy.connected) {
-				// TODO(you): UDP virtual connection lab session
 				if (proxy.sendInputConfirmation == true && Time.time > proxy.lastInputConfirmationTime + INPUT_CONFIRMATION_INTERVAL)
 				{
 					OutputMemoryStream packet;
@@ -251,6 +251,7 @@ void ModuleNetworkingServer::onUpdate()
 					}
 					proxy.lastReplicationSendTime = Time.time;
 				}
+
 				// TODO(you): Reliability on top of UDP lab session
 				proxy.deliveryManager.processTimedOutPackets();
 			}

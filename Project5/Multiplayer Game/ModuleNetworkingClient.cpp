@@ -143,8 +143,7 @@ void ModuleNetworkingClient::onPacketReceived(const InputMemoryStream &packet, c
 		{
 			// Receive the last input received
 			packet >> inputDataFront;
-			// Clear the queue
-			inputDataFront = inputDataBack;
+			
 		}
 	}
 }
@@ -175,6 +174,19 @@ void ModuleNetworkingClient::onUpdate()
 	{
 		// TODO(you): UDP virtual connection lab session
 
+		if (inputIndex < inputDataBack)
+		{
+			InputController gamepad;
+			InputPacketData& inputPacketData = inputData[inputIndex % ArrayCount(inputData)];
+			gamepad.horizontalAxis = inputPacketData.horizontalAxis;
+			gamepad.verticalAxis = inputPacketData.verticalAxis;
+			unpackInputControllerButtons(inputPacketData.buttonBits, gamepad);
+
+			GameObject* playerObject = App->modLinkingContext->getNetworkGameObject(networkId);
+			playerObject->behaviour->onInput(gamepad);
+			inputIndex++;
+		}
+
 		// Process more inputs if there's space
 		if (inputDataBack - inputDataFront < ArrayCount(inputData))
 		{
@@ -186,6 +198,7 @@ void ModuleNetworkingClient::onUpdate()
 			inputPacketData.verticalAxis = Input.verticalAxis;
 			inputPacketData.buttonBits = packInputControllerButtons(Input);
 		}
+		
 
 		secondsSinceLastInputDelivery += Time.deltaTime;
 
@@ -215,6 +228,7 @@ void ModuleNetworkingClient::onUpdate()
 				packet << inputPacketData.horizontalAxis;
 				packet << inputPacketData.verticalAxis;
 				packet << inputPacketData.buttonBits;
+				
 			}
 
 			sendPacket(packet, serverAddress);

@@ -38,7 +38,7 @@ private:
 
 	void onDisconnect() override;
 
-
+	
 
 	//////////////////////////////////////////////////////////////////////
 	// Client state
@@ -100,5 +100,10 @@ private:
 
 	// TODO(you): Latency management lab session
 
+	// TODO save playerGame object 
+	// GameObject* player = nullptr;
+	uint32 inputIndex = 0;
+
+	friend class ReplicationManagerClient;
 };
 
