@@ -407,6 +407,7 @@
   <ItemGroup>
     <ClInclude Include="Application.h" />
     <ClInclude Include="ByteSwap.h" />
+    <ClInclude Include="json.hpp" />
     <ClInclude Include="ModuleComponents.h" />
     <ClInclude Include="DeliveryManager.h" />
     <ClInclude Include="Behaviours.h" />

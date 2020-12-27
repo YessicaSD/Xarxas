@@ -11,7 +11,7 @@ struct Sprite
 	int  order = 0;                              // NOTE(jesus): determines the drawing order
 };
 
-const uint8 MAX_ANIMATION_CLIP_FRAMES = 25;
+const uint8 MAX_ANIMATION_CLIP_FRAMES = 128;
 
 struct AnimationClip
 {
