@@ -26,6 +26,8 @@ void ReplicationManagerServer::Write(OutputMemoryStream& packet, DeliveryManager
 
 	Delivery* newDelivery = deliveryManager->writeSequenceNumber(packet);
 
+	packet << lastInput;
+
 	for (ReplicationCommand command : commands) {
 		switch (command.action) {
 		case ReplicationAction::Create: {
