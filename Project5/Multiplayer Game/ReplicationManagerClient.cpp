@@ -99,8 +99,7 @@ void ReplicationManagerClient::instantiateGameObject(uint32 networkId, const Inp
 		{
 			gameObject->interpolation = (Interpolation*) App->modComponent->GetComponent<Interpolation>(gameObject);
 		}
-		packet >> gameObject->behaviour->isLocalPlayer;
-
+		gameObject->behaviour->isLocalPlayer = (networkId == App->modNetClient->getNetworkId());
 		gameObject->sprite = App->modRender->addSprite(gameObject);
 		gameObject->sprite->order = 5;
 		if (texture_filename == App->modResources->spacecraft1->filename) {

@@ -14,6 +14,8 @@ public:
 
 	void setPlayerInfo(const char *playerName, uint8 spaceshipType);
 
+	uint32 getNetworkId();
+
 	float secondsSinceLastReplication = 0.1;
 
 private:

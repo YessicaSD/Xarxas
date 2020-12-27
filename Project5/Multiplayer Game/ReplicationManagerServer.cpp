@@ -19,7 +19,7 @@ void ReplicationManagerServer::Destroy(uint32 networkId)
 	replicationCommands.push_back(ReplicationCommand(ReplicationAction::Destroy, networkId));
 }
 
-void ReplicationManagerServer::Write(OutputMemoryStream& packet, DeliveryManagerServer* deliveryManager, std::vector<ReplicationCommand>& commands, uint32 playerNetworkId)
+void ReplicationManagerServer::Write(OutputMemoryStream& packet, DeliveryManagerServer* deliveryManager, std::vector<ReplicationCommand>& commands)
 {
 	packet << PROTOCOL_ID;
 	packet << ServerMessage::Replication;
@@ -40,14 +40,6 @@ void ReplicationManagerServer::Write(OutputMemoryStream& packet, DeliveryManager
 				packet << gameObject->angle;
 				packet << gameObject->size;
 				packet << std::string(gameObject->sprite->texture->filename);
-				switch (behaviour) {
-				case BehaviourType::Spaceship: {
-					//Is isLocalPlayer true on the client?
-					packet << (bool)(gameObject->networkId == playerNetworkId);
-				} break;
-				default: {
-				} break;
-				}
 			}
 		}break;
 		case ReplicationAction::Update: {
