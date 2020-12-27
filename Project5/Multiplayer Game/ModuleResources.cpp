@@ -1,4 +1,8 @@
 #include "Networks.h"
+#include "json.hpp"
+#include "ModuleResources.h"
+
+using json = nlohmann::json;
 
 
 #if defined(USE_TASK_MANAGER)
@@ -90,7 +94,32 @@ void ModuleResources::onTaskFinished(Task * task)
 			float h = 1.0f / 4.0f;
 			explosionClip->addFrameRect(vec4{ x, y, w, h });
 		}
+
+		CreateJSONAnim(knightAttack, "LivingArmor_tex.json");
 	}
+}
+
+//INFO: We can get the image from the json
+void ModuleResources::CreateJSONAnim(AnimationClip* clip, const std::string& json_path) {
+	clip = App->modRender->addAnimationClip();
+	clip->frameTime = 1.f / 30.f;
+	clip->loop = false;
+
+	std::ifstream jsonFile(json_path);
+	if (!jsonFile) {
+		LOG("Ivalid path");
+	}
+	json jsonObj = json::parse(jsonFile);
+	json::iterator rects = jsonObj.find("SubTexture");
+	for (json::iterator iter = rects->begin(); iter != rects->end(); ++iter) {
+		float x, y, w, h;
+		(*iter).at("x").get_to(x);
+		(*iter).at("y").get_to(y);
+		(*iter).at("width").get_to(w);
+		(*iter).at("height").get_to(h);
+		clip->addFrameRect(vec4{x, y, w / 4096.f, h / 4096.f });
+	}
+	jsonFile.close();
 }
 
 #endif

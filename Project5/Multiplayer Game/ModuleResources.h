@@ -19,6 +19,7 @@ public:
 	Texture *explosion1 = nullptr;
 
 	AnimationClip *explosionClip = nullptr;
+	AnimationClip* knightAttack = nullptr;
 
 	AudioClip *audioClipLaser = nullptr;
 	AudioClip *audioClipExplosion = nullptr;
@@ -47,6 +48,8 @@ private:
 	uint32 finishedTaskCount = 0;
 
 	void onTaskFinished(Task *task) override;
+
+	void CreateJSONAnim(AnimationClip* clip, const std::string& json_path);
 
 	void loadTextureAsync(const char *filename, Texture **texturePtrAddress);
 
