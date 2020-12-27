@@ -9,8 +9,8 @@ void ReplicationManagerClient::Read(const InputMemoryStream& packet, DeliveryMan
 {
 	bool processPacket = deliveryManager->processSequenceNumber(packet);
 
-	uint32 lastInput;
-	packet >> App->modNetClient->inputIndex;
+	uint32 server_Input;
+	packet >> server_Input;
 	
 	while (packet.RemainingByteCount() != 0)
 	{
@@ -36,28 +36,29 @@ void ReplicationManagerClient::Read(const InputMemoryStream& packet, DeliveryMan
 		{
 			GameObject disposableObj;
 			GameObject* obj = (processPacket) ? App->modLinkingContext->getNetworkGameObject(command.networkId) : &disposableObj;
+				
+			vec2 server_pos;
+			float server_angle;
+			packet >> server_pos;
+			packet >> server_angle;
 
-			ASSERT(obj != nullptr);
-			if (obj != nullptr)
+			if (command.networkId == App->modNetClient->getNetworkId())
 			{
-				vec2 final_pos;
-				float final_angle;
-
-				packet >> final_pos;
-				packet >> final_angle;
-				if (command.networkId == App->modNetClient->getNetworkId())
+				obj->position = server_pos;
+				obj->angle = server_angle;
+				for (int i = server_Input; i < App->modNetClient->inputIndex; i++)
 				{
-					obj->position = final_pos;
-					obj->angle = final_angle;
-				}
-
-				if (obj->interpolation != nullptr)
-				{
-					obj->interpolation->SetFinal(final_pos, final_angle);
+					App->modNetClient->ProcessInput(i, obj);
 				}
 			}
 
-		}break;
+			if (obj->interpolation != nullptr)
+			{
+				obj->interpolation->SetFinal(server_pos, server_angle);
+			}
+
+		}
+		break;
 		default: {
 			LOG("Invalid case");
 		} break;
