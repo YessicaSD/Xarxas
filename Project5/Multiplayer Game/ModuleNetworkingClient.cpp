@@ -178,9 +178,7 @@ void ModuleNetworkingClient::onUpdate()
 		{
 			InputController gamepad;
 			InputPacketData& inputPacketData = inputData[inputIndex % ArrayCount(inputData)];
-			gamepad.horizontalAxis = inputPacketData.horizontalAxis;
-			gamepad.verticalAxis = inputPacketData.verticalAxis;
-			unpackInputControllerButtons(inputPacketData.buttonBits, gamepad);
+			gamepad = inputControllerFromInputPacketData(inputPacketData, gamepad);
 
 			GameObject* playerObject = App->modLinkingContext->getNetworkGameObject(networkId);
 			playerObject->behaviour->onInput(gamepad);
