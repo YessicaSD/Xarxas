@@ -18,6 +18,8 @@ public:
 
 	float secondsSinceLastReplication = 0.1;
 
+	void ProcessInput(uint32 index, GameObject* obj);
+
 private:
 
 	//////////////////////////////////////////////////////////////////////

@@ -23,6 +23,14 @@ uint32 ModuleNetworkingClient::getNetworkId()
 	return networkId;
 }
 
+void ModuleNetworkingClient::ProcessInput(uint32 index, GameObject* obj)
+{
+	InputController gamepad;
+	InputPacketData& inputPacketData = inputData[index % ArrayCount(inputData)];
+	gamepad = inputControllerFromInputPacketData(inputPacketData, gamepad);
+	obj->behaviour->onInput(gamepad);
+}
+
 
 
 //////////////////////////////////////////////////////////////////////
@@ -174,17 +182,6 @@ void ModuleNetworkingClient::onUpdate()
 	{
 		// TODO(you): UDP virtual connection lab session
 
-		if (inputIndex < inputDataBack)
-		{
-			InputController gamepad;
-			InputPacketData& inputPacketData = inputData[inputIndex % ArrayCount(inputData)];
-			gamepad = inputControllerFromInputPacketData(inputPacketData, gamepad);
-
-			GameObject* playerObject = App->modLinkingContext->getNetworkGameObject(networkId);
-			playerObject->behaviour->onInput(gamepad);
-			inputIndex++;
-		}
-
 		// Process more inputs if there's space
 		if (inputDataBack - inputDataFront < ArrayCount(inputData))
 		{
@@ -197,6 +194,13 @@ void ModuleNetworkingClient::onUpdate()
 			inputPacketData.buttonBits = packInputControllerButtons(Input);
 		}
 		
+		if (inputIndex < inputDataBack)
+		{
+			GameObject* playerObject = App->modLinkingContext->getNetworkGameObject(networkId);
+
+			App->modNetClient->ProcessInput(inputIndex, playerObject);
+			inputIndex++;
+		}
 
 		secondsSinceLastInputDelivery += Time.deltaTime;
 
