@@ -138,13 +138,11 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 			explosion->angle = 365.0f * Random.next();
 
 			explosion->sprite = App->modRender->addSprite(explosion);
-			explosion->sprite->texture = App->modResources->knightAttackImg;
-			//explosion->sprite->texture = App->modResources->explosion1;
+			explosion->sprite->texture = App->modResources->explosion1;
 			explosion->sprite->order = 100;
 
 			explosion->animation = App->modRender->addAnimation(explosion);
-			explosion->animation->clip = App->modResources->knightAttack;
-			//explosion->animation->clip = App->modResources->explosionClip;
+			explosion->animation->clip = App->modResources->explosionClip;
 
 			NetworkDestroy(explosion, 2.0f);
 

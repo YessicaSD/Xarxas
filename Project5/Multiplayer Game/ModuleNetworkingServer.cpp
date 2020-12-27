@@ -353,16 +353,8 @@ GameObject * ModuleNetworkingServer::spawnPlayer(uint8 spaceshipType, vec2 initi
 
 	// Create sprite
 	gameObject->sprite = App->modRender->addSprite(gameObject);
+	gameObject->sprite->texture = App->modResources->knightIdleImg;
 	gameObject->sprite->order = 5;
-	if (spaceshipType == 0) {
-		gameObject->sprite->texture = App->modResources->spacecraft1;
-	}
-	else if (spaceshipType == 1) {
-		gameObject->sprite->texture = App->modResources->spacecraft2;
-	}
-	else {
-		gameObject->sprite->texture = App->modResources->spacecraft3;
-	}
 
 	// Create collider
 	gameObject->collider = App->modCollision->addCollider(ColliderType::Player, gameObject);

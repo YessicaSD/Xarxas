@@ -87,6 +87,7 @@ void ReplicationManagerClient::instantiateGameObject(uint32 networkId, const Inp
 	packet >> gameObject->position;
 	packet >> gameObject->angle;
 	packet >> gameObject->size;
+	//TODO: If we're not using the texture anymore, change it
 	std::string texture_filename;
 	packet >> texture_filename;
 
@@ -103,17 +104,12 @@ void ReplicationManagerClient::instantiateGameObject(uint32 networkId, const Inp
 
 		gameObject->sprite = App->modRender->addSprite(gameObject);
 		gameObject->sprite->order = 5;
-		if (texture_filename == App->modResources->spacecraft1->filename) {
-			gameObject->sprite->texture = App->modResources->spacecraft1;
-		}
-		else if (texture_filename == App->modResources->spacecraft2->filename) {
-			gameObject->sprite->texture = App->modResources->spacecraft2;
-		}
-		else if (texture_filename == App->modResources->spacecraft3->filename) {
-			gameObject->sprite->texture = App->modResources->spacecraft3;
-		}
+		gameObject->sprite->texture = App->modResources->knightIdleImg;
 		gameObject->collider = App->modCollision->addCollider(ColliderType::Player, gameObject);
 		gameObject->collider->isTrigger = true;
+
+		gameObject->animation = App->modRender->addAnimation(gameObject);
+		gameObject->animation->clip = App->modResources->knightIdleClip;
 	} break;
 	case BehaviourType::Laser:
 	{
