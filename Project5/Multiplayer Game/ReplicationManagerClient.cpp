@@ -36,32 +36,29 @@ void ReplicationManagerClient::Read(const InputMemoryStream& packet, DeliveryMan
 		{
 			GameObject disposableObj;
 			GameObject* obj = (processPacket) ? App->modLinkingContext->getNetworkGameObject(command.networkId) : &disposableObj;
+				
+			vec2 server_pos;
+			float server_angle;
+			packet >> server_pos;
+			packet >> server_angle;
 
-			ASSERT(obj != nullptr);
-			if (obj != nullptr)
+			if (command.networkId == App->modNetClient->getNetworkId())
 			{
-				vec2 server_pos;
-				float server_angle;
-				packet >> server_pos;
-				packet >> server_angle;
-
-				if (command.networkId == App->modNetClient->getNetworkId())
+				obj->position = server_pos;
+				obj->angle = server_angle;
+				for (int i = server_Input; i < App->modNetClient->inputIndex; i++)
 				{
-					obj->position = server_pos;
-					obj->angle = server_angle;
-					for (int i = server_Input; i < App->modNetClient->inputIndex; i++)
-					{
-						App->modNetClient->ProcessInput(i, obj);
-					}
-				}
-
-				if (obj->interpolation != nullptr)
-				{
-					obj->interpolation->SetFinal(server_pos, server_angle);
+					App->modNetClient->ProcessInput(i, obj);
 				}
 			}
 
-		}break;
+			if (obj->interpolation != nullptr)
+			{
+				obj->interpolation->SetFinal(server_pos, server_angle);
+			}
+
+		}
+		break;
 		default: {
 			LOG("Invalid case");
 		} break;
