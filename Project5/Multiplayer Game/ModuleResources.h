@@ -50,7 +50,7 @@ private:
 
 	void onTaskFinished(Task *task) override;
 
-	void CreateJSONAnim(AnimationClip** clip, const std::string& json_path);
+	void CreateJSONAnim(AnimationClip** clip, const std::string& json_path, float framerate, bool loop, float imgWidth, float imgHeight);
 
 	void loadTextureAsync(const char *filename, Texture **texturePtrAddress);
 

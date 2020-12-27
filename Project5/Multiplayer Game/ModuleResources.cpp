@@ -96,16 +96,15 @@ void ModuleResources::onTaskFinished(Task * task)
 			explosionClip->addFrameRect(vec4{ x, y, w, h });
 		}
 
-		CreateJSONAnim(&knightAttack, "LivingArmor_tex.json");
+		CreateJSONAnim(&knightAttack, "LivingArmor_tex.json", 30.f, false, 4096.f, 4096.f);
 	}
 }
 
 //INFO: We can get the image from the json
-void ModuleResources::CreateJSONAnim(AnimationClip** clip, const std::string& json_path) {
+void ModuleResources::CreateJSONAnim(AnimationClip** clip, const std::string& json_path, float framerate, bool loop, float imgWidth, float imgHeight) {
 	(*clip) = App->modRender->addAnimationClip();
-	//(*clip)->frameTime = 0.1f;
-	(*clip)->frameTime = 1.f / 30.f;
-	(*clip)->loop = false;
+	(*clip)->frameTime = 1.f / framerate;
+	(*clip)->loop = loop;
 
 	std::ifstream jsonFile(json_path);
 	if (!jsonFile) {
@@ -119,7 +118,7 @@ void ModuleResources::CreateJSONAnim(AnimationClip** clip, const std::string& js
 		(*iter).at("y").get_to(y);
 		(*iter).at("width").get_to(w);
 		(*iter).at("height").get_to(h);
-		(*clip)->addFrameRect(vec4{x / 4096.f, y / 4096.f, w / 4096.f, h / 4096.f });
+		(*clip)->addFrameRect(vec4{x / imgWidth, y / imgHeight, w / imgWidth, h / imgHeight });
 	}
 	jsonFile.close();
 }
