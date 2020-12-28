@@ -92,7 +92,7 @@ void ModuleResources::onTaskFinished(Task * task)
 			float y = (i / 4) / 4.0f;
 			float w = 1.0f / 4.0f;
 			float h = 1.0f / 4.0f;
-			explosionClip->addFrameRect(vec4{ x, y, w, h });
+			explosionClip->addFrameRect(Rect(x, y, w, h, 0, 0, 0, 0));
 		}
 
 		CreateJSONAnim(&knightAttackClip, "LivingArmor_tex.json", 30.f, false, 2048.f, 4096.f);
@@ -113,12 +113,17 @@ void ModuleResources::CreateJSONAnim(AnimationClip** clip, const std::string& js
 	json jsonObj = json::parse(jsonFile);
 	json::iterator rects = jsonObj.find("SubTexture");
 	for (json::iterator iter = rects->begin(); iter != rects->end(); ++iter) {
-		float x, y, w, h;
+		float x, y, w, h, frameX, frameY, frameW, frameH;
 		(*iter).at("x").get_to(x);
 		(*iter).at("y").get_to(y);
 		(*iter).at("width").get_to(w);
 		(*iter).at("height").get_to(h);
-		(*clip)->addFrameRect(vec4{x / imgWidth, y / imgHeight, w / imgWidth, h / imgHeight });
+		(*iter).at("frameX").get_to(frameX);
+		(*iter).at("frameY").get_to(frameY);
+		(*iter).at("frameWidth").get_to(frameW);
+		(*iter).at("frameHeight").get_to(frameH);
+		(*clip)->addFrameRect(
+			Rect(x / imgWidth, y / imgHeight, w / imgWidth, h / imgHeight, frameX, frameY, frameW, frameH));
 	}
 	jsonFile.close();
 }

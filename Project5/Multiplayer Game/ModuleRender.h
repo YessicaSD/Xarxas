@@ -13,15 +13,24 @@ struct Sprite
 
 const uint8 MAX_ANIMATION_CLIP_FRAMES = 128;
 
+struct Rect {
+	Rect(){}
+	Rect(float x, float y, float w, float h, float frameX, float frameY, float frameW, float frameH)
+		: x(x), y(y), w(w), h(h), frameX(frameX), frameY(frameY), frameW(frameW), frameH(frameH)
+	{}
+	float x, y, w, h, frameX, frameY, frameW, frameH;
+};
+
+
 struct AnimationClip
 {
-	vec4 frameRect[MAX_ANIMATION_CLIP_FRAMES];
+	Rect frameRect[MAX_ANIMATION_CLIP_FRAMES];
 	float frameTime = 0.1f;
 	uint16 id = 0;
 	uint8 frameCount = 0;
 	bool loop = false;
 
-	void addFrameRect(vec4 rect)
+	void addFrameRect(Rect rect)
 	{
 		frameRect[frameCount++] = rect;
 	}
@@ -53,7 +62,7 @@ struct Animation
 		currentFrame = 0;
 	}
 
-	vec4 currentFrameRect() const
+	Rect currentFrameRect() const
 	{
 		return clip->frameRect[currentFrame];
 	}

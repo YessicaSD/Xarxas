@@ -589,11 +589,11 @@ void ModuleRender::renderScene()
 		else
 		{
 			gameObject->animation->update(Time.deltaTime);
-			vec4 rect = gameObject->animation->currentFrameRect();
+			Rect rect = gameObject->animation->currentFrameRect();
 			const float u0 = rect.x;
-			const float u1 = rect.x + rect.z;
+			const float u1 = rect.x + rect.w;
 			const float v0 = rect.y;
-			const float v1 = rect.y + rect.w;
+			const float v1 = rect.y + rect.h;
 			CUSTOMVERTEX *vertex_buffer = (CUSTOMVERTEX*)mapped_vertices.pData;
 			vertex_buffer[0] = { -0.5f, -0.5f, u0, v0 };
 			vertex_buffer[1] = { -0.5f,  0.5f, u0, v1 };
