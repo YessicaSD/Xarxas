@@ -153,6 +153,7 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 				proxy->replicationManager.Write(packet, &proxy->deliveryManager, proxy->replicationManager.replicationCommands);
 				sendPacket(packet, proxy->address);
 
+
 				LOG("Message received: hello - from player %s", proxy->name.c_str());
 			}
 			else
@@ -355,6 +356,8 @@ GameObject * ModuleNetworkingServer::spawnPlayer(uint8 spaceshipType, vec2 initi
 	gameObject->sprite = App->modRender->addSprite(gameObject);
 	gameObject->sprite->texture = App->modResources->knightIdleImg;
 	gameObject->sprite->order = 5;
+	gameObject->animation = App->modRender->addAnimation(gameObject);
+	gameObject->animation->clip = App->modResources->knightIdleClip;
 
 	// Create collider
 	gameObject->collider = App->modCollision->addCollider(ColliderType::Player, gameObject);

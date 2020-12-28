@@ -197,8 +197,10 @@ void ModuleNetworkingClient::onUpdate()
 		if (inputIndex < inputDataBack)
 		{
 			GameObject* playerObject = App->modLinkingContext->getNetworkGameObject(networkId);
-
-			App->modNetClient->ProcessInput(inputIndex, playerObject);
+			if (playerObject)
+			{
+				App->modNetClient->ProcessInput(inputIndex, playerObject);
+			}
 			inputIndex++;
 		}
 
