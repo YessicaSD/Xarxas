@@ -12,6 +12,16 @@ bool ModuleComponents::update()
 	return true;
 }
 
+bool ModuleComponents::cleanUp()
+{
+	for (auto i = allComponents.rbegin(); i != allComponents.rend(); i++)
+	{
+		delete (*i);
+	}
+	allComponents.clear();
+	return true;
+}
+
 void ModuleComponents::DeleteComponent(Component* component)
 {
 	auto componentIter = std::find(allComponents.begin(), allComponents.end(), component);

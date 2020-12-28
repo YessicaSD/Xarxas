@@ -11,6 +11,7 @@ class ModuleComponents : public Module
 {
 public:
 	bool update() override;
+	bool cleanUp() override;
 	template <class T>
 	Component* GetComponent(GameObject* owner);
 	void DeleteComponent(Component* component);
