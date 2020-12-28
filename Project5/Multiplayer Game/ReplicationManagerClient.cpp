@@ -23,8 +23,12 @@ void ReplicationManagerClient::Read(const InputMemoryStream& packet, DeliveryMan
 		case ReplicationAction::Destroy:
 		{
 			GameObject* obj = App->modLinkingContext->getNetworkGameObject(command.networkId);
-			App->modLinkingContext->unregisterNetworkGameObject(obj);
-			Destroy(obj);
+			if (obj != nullptr)
+			{
+				App->modLinkingContext->unregisterNetworkGameObject(obj);
+				Destroy(obj);
+			}
+			
 		} break;
 
 		case ReplicationAction::Create:
