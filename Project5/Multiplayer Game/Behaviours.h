@@ -52,6 +52,7 @@ struct Spaceship : public Behaviour
 	static const uint8 MAX_HIT_POINTS = 5;
 	uint8 hitPoints = MAX_HIT_POINTS;
 
+	GameObject* weapon = nullptr;
 	GameObject *lifebar = nullptr;
 
 	BehaviourType type() const override { return BehaviourType::Spaceship; }

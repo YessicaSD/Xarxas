@@ -9,9 +9,6 @@ Delivery::Delivery(uint32 sequenceNumber, double dispatchTime) : sequenceNumber(
 
 Delivery::~Delivery()
 {
-    //for (int i = indispensableCommands.size() - 1; i >= 0; --i) {
-    //    delete(&indispensableCommands[i]);
-    //}
     indispensableCommands.clear();
 }
 
