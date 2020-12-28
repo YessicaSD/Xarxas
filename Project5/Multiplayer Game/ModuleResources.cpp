@@ -29,7 +29,7 @@ bool ModuleResources::init()
 	loadingFinished = true;
 	completionRatio = 1.0f;
 #else
-	loadTextureAsync("space_background.jpg", &space);
+	loadTextureAsync("Flat Night 4 BG.png", &space);
 	loadTextureAsync("asteroid1.png",        &asteroid1);
 	loadTextureAsync("asteroid2.png",        &asteroid2);
 	loadTextureAsync("laser.png",            &laser);
