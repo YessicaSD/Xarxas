@@ -16,7 +16,7 @@ public:
 
 	uint32 getNetworkId();
 
-	float secondsSinceLastReplication = 0.1;
+	float secondsSinceLastReplication = 0.1f;
 
 	void ProcessInput(uint32 index, GameObject* obj);
 

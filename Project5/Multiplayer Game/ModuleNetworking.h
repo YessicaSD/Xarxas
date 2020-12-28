@@ -12,7 +12,9 @@ public:
 
 	void disconnect();
 
+	void sendPacket(const OutputMemoryStream& packet, const sockaddr_in& destAddress);
 
+	void sendPacket(const char* data, uint32 size, const sockaddr_in& destAddress);
 
 protected:
 
@@ -26,13 +28,7 @@ protected:
 
 	bool bindSocketToPort(int port);
 
-	void sendPacket(const OutputMemoryStream &packet, const sockaddr_in &destAddress);
-
-	void sendPacket(const char *data, uint32 size, const sockaddr_in &destAddress);
-
 	void reportError(const char *message);
-
-
 
 private:
 

@@ -24,9 +24,9 @@ void ReplicationManagerServer::Write(OutputMemoryStream& packet, DeliveryManager
 	packet << PROTOCOL_ID;
 	packet << ServerMessage::Replication;
 
-	Delivery* newDelivery = deliveryManager->writeSequenceNumber(packet);
+	Delivery* delivery = deliveryManager->writeSequenceNumber(packet);
 
-	packet << lastInput;
+	packet << lastClientInputReceived;
 
 	for (ReplicationCommand command : commands) {
 		switch (command.action) {
@@ -42,6 +42,8 @@ void ReplicationManagerServer::Write(OutputMemoryStream& packet, DeliveryManager
 				packet << gameObject->angle;
 				packet << gameObject->size;
 				packet << std::string(gameObject->sprite->texture->filename);
+
+				delivery->indispensableCommands.push_back(command);
 			}
 		}break;
 		case ReplicationAction::Update: {
@@ -59,10 +61,7 @@ void ReplicationManagerServer::Write(OutputMemoryStream& packet, DeliveryManager
 			packet << command.action;
 
 			//If we're destroying, we want to make sure that that packet gets sent
-			newDelivery->indispensableCommands.push_back(command);
-			if (newDelivery->delegate == nullptr) {
-				newDelivery->delegate = new DeliveryDelegateDestroy(newDelivery);
-			}
+			delivery->indispensableCommands.push_back(command);
 			break;
 		}
 		}

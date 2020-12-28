@@ -7,6 +7,45 @@
 Delivery::Delivery(uint32 sequenceNumber, double dispatchTime) : sequenceNumber(sequenceNumber), dispatchTime(dispatchTime)
 {}
 
+Delivery::~Delivery()
+{
+    //for (int i = indispensableCommands.size() - 1; i >= 0; --i) {
+    //    delete(&indispensableCommands[i]);
+    //}
+    indispensableCommands.clear();
+}
+
+void Delivery::onDeliverySucess(int clientIndex)
+{}
+
+void Delivery::onDeliveryFailure(int clientIndex)
+{
+    bool sendPacket = false;
+
+    for (int i = indispensableCommands.size() - 1; i >= 0; --i) {
+        if (indispensableCommands[i].action == ReplicationAction::Destroy) {
+            if (App->modLinkingContext->getNetworkGameObject(indispensableCommands[i].networkId) == nullptr) {
+                sendPacket = true;
+            }
+            else {
+                //If  a new gameobject has been created on that position, don't send the delete
+                indispensableCommands.erase(indispensableCommands.begin() + i);
+            }
+        }
+        else if (indispensableCommands[i].action == ReplicationAction::Create) {
+            sendPacket = true;
+        }
+    }
+
+    if (sendPacket) {
+        ModuleNetworkingServer::ClientProxy* proxy = App->modNetServer->getClientProxy(clientIndex);
+        
+        OutputMemoryStream packet;
+        proxy->replicationManager.Write(packet, &proxy->deliveryManager, indispensableCommands);
+        App->modNetServer->sendPacket(packet, proxy->address);
+    }
+}
+
 Delivery* DeliveryManagerServer::writeSequenceNumber(OutputMemoryStream& packet)
 {
 
@@ -23,24 +62,34 @@ void DeliveryManagerServer::processAckdSequenceNumbers(const InputMemoryStream& 
     packet >> numberOfPacketRecived;
     for (int i = 0; i < numberOfPacketRecived; i++)
     {
-        uint32 packetResivedIndex;
-        packet >> packetResivedIndex;
+        uint32 packetReceivedIndex;
+        packet >> packetReceivedIndex;
         if (pendingDeliveries.size() > 0)
         {
-            auto iter = std::find_if(pendingDeliveries.begin(), pendingDeliveries.end(),
-                        [packetResivedIndex](Delivery* d) {return d->sequenceNumber == packetResivedIndex; });
+            auto iter = std::find_if(
+                pendingDeliveries.begin(),
+                pendingDeliveries.end(),
+                [packetReceivedIndex](Delivery* d)
+                    {return d->sequenceNumber == packetReceivedIndex; });
             
             if (iter != pendingDeliveries.end())
             {
-                if ((*iter)->delegate != nullptr)
-                {
-                    (*iter)->delegate->onDeliverySuccess(this);
-                }
+                
+                (*iter)->onDeliverySucess(getClientIndex());
                 delete (*iter);
                 pendingDeliveries.erase(iter);
             }
         }
     }
+}
+
+int DeliveryManagerServer::getClientIndex() {
+    for (int i = 0; i < MAX_CLIENTS; ++i) {
+        if (&App->modNetServer->getClientProxy(i)->deliveryManager == this) {
+            return i;
+        }
+    }
+    return -1;
 }
 
 void DeliveryManagerServer::processTimedOutPackets()
@@ -49,10 +98,7 @@ void DeliveryManagerServer::processTimedOutPackets()
     {
         if (pendingDeliveries[i]->dispatchTime < Time.time)
         {
-            if (pendingDeliveries[i]->delegate != nullptr) {
-                pendingDeliveries[i]->delegate->onDeliveryFailure(this);
-            }
-
+            pendingDeliveries[i]->onDeliveryFailure(getClientIndex());
             delete pendingDeliveries[i];
             pendingDeliveries.erase(pendingDeliveries.begin() + i);
         }
@@ -63,19 +109,11 @@ bool DeliveryManagerClient::processSequenceNumber(const InputMemoryStream& packe
 {
     uint32 sequenceNumber = 0;
     packet >> sequenceNumber;
-    
-    pendingAck.push_back(sequenceNumber);
 
     if (sequenceNumber >= expectedSequenceNum) {
+        pendingAck.push_back(sequenceNumber);
         expectedSequenceNum = expectedSequenceNum + 1;
-        //send success
-        //if we update a gameobject that has not been created, create it
         return true;
-    }
-    else if (sequenceNumber < expectedSequenceNum) {
-        return false;
-        //send success
-        return false;
     }
     return false;
 }
@@ -93,22 +131,4 @@ void DeliveryManagerClient::writeSequenceNumbersPendingAck(OutputMemoryStream& p
         packet << (*i);
     }
     pendingAck.clear();
-}
-
-DeliveryDelegate::DeliveryDelegate(Delivery* parent)
-    : parent(parent)
-{}
-
-DeliveryDelegateDestroy::DeliveryDelegateDestroy(Delivery* parent)
-    : DeliveryDelegate::DeliveryDelegate(parent)
-{}
-
-void DeliveryDelegateDestroy::onDeliverySuccess(DeliveryManagerServer* deliveryManager)
-{}
-
-void DeliveryDelegateDestroy::onDeliveryFailure(DeliveryManagerServer* deliveryManager)
-{
-    OutputMemoryStream packet;
-    // ReplicationManagerServer::Write(packet, deliveryManager, parent->indispensableCommands);
-    //TODO: send
 }

@@ -12,7 +12,29 @@ public:
 
 	void setListenPort(int port);
 
+	struct ClientProxy
+	{
+		bool connected = false;
+		sockaddr_in address;
+		uint32 clientId;
+		//uint32 lastInputReceived = 0;
+		std::string name;
+		GameObject* gameObject = nullptr;
 
+		// TODO(you): UDP virtual connection lab session
+		// TODO(you): World state replication lab session
+		// TODO(you): Reliability on top of UDP lab session
+
+		uint32 nextExpectedInputSequenceNumber = 0;
+		bool sendInputConfirmation = false;
+		InputController gamepad;
+		double lastPacketReceivedTime = 0.0;
+		double lastReplicationSendTime = 0.0;
+		double lastInputConfirmationTime = 0.0;
+
+		ReplicationManagerServer replicationManager;
+		DeliveryManagerServer deliveryManager;
+	};
 
 private:
 
@@ -42,30 +64,6 @@ private:
 
 	uint32 nextClientId = 0;
 
-	struct ClientProxy
-	{
-		bool connected = false;
-		sockaddr_in address;
-		uint32 clientId;
-		//uint32 lastInputReceived = 0;
-		std::string name;
-		GameObject *gameObject = nullptr;
-
-		// TODO(you): UDP virtual connection lab session
-		// TODO(you): World state replication lab session
-		// TODO(you): Reliability on top of UDP lab session
-
-		uint32 nextExpectedInputSequenceNumber = 0;
-		bool sendInputConfirmation = false;
-		InputController gamepad;
-		double lastPacketReceivedTime = 0.0;
-		double lastReplicationSendTime = 0.0;
-		double lastInputConfirmationTime = 0.0;
-
-		ReplicationManagerServer replicationManager;
-		DeliveryManagerServer deliveryManager;
-	};
-
 	ClientProxy clientProxies[MAX_CLIENTS];
 
 	ClientProxy * createClientProxy();
@@ -76,6 +74,8 @@ private:
 
 
 public:
+
+	ClientProxy* getClientProxy(int clientIndex);
 
 	//////////////////////////////////////////////////////////////////////
 	// Spawning network objects

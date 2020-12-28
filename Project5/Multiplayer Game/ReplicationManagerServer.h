@@ -8,7 +8,7 @@ class ReplicationManagerServer
 	
 
 public:
-	uint32 lastInput = 0;
+	uint32 lastClientInputReceived = 0;
 
 	void Create(uint32 networkId);
 	void Update(uint32 networkId);

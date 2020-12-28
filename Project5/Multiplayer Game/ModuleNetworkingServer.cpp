@@ -189,7 +189,7 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 						proxy->gamepad.verticalAxis = inputData.verticalAxis;
 						unpackInputControllerButtons(inputData.buttonBits, proxy->gamepad);
 						proxy->gameObject->behaviour->onInput(proxy->gamepad);
-						proxy->replicationManager.lastInput = inputData.sequenceNumber;
+						proxy->replicationManager.lastClientInputReceived = inputData.sequenceNumber;
 						proxy->nextExpectedInputSequenceNumber = inputData.sequenceNumber + 1;
 						proxy->sendInputConfirmation = true;
 					}
@@ -336,6 +336,11 @@ void ModuleNetworkingServer::destroyClientProxy(ClientProxy *clientProxy)
 	}
 
     *clientProxy = {};
+}
+
+ModuleNetworkingServer::ClientProxy* ModuleNetworkingServer::getClientProxy(int clientIndex)
+{
+	return &clientProxies[clientIndex];
 }
 
 

@@ -4,34 +4,17 @@
 
 // TODO(you): Reliability on top of UDP lab session
 
-class DeliveryManagerServer;
-class Delivery;
 struct ReplicationCommand;
-
-class DeliveryDelegate
-{
-public:
-	DeliveryDelegate(Delivery* parent);
-	virtual void onDeliverySuccess(DeliveryManagerServer* deliveryManager) = 0;
-	virtual void onDeliveryFailure(DeliveryManagerServer* deliveryManager) = 0;
-protected:
-	Delivery* parent = nullptr;
-};
-
-class DeliveryDelegateDestroy : public DeliveryDelegate {
-public:
-	DeliveryDelegateDestroy(Delivery* parent);
-	void onDeliverySuccess(DeliveryManagerServer * deliveryManager) override;
-	void onDeliveryFailure(DeliveryManagerServer * deliveryManager) override;
-};
 
 struct Delivery
 {
 	Delivery(uint32 sequenceNumber, double dispatchTime);
+	~Delivery();
 	uint32 sequenceNumber = 0;
 	double dispatchTime = 0.0;
-	DeliveryDelegate* delegate = nullptr;
-	
+	void onDeliverySucess(int clientIndex);
+	void onDeliveryFailure(int clientIndex);
+
 	std::vector<ReplicationCommand> indispensableCommands;
 
 };
@@ -45,6 +28,8 @@ public:
 	void clear();
 
 private:
+	int getClientIndex();
+
 	//Sender variables
 	uint32 nextSequenceNum = 0;
 	std::vector<Delivery*> pendingDeliveries;
