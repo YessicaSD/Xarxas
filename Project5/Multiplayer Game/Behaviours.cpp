@@ -43,14 +43,19 @@ void Spaceship::start()
 	lifebar->sprite = App->modRender->addSprite(lifebar);
 	lifebar->sprite->pivot = vec2{ 0.0f, 0.5f };
 	lifebar->sprite->order = 5;
+	gameObject->angle = 0;
 }
 
 void Spaceship::onInput(const InputController &input)
 {
-	if (input.horizontalAxis != 0.0f)
+	if (input.horizontalAxis != 0.0f || input.verticalAxis != 0.0f)
 	{
-		const float rotateSpeed = 180.0f;
-		gameObject->angle += input.horizontalAxis * rotateSpeed * Time.deltaTime;
+		/*const float rotateSpeed = 180.0f;
+		gameObject->angle += input.horizontalAxis * rotateSpeed * Time.deltaTime;*/
+		
+		const float advanceSpeed = 200.0f;
+		gameObject->position.x += input.horizontalAxis * advanceSpeed * Time.deltaTime;
+		gameObject->position.y -= input.verticalAxis * advanceSpeed * Time.deltaTime;
 
 		if (isServer)
 		{
@@ -60,8 +65,8 @@ void Spaceship::onInput(const InputController &input)
 
 	if (input.actionDown == ButtonState::Pressed || input.actionDown == ButtonState::Press)
 	{
-		const float advanceSpeed = 200.0f;
-		gameObject->position += vec2FromDegrees(gameObject->angle) * advanceSpeed * Time.deltaTime;
+		/*const float advanceSpeed = 200.0f;
+		gameObject->position += vec2FromDegrees(gameObject->angle) * advanceSpeed * Time.deltaTime;*/
 
 		if (isServer)
 		{

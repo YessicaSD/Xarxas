@@ -46,7 +46,7 @@ void ScreenGame::update()
 	}
 	else
 	{
-		if (!isServer && (lastScreenSize.x != Window.width || lastScreenSize.y != Window.height))
+		if ((lastScreenSize.x != Window.width || lastScreenSize.y != Window.height))
 		{
 			vec2 camPos = App->modRender->cameraPosition;
 			vec2 bgSize = spaceTopLeft->sprite->texture->size;
