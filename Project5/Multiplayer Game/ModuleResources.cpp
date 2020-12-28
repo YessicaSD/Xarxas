@@ -32,12 +32,10 @@ bool ModuleResources::init()
 	loadTextureAsync("space_background.jpg", &space);
 	loadTextureAsync("asteroid1.png",        &asteroid1);
 	loadTextureAsync("asteroid2.png",        &asteroid2);
-	loadTextureAsync("spacecraft1.png",      &spacecraft1);
-	loadTextureAsync("spacecraft2.png",      &spacecraft2);
-	loadTextureAsync("spacecraft3.png",      &spacecraft3);
 	loadTextureAsync("laser.png",            &laser);
 	loadTextureAsync("explosion1.png",       &explosion1);
 	loadTextureAsync("LivingArmor_tex.png",  &knightAttackImg);
+	loadTextureAsync("LivingArmorIdle_tex.png", &knightIdleImg);
 #endif
 
 	audioClipLaser = App->modSound->loadAudioClip("laser.wav");
@@ -96,7 +94,8 @@ void ModuleResources::onTaskFinished(Task * task)
 			explosionClip->addFrameRect(vec4{ x, y, w, h });
 		}
 
-		CreateJSONAnim(&knightAttack, "LivingArmor_tex.json", 30.f, false, 4096.f, 4096.f);
+		CreateJSONAnim(&knightAttackClip, "LivingArmor_tex.json", 30.f, false, 2048.f, 4096.f);
+		CreateJSONAnim(&knightIdleClip, "LivingArmorIdle_tex.json", 30.f, true, 4096.f, 2048.f);
 	}
 }
 
