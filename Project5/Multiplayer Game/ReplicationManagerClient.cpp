@@ -23,8 +23,12 @@ void ReplicationManagerClient::Read(const InputMemoryStream& packet, DeliveryMan
 		case ReplicationAction::Destroy:
 		{
 			GameObject* obj = App->modLinkingContext->getNetworkGameObject(command.networkId);
-			App->modLinkingContext->unregisterNetworkGameObject(obj);
-			Destroy(obj);
+			if (obj != nullptr)
+			{
+				App->modLinkingContext->unregisterNetworkGameObject(obj);
+				Destroy(obj);
+			}
+			
 		} break;
 
 		case ReplicationAction::Create:
@@ -73,6 +77,15 @@ void ReplicationManagerClient::instantiateGameObject(uint32 networkId, const Inp
 
 	GameObject* gameObject = nullptr;
 	GameObject disposableGObj;
+	
+	gameObject  = App->modLinkingContext->getNetworkGameObject(networkId);
+
+	// If the object exists this is may mean that the object have been delated
+	if (gameObject != nullptr)
+	{
+		App->modLinkingContext->unregisterNetworkGameObject(gameObject);
+	}
+
 	if (processCommand)
 	{
 		gameObject = App->modGameObject->Instantiate();
@@ -111,6 +124,9 @@ void ReplicationManagerClient::instantiateGameObject(uint32 networkId, const Inp
 
 		gameObject->animation = App->modRender->addAnimation(gameObject);
 		gameObject->animation->clip = App->modResources->knightIdleClip;
+
+
+
 	} break;
 	case BehaviourType::Laser:
 	{
@@ -121,6 +137,17 @@ void ReplicationManagerClient::instantiateGameObject(uint32 networkId, const Inp
 		gameObject->collider = App->modCollision->addCollider(ColliderType::Laser, gameObject);
 		gameObject->collider->isTrigger = true;
 	} break;
+	case BehaviourType::None:
+	{
+		if (processCommand)
+		{
+			gameObject->sprite = App->modRender->addSprite(gameObject);
+			gameObject->sprite->order = 5;
+			gameObject->sprite->texture = App->modResources->knightArm;
+		}	
+	}
+		
+	break;
 	default:
 	{
 

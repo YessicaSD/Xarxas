@@ -24,7 +24,7 @@ void ScreenGame::enable()
 	spaceTopLeft->sprite = App->modRender->addSprite(spaceTopLeft);
 	spaceTopLeft->sprite->texture = App->modResources->space;
 	spaceTopLeft->sprite->order = -1;
-	spaceTopRight = Instantiate();
+	/*spaceTopRight = Instantiate();
 	spaceTopRight->sprite = App->modRender->addSprite(spaceTopRight);
 	spaceTopRight->sprite->texture = App->modResources->space;
 	spaceTopRight->sprite->order = -1;
@@ -35,7 +35,7 @@ void ScreenGame::enable()
 	spaceBottomRight = Instantiate();
 	spaceBottomRight->sprite = App->modRender->addSprite(spaceBottomRight);
 	spaceBottomRight->sprite->texture = App->modResources->space;
-	spaceBottomRight->sprite->order = -1;
+	spaceBottomRight->sprite->order = -1;*/
 }
 
 void ScreenGame::update()
@@ -46,14 +46,23 @@ void ScreenGame::update()
 	}
 	else
 	{
-		if (!isServer)
+		if ((lastScreenSize.x != Window.width || lastScreenSize.y != Window.height))
 		{
 			vec2 camPos = App->modRender->cameraPosition;
 			vec2 bgSize = spaceTopLeft->sprite->texture->size;
-			spaceTopLeft->position = bgSize * floor(camPos / bgSize);
-			spaceTopRight->position = bgSize * (floor(camPos / bgSize) + vec2{ 1.0f, 0.0f });
+			float resultHeight = ((float)Window.width / bgSize.x) * bgSize.y;
+			bool idHightInof = resultHeight >= Window.height;
+
+			if(Window.height>= Window.width || !idHightInof)
+				spaceTopLeft->size = vec2{ ((float)Window.height  / bgSize.y) *   bgSize.x, (float)Window.height};
+			else
+				spaceTopLeft->size = vec2{ (float) Window.width, resultHeight };
+
+			lastScreenSize = { (float) Window.width, (float)Window.height};
+			//spaceTopLeft->position = bgSize * floor(camPos / bgSize);
+			/*spaceTopRight->position = bgSize * (floor(camPos / bgSize) + vec2{ 1.0f, 0.0f });
 			spaceBottomLeft->position = bgSize * (floor(camPos / bgSize) + vec2{ 0.0f, 1.0f });
-			spaceBottomRight->position = bgSize * (floor(camPos / bgSize) + vec2{ 1.0f, 1.0f });;
+			spaceBottomRight->position = bgSize * (floor(camPos / bgSize) + vec2{ 1.0f, 1.0f });;*/
 		}
 	}
 }
@@ -65,7 +74,7 @@ void ScreenGame::gui()
 void ScreenGame::disable()
 {
 	Destroy(spaceTopLeft);
-	Destroy(spaceTopRight);
+	/*Destroy(spaceTopRight);
 	Destroy(spaceBottomLeft);
-	Destroy(spaceBottomRight);
+	Destroy(spaceBottomRight);*/
 }

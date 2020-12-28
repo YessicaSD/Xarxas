@@ -43,14 +43,27 @@ void Spaceship::start()
 	lifebar->sprite = App->modRender->addSprite(lifebar);
 	lifebar->sprite->pivot = vec2{ 0.0f, 0.5f };
 	lifebar->sprite->order = 5;
+	gameObject->angle = 0;
+
+	weapon = Instantiate();
+	weapon->sprite = App->modRender->addSprite(weapon);
+	vec2 bgSize = App->modResources->knightArm->size;
+	float spriteHeight = 70;
+	weapon->size = { (spriteHeight / bgSize.y) * bgSize.x , spriteHeight };
+	weapon->sprite->texture = App->modResources->knightArm;
+	weapon->sprite->order = 6;
 }
 
 void Spaceship::onInput(const InputController &input)
 {
-	if (input.horizontalAxis != 0.0f)
+	if (input.horizontalAxis != 0.0f || input.verticalAxis != 0.0f)
 	{
-		const float rotateSpeed = 180.0f;
-		gameObject->angle += input.horizontalAxis * rotateSpeed * Time.deltaTime;
+		/*const float rotateSpeed = 180.0f;
+		gameObject->angle += input.horizontalAxis * rotateSpeed * Time.deltaTime;*/
+		
+		const float advanceSpeed = 200.0f;
+		gameObject->position.x += input.horizontalAxis * advanceSpeed * Time.deltaTime;
+		gameObject->position.y -= input.verticalAxis * advanceSpeed * Time.deltaTime;
 
 		if (isServer)
 		{
@@ -60,8 +73,8 @@ void Spaceship::onInput(const InputController &input)
 
 	if (input.actionDown == ButtonState::Pressed || input.actionDown == ButtonState::Press)
 	{
-		const float advanceSpeed = 200.0f;
-		gameObject->position += vec2FromDegrees(gameObject->angle) * advanceSpeed * Time.deltaTime;
+		/*const float advanceSpeed = 200.0f;
+		gameObject->position += vec2FromDegrees(gameObject->angle) * advanceSpeed * Time.deltaTime;*/
 
 		if (isServer)
 		{
@@ -97,6 +110,7 @@ void Spaceship::update()
 	static const vec4 colorDead = vec4{ 1.0f, 0.2f, 0.1f, 0.5f };
 	const float lifeRatio = max(0.01f, (float)(hitPoints) / (MAX_HIT_POINTS));
 	lifebar->position = gameObject->position + vec2{ -50.0f, -50.0f };
+	weapon->position = gameObject->position + vec2{0.0f, 50.0f };
 	lifebar->size = vec2{ lifeRatio * 80.0f, 5.0f };
 	lifebar->sprite->color = lerp(colorDead, colorAlive, lifeRatio);
 }
@@ -104,6 +118,7 @@ void Spaceship::update()
 void Spaceship::destroy()
 {
 	Destroy(lifebar);
+	Destroy(weapon);
 }
 
 void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)

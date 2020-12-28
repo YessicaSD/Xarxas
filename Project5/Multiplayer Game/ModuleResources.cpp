@@ -29,13 +29,14 @@ bool ModuleResources::init()
 	loadingFinished = true;
 	completionRatio = 1.0f;
 #else
-	loadTextureAsync("space_background.jpg", &space);
+	loadTextureAsync("1847.jpg", &space);
 	loadTextureAsync("asteroid1.png",        &asteroid1);
 	loadTextureAsync("asteroid2.png",        &asteroid2);
 	loadTextureAsync("laser.png",            &laser);
 	loadTextureAsync("explosion1.png",       &explosion1);
 	loadTextureAsync("LivingArmor_tex.png",  &knightAttackImg);
 	loadTextureAsync("LivingArmorIdle_tex.png", &knightIdleImg);
+	loadTextureAsync("Arm.png", &knightArm);
 #endif
 
 	audioClipLaser = App->modSound->loadAudioClip("laser.wav");
