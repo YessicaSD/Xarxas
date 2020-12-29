@@ -757,3 +757,12 @@ void ModuleRender::CleanupRenderTarget()
 		g_mainRenderTargetView = NULL;
 	}
 }
+
+vec2 ModuleRender::ScreenToWorld(vec2 screenPosition)
+{
+	RECT rect;
+	::GetClientRect(hwnd, &rect);
+	return vec2{
+		cameraPosition.x + screenPosition.x - (rect.right - rect.left) * 0.5f,
+		cameraPosition.y + screenPosition.y - (rect.bottom - rect.top) * 0.5f};
+}

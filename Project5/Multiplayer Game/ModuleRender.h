@@ -106,6 +106,7 @@ public:
 
 	bool mustRenderColliders = false;
 
+	vec2 ScreenToWorld(vec2 screenPosition);
 
 private:
 
@@ -115,6 +116,7 @@ private:
 	void CleanupDeviceD3D();
 	void CreateRenderTarget();
 	void CleanupRenderTarget();
+
 
 	Texture * whitePixel = nullptr;
 	Texture * blackPixel = nullptr;

@@ -110,9 +110,14 @@ void Spaceship::update()
 	static const vec4 colorDead = vec4{ 1.0f, 0.2f, 0.1f, 0.5f };
 	const float lifeRatio = max(0.01f, (float)(hitPoints) / (MAX_HIT_POINTS));
 	lifebar->position = gameObject->position + vec2{ -50.0f, -50.0f };
-	weapon->position = gameObject->position + vec2{0.0f, 50.0f };
 	lifebar->size = vec2{ lifeRatio * 80.0f, 5.0f };
 	lifebar->sprite->color = lerp(colorDead, colorAlive, lifeRatio);
+
+	weapon->position = gameObject->position + vec2{0.0f, 50.0f };
+	if (isLocalPlayer) {
+		vec2 mousePos = App->modRender->ScreenToWorld({ (float)Mouse.x, (float)Mouse.y});
+		weapon->angle = atan2(mousePos.y - gameObject->position.y, mousePos.x - gameObject->position.x) * (180.f / PI) - 90.f;
+	}
 }
 
 void Spaceship::destroy()
