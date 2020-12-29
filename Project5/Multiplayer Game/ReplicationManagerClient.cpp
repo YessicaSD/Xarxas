@@ -9,8 +9,8 @@ void ReplicationManagerClient::Read(const InputMemoryStream& packet, DeliveryMan
 {
 	bool processPacket = deliveryManager->processSequenceNumber(packet);
 
-	uint32 server_Input;
-	packet >> server_Input;
+	uint32 lastInputReceived;
+	packet >> lastInputReceived;
 	
 	while (packet.RemainingByteCount() != 0)
 	{
@@ -33,34 +33,12 @@ void ReplicationManagerClient::Read(const InputMemoryStream& packet, DeliveryMan
 
 		case ReplicationAction::Create:
 		{
-			instantiateGameObject(command.networkId, packet, processPacket);
+			CreateGameObject(command.networkId, packet, processPacket);
 		}
 		break;
 		case ReplicationAction::Update:
 		{
-			GameObject disposableObj;
-			GameObject* obj = (processPacket) ? App->modLinkingContext->getNetworkGameObject(command.networkId) : &disposableObj;
-				
-			vec2 server_pos;
-			float server_angle;
-			packet >> server_pos;
-			packet >> server_angle;
-
-			if (command.networkId == App->modNetClient->getNetworkId())
-			{
-				obj->position = server_pos;
-				obj->angle = server_angle;
-				for (int i = server_Input; i < App->modNetClient->inputIndex; i++)
-				{
-					App->modNetClient->ProcessInput(i, obj);
-				}
-			}
-
-			if (obj->interpolation != nullptr)
-			{
-				obj->interpolation->SetFinal(server_pos, server_angle);
-			}
-
+			UpdateGameObject(processPacket, command, packet, lastInputReceived);
 		}
 		break;
 		default: {
@@ -71,7 +49,21 @@ void ReplicationManagerClient::Read(const InputMemoryStream& packet, DeliveryMan
 
 }
 
-void ReplicationManagerClient::instantiateGameObject(uint32 networkId, const InputMemoryStream& packet, bool processCommand)
+void ReplicationManagerClient::UpdateGameObject(bool processPacket, ReplicationCommand& command, const InputMemoryStream& packet, const uint32& lastInputReceived)
+{
+	GameObject disposableObj;
+	GameObject* obj = (processPacket) ? App->modLinkingContext->getNetworkGameObject(command.networkId) : &disposableObj;
+
+	if (obj->behaviour == nullptr) {
+		packet >> obj->position;
+		packet >> obj->angle;
+	}
+	else {
+		obj->behaviour->read(packet, lastInputReceived);
+	}
+}
+
+void ReplicationManagerClient::CreateGameObject(uint32 networkId, const InputMemoryStream& packet, bool processCommand)
 {
 	//TODO JAUME: Put gameObject->isLocalPlayer to true when it's your spaceship
 

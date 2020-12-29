@@ -5,5 +5,6 @@ class ReplicationManagerClient
 {
 public:
 	void Read(const InputMemoryStream &packet, DeliveryManagerClient * deliveryManager);
-	void instantiateGameObject(uint32 networkId, const InputMemoryStream &packet, bool processCommand);
+	void UpdateGameObject(bool processPacket, ReplicationCommand& command, const InputMemoryStream& packet, const uint32& server_Input);
+	void CreateGameObject(uint32 networkId, const InputMemoryStream &packet, bool processCommand);
 };

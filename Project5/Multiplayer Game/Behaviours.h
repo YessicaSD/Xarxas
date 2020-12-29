@@ -6,6 +6,7 @@ enum class BehaviourType : uint8;
 struct Behaviour
 {
 	GameObject *gameObject = nullptr;
+
 	bool isServer = false;
 	bool isLocalPlayer = false;
 
@@ -21,9 +22,17 @@ struct Behaviour
 
 	virtual void onCollisionTriggered(Collider &c1, Collider &c2) { }
 
-	virtual void write(OutputMemoryStream &packet) { }
+	virtual void write(OutputMemoryStream &packet)
+	{
+		packet << gameObject->position;
+		packet << gameObject->angle;
+	}
 
-	virtual void read(const InputMemoryStream &packet) { }
+	virtual void read(const InputMemoryStream &packet, uint32 lastInputReceived)
+	{
+		packet >> gameObject->position;
+		packet >> gameObject->angle;
+	}
 };
 
 
@@ -69,5 +78,5 @@ struct Spaceship : public Behaviour
 
 	void write(OutputMemoryStream &packet) override;
 
-	void read(const InputMemoryStream &packet) override;
+	void read(const InputMemoryStream &packet, uint32 lastInputReceived) override;
 };

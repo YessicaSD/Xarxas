@@ -52,8 +52,13 @@ void ReplicationManagerServer::Write(OutputMemoryStream& packet, DeliveryManager
 				packet << command.networkId;
 				packet << command.action;
 
-				packet << gameObject->position;
-				packet << gameObject->angle;
+				if (gameObject->behaviour == nullptr) {
+					packet << gameObject->position;
+					packet << gameObject->angle;
+				}
+				else {
+					gameObject->behaviour->write(packet);
+				}
 			}
 		}break;
 		case ReplicationAction::Destroy: {

@@ -21,7 +21,7 @@ struct GameObject
 	// "Script" component
 	Behaviour *behaviour = nullptr;
 
-	// Interpolation component
+	// "Interpolation" component
 	Interpolation* interpolation = nullptr;
 
 	// Tag for custom usage

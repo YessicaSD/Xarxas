@@ -176,10 +176,36 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 
 void Spaceship::write(OutputMemoryStream & packet)
 {
+	Behaviour::write(packet);
+	packet << weapon->angle;
 	packet << hitPoints;
 }
 
-void Spaceship::read(const InputMemoryStream & packet)
+void Spaceship::read(const InputMemoryStream & packet, uint32 lastInputReceived)
 {
+	vec2 server_pos;
+	float server_angle;
+	float weapon_angle;
+
+	packet >> server_pos;
+	packet >> server_angle;
+	packet >> weapon_angle;
 	packet >> hitPoints;
+
+	
+	if (gameObject->networkId == App->modNetClient->getNetworkId())
+	{
+		gameObject->position = server_pos;
+		gameObject->angle = server_angle;
+		for (int i = lastInputReceived + 1; i < App->modNetClient->inputIndex; i++)
+		{
+			App->modNetClient->ProcessInput(i, gameObject);
+		}
+	}
+
+	if (gameObject->interpolation != nullptr)
+	{
+		gameObject->interpolation->SetFinal(server_pos, server_angle);
+	}
+
 }

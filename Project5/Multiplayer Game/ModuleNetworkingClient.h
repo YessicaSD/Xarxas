@@ -20,6 +20,8 @@ public:
 
 	void ProcessInput(uint32 index, GameObject* obj);
 
+	uint32 inputIndex = 0u;
+
 private:
 
 	//////////////////////////////////////////////////////////////////////
@@ -101,10 +103,6 @@ private:
 	//////////////////////////////////////////////////////////////////////
 
 	// TODO(you): Latency management lab session
-
-	// TODO save playerGame object 
-	// GameObject* player = nullptr;
-	uint32 inputIndex = 0;
 
 	friend class ReplicationManagerClient;
 };
