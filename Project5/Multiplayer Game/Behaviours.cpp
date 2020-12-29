@@ -41,6 +41,7 @@ void Spaceship::start()
 	lifebar->sprite->pivot = vec2{ 0.0f, 0.5f };
 	lifebar->sprite->order = 5;
 	gameObject->angle = 0;
+	UpdateLifebar();
 
 	weapon = Instantiate();
 	weapon->sprite = App->modRender->addSprite(weapon);
@@ -112,13 +113,17 @@ void Spaceship::onInput(const InputController &input, const MouseController & mo
 
 void Spaceship::update()
 {
+	lifebar->position = gameObject->position + vec2{ -50.0f, -50.0f };
+	weapon->position = gameObject->position + vec2{0.0f, 50.0f };
+}
+
+void Spaceship::UpdateLifebar()
+{
 	static const vec4 colorAlive = vec4{ 0.2f, 1.0f, 0.1f, 0.5f };
 	static const vec4 colorDead = vec4{ 1.0f, 0.2f, 0.1f, 0.5f };
 	const float lifeRatio = max(0.01f, (float)(hitPoints) / (MAX_HIT_POINTS));
-	lifebar->position = gameObject->position + vec2{ -50.0f, -50.0f };
 	lifebar->size = vec2{ lifeRatio * 80.0f, 5.0f };
 	lifebar->sprite->color = lerp(colorDead, colorAlive, lifeRatio);
-	weapon->position = gameObject->position + vec2{0.0f, 50.0f };
 }
 
 void Spaceship::destroy()
@@ -186,11 +191,19 @@ void Spaceship::read(const InputMemoryStream & packet, uint32 lastInputReceived)
 	vec2 server_pos;
 	float server_angle;
 	float weapon_angle;
+	uint8 hitPoints;
 
 	packet >> server_pos;
 	packet >> server_angle;
 	packet >> weapon_angle;
 	packet >> hitPoints;
+
+	if (lifebar != nullptr && hitPoints != this->hitPoints)
+	{
+		this->hitPoints = hitPoints;
+		UpdateLifebar();
+	}
+
 	
 	if (gameObject->networkId == App->modNetClient->getNetworkId())
 	{

@@ -72,6 +72,8 @@ struct Spaceship : public Behaviour
 
 	void update() override;
 
+	void UpdateLifebar();
+
 	void destroy() override;
 
 	void onCollisionTriggered(Collider &c1, Collider &c2) override;
