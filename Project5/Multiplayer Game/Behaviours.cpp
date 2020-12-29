@@ -191,7 +191,6 @@ void Spaceship::read(const InputMemoryStream & packet, uint32 lastInputReceived)
 	packet >> server_angle;
 	packet >> weapon_angle;
 	packet >> hitPoints;
-
 	
 	if (gameObject->networkId == App->modNetClient->getNetworkId())
 	{

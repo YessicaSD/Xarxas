@@ -72,10 +72,11 @@ void ReplicationManagerClient::CreateGameObject(uint32 networkId, const InputMem
 	
 	gameObject  = App->modLinkingContext->getNetworkGameObject(networkId);
 
-	// If the object exists this is may mean that the object have been delated
+	// If the GameObject exists this is may mean we've lost a Destroy packet
 	if (gameObject != nullptr)
 	{
 		App->modLinkingContext->unregisterNetworkGameObject(gameObject);
+		Destroy(gameObject);
 	}
 
 	if (processCommand)
