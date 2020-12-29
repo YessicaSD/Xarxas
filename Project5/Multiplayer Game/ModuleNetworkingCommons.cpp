@@ -17,7 +17,7 @@ uint16 packInputControllerButtons(const InputController & input)
 	return buttonBits;
 }
 
-uint16 packMouseControllerbuttons(const MouseController & mouse) {
+uint16 packMouseControllerButtons(const MouseController & mouse) {
 	uint16 buttonBits = 0;
 	int buttonIndex = 0;
 	for (ButtonState buttonState : mouse.buttons)
@@ -72,15 +72,19 @@ void unpackMouseControllerButtons(uint16 mouseBits, MouseController & mouse) {
 	}
 }
 
-InputController inputControllerFromInputPacketData(const InputPacketData & inputPacketData, const InputController & previousGamepad, const MouseController & prevMouse)
+InputController inputControllerFromInputPacketData(const InputPacketData & inputPacketData, const InputController & previousGamepad)
 {
 	InputController gamepad = previousGamepad;
 	gamepad.horizontalAxis = inputPacketData.horizontalAxis;
 	gamepad.verticalAxis = inputPacketData.verticalAxis;
-	MouseController mouse;
+	unpackInputControllerButtons(inputPacketData.buttonBits, gamepad);
+	return gamepad;
+}
+
+MouseController mouseControllerFromInputPacketData(const InputPacketData & inputPacketData, const MouseController & previousMouse) {
+	MouseController mouse = previousMouse;
 	mouse.x = inputPacketData.mouseX;
 	mouse.y = inputPacketData.mouseY;
-	unpackInputControllerButtons(inputPacketData.buttonBits, gamepad);
 	unpackMouseControllerButtons(inputPacketData.mouseBits, mouse);
-	return gamepad;
+	return mouse;
 }

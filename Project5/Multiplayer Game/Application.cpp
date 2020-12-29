@@ -15,6 +15,7 @@ Application::Application()
 	ADD_MODULE          (ModulePlatform,         modPlatform);
 	ADD_MODULE          (ModuleRender,           modRender);
 	ADD_MODULE          (ModuleSound,            modSound);
+	ADD_MODULE          (ModuleBehaviour,        modBehaviour);
 	ADD_MODULE_DISABLED (ModuleNetworkingServer, modNetServer);
 	ADD_MODULE_DISABLED (ModuleNetworkingClient, modNetClient);
 	ADD_MODULE          (ModuleLinkingContext,   modLinkingContext);
@@ -24,7 +25,6 @@ Application::Application()
 	ADD_MODULE			(ModuleComponents,		 modComponent);
 	ADD_MODULE          (ModuleGameObject,       modGameObject);
 	ADD_MODULE          (ModuleCollision,        modCollision);
-	ADD_MODULE          (ModuleBehaviour,        modBehaviour);
 	ADD_MODULE          (ModuleScreen,           modScreen);
 	ADD_MODULE          (ModuleUI,               modUI);
 }

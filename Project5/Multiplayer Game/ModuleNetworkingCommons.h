@@ -26,10 +26,12 @@ struct InputPacketData
 
 uint16 packInputControllerButtons(const InputController &input);
 
-uint16 packMouseControllerbuttons(const MouseController& mouse);
+uint16 packMouseControllerButtons(const MouseController& mouse);
 
 void unpackInputControllerButtons(uint16 buttonBits, InputController &input);
 
 void unpackMouseControllerButtons(uint16 buttonBits, MouseController& mouse);
 
-InputController inputControllerFromInputPacketData(const InputPacketData &inputPacketData, const InputController &previousGamepad, const MouseController & prevMouse);
+InputController inputControllerFromInputPacketData(const InputPacketData &inputPacketData, const InputController &previousGamepad);
+
+MouseController mouseControllerFromInputPacketData(const InputPacketData& inputPacketData, const MouseController& previousMouse);

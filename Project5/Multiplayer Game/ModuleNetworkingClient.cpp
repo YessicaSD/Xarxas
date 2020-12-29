@@ -25,10 +25,13 @@ uint32 ModuleNetworkingClient::getNetworkId()
 
 void ModuleNetworkingClient::ProcessInput(uint32 index, GameObject* obj)
 {
-	InputController gamepad;
-	MouseController mouse;
 	InputPacketData& inputPacketData = inputData[index % ArrayCount(inputData)];
-	gamepad = inputControllerFromInputPacketData(inputPacketData, gamepad, mouse);
+
+	InputController gamepad;
+	gamepad = inputControllerFromInputPacketData(inputPacketData, gamepad);
+
+	MouseController mouse;
+	mouse = mouseControllerFromInputPacketData(inputPacketData, mouse);
 
 	obj->behaviour->onInput(gamepad, mouse);
 }
@@ -193,7 +196,10 @@ void ModuleNetworkingClient::onUpdate()
 			inputPacketData.sequenceNumber = currentInputData;
 			inputPacketData.horizontalAxis = Input.horizontalAxis;
 			inputPacketData.verticalAxis = Input.verticalAxis;
+			inputPacketData.mouseX = Mouse.x;
+			inputPacketData.mouseY = Mouse.y;
 			inputPacketData.buttonBits = packInputControllerButtons(Input);
+			inputPacketData.mouseBits = packMouseControllerButtons(Mouse);
 		}
 		else
 		{
@@ -237,8 +243,10 @@ void ModuleNetworkingClient::onUpdate()
 				packet << inputPacketData.sequenceNumber;
 				packet << inputPacketData.horizontalAxis;
 				packet << inputPacketData.verticalAxis;
+				packet << inputPacketData.mouseX;
+				packet << inputPacketData.mouseY;
 				packet << inputPacketData.buttonBits;
-				
+				packet << inputPacketData.mouseBits;
 			}
 
 			sendPacket(packet, serverAddress);

@@ -82,6 +82,9 @@ void Spaceship::onInput(const InputController &input, const MouseController & mo
 		}
 	}
 
+	vec2 mousePos = App->modRender->ScreenToWorld({ (float)mouseInput.x, (float)mouseInput.y });
+	weapon->angle = atan2(mousePos.y - gameObject->position.y, mousePos.x - gameObject->position.x) * (180.f / PI) - 90.f;
+
 	if (mouseInput.buttons[0] == ButtonState::Press)
 	{
 		if (isServer)
@@ -112,12 +115,7 @@ void Spaceship::update()
 	lifebar->position = gameObject->position + vec2{ -50.0f, -50.0f };
 	lifebar->size = vec2{ lifeRatio * 80.0f, 5.0f };
 	lifebar->sprite->color = lerp(colorDead, colorAlive, lifeRatio);
-
 	weapon->position = gameObject->position + vec2{0.0f, 50.0f };
-	if (isLocalPlayer) {
-		vec2 mousePos = App->modRender->ScreenToWorld({ (float)Mouse.x, (float)Mouse.y});
-		weapon->angle = atan2(mousePos.y - gameObject->position.y, mousePos.x - gameObject->position.x) * (180.f / PI) - 90.f;
-	}
 }
 
 void Spaceship::destroy()
