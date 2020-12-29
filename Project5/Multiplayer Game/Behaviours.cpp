@@ -54,7 +54,7 @@ void Spaceship::start()
 	weapon->sprite->order = 6;
 }
 
-void Spaceship::onInput(const InputController &input)
+void Spaceship::onInput(const InputController &input, const MouseController & mouseInput)
 {
 	if (input.horizontalAxis != 0.0f || input.verticalAxis != 0.0f)
 	{
@@ -82,14 +82,14 @@ void Spaceship::onInput(const InputController &input)
 		}
 	}
 
-	if (input.actionLeft == ButtonState::Press)
+	if (mouseInput.buttons[0] == ButtonState::Press)
 	{
 		if (isServer)
 		{
 			GameObject *laser = NetworkInstantiate();
 
-			laser->position = gameObject->position;
-			laser->angle = gameObject->angle;
+			laser->position = weapon->position;
+			laser->angle = weapon->angle;
 			laser->size = { 20, 60 };
 
 			laser->sprite = App->modRender->addSprite(laser);

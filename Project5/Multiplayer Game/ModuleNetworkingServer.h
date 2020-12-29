@@ -28,6 +28,7 @@ public:
 		uint32 nextExpectedInputSequenceNumber = 0;
 		bool sendInputConfirmation = false;
 		InputController gamepad;
+		MouseController mouse;
 		double lastPacketReceivedTime = 0.0;
 		double lastReplicationSendTime = 0.0;
 		double lastInputConfirmationTime = 0.0;

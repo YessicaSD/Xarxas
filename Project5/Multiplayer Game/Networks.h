@@ -152,11 +152,13 @@ struct InputController
 	};
 };
 
+#define MAX_MOUSE_BUTTONS 5
+
 struct MouseController
 {
 	int16 x = 0;
 	int16 y = 0;
-	ButtonState buttons[5] = {};
+	ButtonState buttons[MAX_MOUSE_BUTTONS] = {};
 };
 
 // NOTE(jesus): Global object to access the input controller

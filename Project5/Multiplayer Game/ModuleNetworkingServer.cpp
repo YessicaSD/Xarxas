@@ -189,7 +189,7 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 						proxy->gamepad.horizontalAxis = inputData.horizontalAxis;
 						proxy->gamepad.verticalAxis = inputData.verticalAxis;
 						unpackInputControllerButtons(inputData.buttonBits, proxy->gamepad);
-						proxy->gameObject->behaviour->onInput(proxy->gamepad);
+						proxy->gameObject->behaviour->onInput(proxy->gamepad, proxy->mouse);
 						proxy->replicationManager.lastClientInputReceived = inputData.sequenceNumber;
 						proxy->nextExpectedInputSequenceNumber = inputData.sequenceNumber + 1;
 						proxy->sendInputConfirmation = true;

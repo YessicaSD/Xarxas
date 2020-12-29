@@ -26,9 +26,11 @@ uint32 ModuleNetworkingClient::getNetworkId()
 void ModuleNetworkingClient::ProcessInput(uint32 index, GameObject* obj)
 {
 	InputController gamepad;
+	MouseController mouse;
 	InputPacketData& inputPacketData = inputData[index % ArrayCount(inputData)];
-	gamepad = inputControllerFromInputPacketData(inputPacketData, gamepad);
-	obj->behaviour->onInput(gamepad);
+	gamepad = inputControllerFromInputPacketData(inputPacketData, gamepad, mouse);
+
+	obj->behaviour->onInput(gamepad, mouse);
 }
 
 
@@ -192,6 +194,10 @@ void ModuleNetworkingClient::onUpdate()
 			inputPacketData.horizontalAxis = Input.horizontalAxis;
 			inputPacketData.verticalAxis = Input.verticalAxis;
 			inputPacketData.buttonBits = packInputControllerButtons(Input);
+		}
+		else
+		{
+			LOG("Input array has run out of space!");
 		}
 		
 		if (inputIndex < inputDataBack)

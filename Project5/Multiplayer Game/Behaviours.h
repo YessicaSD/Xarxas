@@ -13,7 +13,7 @@ struct Behaviour
 
 	virtual void start() { }
 
-	virtual void onInput(const InputController &input) { }
+	virtual void onInput(const InputController &input, const MouseController &mouseInput) { }
 
 	virtual void update() { }
 
@@ -59,7 +59,7 @@ struct Spaceship : public Behaviour
 
 	void start() override;
 
-	void onInput(const InputController &input) override;
+	void onInput(const InputController &input, const MouseController & mouseInput) override;
 
 	void update() override;
 
