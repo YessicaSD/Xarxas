@@ -32,9 +32,6 @@ void Laser::update()
 }
 
 
-
-
-
 void Spaceship::start()
 {
 	gameObject->tag = (uint32)(Random.next() * UINT_MAX);
@@ -82,8 +79,14 @@ void Spaceship::onInput(const InputController &input, const MouseController & mo
 		}
 	}
 
-	vec2 mousePos = App->modRender->ScreenToWorld({ (float)mouseInput.x, (float)mouseInput.y });
-	weapon->angle = atan2(mousePos.y - gameObject->position.y, mousePos.x - gameObject->position.x) * (180.f / PI) - 90.f;
+	float weaponAngle = atan2(mouseInput.worldY - gameObject->position.y, mouseInput.worldX - gameObject->position.x)* (180.f / PI) - 90.f;
+	if (weapon->angle != weaponAngle)
+	{
+		weapon->angle = weaponAngle;
+		if (isServer) {
+			NetworkUpdate(gameObject);
+		}
+	}
 
 	if (mouseInput.buttons[0] == ButtonState::Press)
 	{

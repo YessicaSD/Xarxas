@@ -18,8 +18,8 @@ struct InputPacketData
 	uint32 sequenceNumber = 0;
 	real32 horizontalAxis = 0.0f;
 	real32 verticalAxis = 0.0f;
-	int16 mouseX = 0;
-	int16 mouseY = 0;
+	float mouseX = 0;
+	float mouseY = 0;
 	uint16 buttonBits = 0;
 	uint16 mouseBits = 0;
 };

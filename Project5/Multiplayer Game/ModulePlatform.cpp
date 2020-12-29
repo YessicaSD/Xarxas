@@ -413,8 +413,9 @@ bool ModulePlatform::preUpdate()
 		POINT mousePosition;
 		GetCursorPos(&mousePosition);
 		ScreenToClient(hwnd, &mousePosition);
-		Mouse.x = (int16)mousePosition.x;
-		Mouse.y = (int16)mousePosition.y;
+		vec2 mouseWorldPos = App->modRender->ScreenToWorld({ (float)mousePosition.x, (float)mousePosition.y });
+		Mouse.worldX = mouseWorldPos.x;
+		Mouse.worldY = mouseWorldPos.y;
 		Win32ProcessMouseButton(&Mouse.buttons[0], GetKeyState(VK_LBUTTON) & (1 << 15));
 		Win32ProcessMouseButton(&Mouse.buttons[1], GetKeyState(VK_MBUTTON) & (1 << 15));
 		Win32ProcessMouseButton(&Mouse.buttons[2], GetKeyState(VK_RBUTTON) & (1 << 15));

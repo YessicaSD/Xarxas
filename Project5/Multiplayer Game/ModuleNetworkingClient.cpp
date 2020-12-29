@@ -196,8 +196,8 @@ void ModuleNetworkingClient::onUpdate()
 			inputPacketData.sequenceNumber = currentInputData;
 			inputPacketData.horizontalAxis = Input.horizontalAxis;
 			inputPacketData.verticalAxis = Input.verticalAxis;
-			inputPacketData.mouseX = Mouse.x;
-			inputPacketData.mouseY = Mouse.y;
+			inputPacketData.mouseWorldX = Mouse.worldX;
+			inputPacketData.mouseWorldY = Mouse.worldY;
 			inputPacketData.buttonBits = packInputControllerButtons(Input);
 			inputPacketData.mouseBits = packMouseControllerButtons(Mouse);
 		}
@@ -243,8 +243,8 @@ void ModuleNetworkingClient::onUpdate()
 				packet << inputPacketData.sequenceNumber;
 				packet << inputPacketData.horizontalAxis;
 				packet << inputPacketData.verticalAxis;
-				packet << inputPacketData.mouseX;
-				packet << inputPacketData.mouseY;
+				packet << inputPacketData.mouseWorldX;
+				packet << inputPacketData.mouseWorldY;
 				packet << inputPacketData.buttonBits;
 				packet << inputPacketData.mouseBits;
 			}

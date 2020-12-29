@@ -83,8 +83,8 @@ InputController inputControllerFromInputPacketData(const InputPacketData & input
 
 MouseController mouseControllerFromInputPacketData(const InputPacketData & inputPacketData, const MouseController & previousMouse) {
 	MouseController mouse = previousMouse;
-	mouse.x = inputPacketData.mouseX;
-	mouse.y = inputPacketData.mouseY;
+	mouse.worldX = inputPacketData.mouseX;
+	mouse.worldY = inputPacketData.mouseY;
 	unpackMouseControllerButtons(inputPacketData.mouseBits, mouse);
 	return mouse;
 }

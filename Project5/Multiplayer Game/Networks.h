@@ -156,8 +156,8 @@ struct InputController
 
 struct MouseController
 {
-	int16 x = 0;
-	int16 y = 0;
+	float worldX = 0.f;
+	float worldY = 0.f;
 	ButtonState buttons[MAX_MOUSE_BUTTONS] = {};
 };
 

@@ -191,8 +191,8 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 					{
 						proxy->gamepad.horizontalAxis = inputData.horizontalAxis;
 						proxy->gamepad.verticalAxis = inputData.verticalAxis;
-						proxy->mouse.x = inputData.mouseX;
-						proxy->mouse.y = inputData.mouseY;
+						proxy->mouse.worldX = inputData.mouseX;
+						proxy->mouse.worldY = inputData.mouseY;
 						unpackInputControllerButtons(inputData.buttonBits, proxy->gamepad);
 						unpackMouseControllerButtons(inputData.mouseBits, proxy->mouse);
 						proxy->gameObject->behaviour->onInput(proxy->gamepad, proxy->mouse);
