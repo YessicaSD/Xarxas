@@ -52,6 +52,8 @@ void ReplicationManagerServer::Write(OutputMemoryStream& packet, DeliveryManager
 				packet << command.networkId;
 				packet << command.action;
 
+				BehaviourType behaviour = gameObject->behaviour == nullptr ? BehaviourType::None : gameObject->behaviour->type();
+				packet << behaviour;
 				if (gameObject->behaviour == nullptr) {
 					packet << gameObject->position;
 					packet << gameObject->angle;

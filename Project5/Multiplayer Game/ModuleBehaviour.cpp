@@ -42,7 +42,7 @@ Spaceship *ModuleBehaviour::addSpaceship(GameObject *parentGameObject)
 		}
 	}
 
-	ASSERT(false);
+	ASSERT(false);//You've run out of spaceships
 	return nullptr;
 }
 

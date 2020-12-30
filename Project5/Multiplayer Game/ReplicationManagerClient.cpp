@@ -30,7 +30,6 @@ void ReplicationManagerClient::Read(const InputMemoryStream& packet, DeliveryMan
 			}
 			
 		} break;
-
 		case ReplicationAction::Create:
 		{
 			CreateGameObject(command.networkId, packet, processPacket);
@@ -52,7 +51,26 @@ void ReplicationManagerClient::Read(const InputMemoryStream& packet, DeliveryMan
 void ReplicationManagerClient::UpdateGameObject(bool processPacket, ReplicationCommand& command, const InputMemoryStream& packet, const uint32& lastInputReceived)
 {
 	GameObject disposableObj;
-	GameObject* obj = (processPacket) ? App->modLinkingContext->getNetworkGameObject(command.networkId) : &disposableObj;
+	GameObject* obj = nullptr;
+	if (processPacket) {
+		obj = App->modLinkingContext->getNetworkGameObject(command.networkId);
+		//If it is nullptr, it there was a packet loss where we created this gameobject
+		if (obj == nullptr) {
+			obj = App->modGameObject->Instantiate();
+			App->modLinkingContext->registerNetworkGameObjectWithNetworkId(obj, command.networkId);
+		}
+	}
+	else {
+		GameObject disposableObj;
+		obj = &disposableObj;
+	}
+
+	BehaviourType behaviour;
+	packet >> behaviour;
+
+	if (obj->behaviour == nullptr) {
+		obj->behaviour = App->modBehaviour->addBehaviour(behaviour, obj);
+	}
 
 	if (obj->behaviour == nullptr) {
 		packet >> obj->position;
@@ -67,10 +85,7 @@ void ReplicationManagerClient::CreateGameObject(uint32 networkId, const InputMem
 {
 	//TODO JAUME: Put gameObject->isLocalPlayer to true when it's your spaceship
 
-	GameObject* gameObject = nullptr;
-	GameObject disposableGObj;
-	
-	gameObject  = App->modLinkingContext->getNetworkGameObject(networkId);
+	GameObject* gameObject = App->modLinkingContext->getNetworkGameObject(networkId);
 
 	// If the GameObject exists this is may mean we've lost a Destroy packet
 	if (gameObject != nullptr)
@@ -86,6 +101,7 @@ void ReplicationManagerClient::CreateGameObject(uint32 networkId, const InputMem
 	}
 	else
 	{
+		GameObject disposableGObj;
 		gameObject = &disposableGObj;
 	}
 
@@ -118,9 +134,6 @@ void ReplicationManagerClient::CreateGameObject(uint32 networkId, const InputMem
 
 		gameObject->animation = App->modRender->addAnimation(gameObject);
 		gameObject->animation->clip = App->modResources->knightIdleClip;
-
-
-
 	} break;
 	case BehaviourType::Laser:
 	{
