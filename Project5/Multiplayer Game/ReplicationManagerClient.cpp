@@ -7,7 +7,7 @@
 // TODO(you): World state replication lab session
 void ReplicationManagerClient::Read(const InputMemoryStream& packet, DeliveryManagerClient* deliveryManager)
 {
-	bool processPacket = deliveryManager->processSequenceNumber(packet);
+	bool inOrder = deliveryManager->processSequenceNumber(packet);
 
 	uint32 lastInputReceived;
 	packet >> lastInputReceived;
@@ -32,12 +32,12 @@ void ReplicationManagerClient::Read(const InputMemoryStream& packet, DeliveryMan
 		} break;
 		case ReplicationAction::Create:
 		{
-			CreateGameObject(command.networkId, packet, processPacket);
+			CreateGameObject(command.networkId, packet, inOrder);
 		}
 		break;
 		case ReplicationAction::Update:
 		{
-			UpdateGameObject(processPacket, command, packet, lastInputReceived);
+			UpdateGameObject(inOrder, command, packet, lastInputReceived);
 		}
 		break;
 		default: {
@@ -48,11 +48,11 @@ void ReplicationManagerClient::Read(const InputMemoryStream& packet, DeliveryMan
 
 }
 
-void ReplicationManagerClient::UpdateGameObject(bool processPacket, ReplicationCommand& command, const InputMemoryStream& packet, const uint32& lastInputReceived)
+void ReplicationManagerClient::UpdateGameObject(bool inOrder, ReplicationCommand& command, const InputMemoryStream& packet, const uint32& lastInputReceived)
 {
 	GameObject disposableObj;
 	GameObject* obj = nullptr;
-	if (processPacket) {
+	if (inOrder) {
 		obj = App->modLinkingContext->getNetworkGameObject(command.networkId);
 		//If it is nullptr, it there was a packet loss where we created this gameobject
 		if (obj == nullptr) {
@@ -81,7 +81,7 @@ void ReplicationManagerClient::UpdateGameObject(bool processPacket, ReplicationC
 	}
 }
 
-void ReplicationManagerClient::CreateGameObject(uint32 networkId, const InputMemoryStream& packet, bool processCommand)
+void ReplicationManagerClient::CreateGameObject(uint32 networkId, const InputMemoryStream& packet, bool inOrder)
 {
 	//TODO JAUME: Put gameObject->isLocalPlayer to true when it's your spaceship
 
@@ -94,7 +94,7 @@ void ReplicationManagerClient::CreateGameObject(uint32 networkId, const InputMem
 		Destroy(gameObject);
 	}
 
-	if (processCommand)
+	if (inOrder)
 	{
 		gameObject = App->modGameObject->Instantiate();
 		App->modLinkingContext->registerNetworkGameObjectWithNetworkId(gameObject, networkId);
@@ -120,7 +120,7 @@ void ReplicationManagerClient::CreateGameObject(uint32 networkId, const InputMem
 		gameObject->behaviour = App->modBehaviour->addSpaceship(gameObject);
 		
 		gameObject->behaviour->isLocalPlayer = (networkId == App->modNetClient->getNetworkId());
-		if (processCommand && gameObject->interpolation == nullptr && !gameObject->behaviour->isLocalPlayer)
+		if (inOrder && gameObject->interpolation == nullptr && !gameObject->behaviour->isLocalPlayer)
 		{
 			gameObject->interpolation = (Interpolation*)App->modComponent->GetComponent<Interpolation>(gameObject);
 		}
@@ -141,17 +141,24 @@ void ReplicationManagerClient::CreateGameObject(uint32 networkId, const InputMem
 		gameObject->sprite = App->modRender->addSprite(gameObject);
 		gameObject->sprite->order = 5;
 		gameObject->sprite->texture = App->modResources->laser;
+		gameObject->animation = App->modRender->addAnimation(gameObject);
+		gameObject->animation->clip = App->modResources->laserClip;
 		gameObject->collider = App->modCollision->addCollider(ColliderType::Laser, gameObject);
 		gameObject->collider->isTrigger = true;
 	} break;
 	case BehaviourType::None:
 	{
-		if (processCommand)
+		if (inOrder)
 		{
 			gameObject->sprite = App->modRender->addSprite(gameObject);
 			gameObject->sprite->order = 5;
 			gameObject->sprite->texture = *App->modResources->textures[texture_filename];
-		}	
+
+			if (texture_filename.compare("explosion1.png") == 0) {
+				gameObject->animation = App->modRender->addAnimation(gameObject);
+				gameObject->animation->clip = App->modResources->explosionClip;
+			}
+		}
 	}
 		
 	break;
