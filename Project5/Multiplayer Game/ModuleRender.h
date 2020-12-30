@@ -104,7 +104,7 @@ public:
 
 	vec2 cameraPosition = {};
 
-	bool mustRenderColliders = false;
+	bool mustRenderColliders = true;
 
 	vec2 ScreenToWorld(vec2 screenPosition);
 	vec2 WorldToScreen(vec2 worldPosition);

@@ -14,7 +14,7 @@ struct GameObject
 	// Render component
 	Sprite *sprite = nullptr;
 	Animation *animation = nullptr;
-
+	bool active = true;
 	// Collider component
 	Collider *collider = nullptr;
 

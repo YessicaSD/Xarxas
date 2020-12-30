@@ -26,12 +26,14 @@ struct Behaviour
 	{
 		packet << gameObject->position;
 		packet << gameObject->angle;
+		packet << gameObject->active;
 	}
 
 	virtual void read(const InputMemoryStream &packet, uint32 lastInputReceived)
 	{
 		packet >> gameObject->position;
 		packet >> gameObject->angle;
+		packet >> gameObject->active;
 	}
 };
 
@@ -63,6 +65,8 @@ struct Spaceship : public Behaviour
 
 	GameObject* weapon = nullptr;
 	GameObject *lifebar = nullptr;
+
+	float deadLapse = 0;
 
 	BehaviourType type() const override { return BehaviourType::Spaceship; }
 
