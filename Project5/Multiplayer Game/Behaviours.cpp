@@ -42,6 +42,7 @@ void Laser::update()
 
 		const float lifetimeSeconds = 2.0f;
 		if (secondsSinceCreation >= lifetimeSeconds) {
+			LOG("destroying laser");
 			NetworkDestroy(gameObject);
 		}
 	}
@@ -51,8 +52,6 @@ void Laser::update()
 void Spaceship::start()
 {
 	if (!started) {
-		gameObject->tag = (uint32)(Random.next() * UINT_MAX);
-
 		lifebar = Instantiate();
 		lifebar->sprite = App->modRender->addSprite(lifebar);
 		lifebar->sprite->pivot = vec2{ 0.0f, 0.5f };
@@ -111,17 +110,19 @@ void Spaceship::onInput(const InputController &input, const MouseController & mo
 
 			laser->position = weapon->position;
 			laser->angle = weapon->angle + 180;
-			laser->size = { 20, 60 };
+			laser->size = { 12, 80 };
 
 			laser->sprite = App->modRender->addSprite(laser);
 			laser->sprite->pivot = vec2{ 0.5, 1.f };
 			laser->sprite->order = 3;
 			laser->sprite->texture = App->modResources->laser;
+			laser->animation = App->modRender->addAnimation(laser);
+			laser->animation->clip = App->modResources->laserClip;
 
 			Laser *laserBehaviour = App->modBehaviour->addLaser(laser);
 			laserBehaviour->isServer = isServer;
 
-			laser->tag = gameObject->tag;
+			laser->tag = gameObject->networkId;
 		}
 	}
 }
@@ -172,7 +173,7 @@ void Spaceship::destroy()
 
 void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 {
-	if (c2.type == ColliderType::Laser && c2.gameObject->tag != gameObject->tag)
+	if (c2.type == ColliderType::Laser)
 	{
 		if (isServer)
 		{

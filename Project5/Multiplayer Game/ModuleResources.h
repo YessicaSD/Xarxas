@@ -21,8 +21,8 @@ public:
 	Texture* ground = nullptr;
 
 	AnimationClip *explosionClip = nullptr;
-	AnimationClip* knightAttackClip = nullptr;
 	AnimationClip* knightIdleClip = nullptr;
+	AnimationClip* laserClip = nullptr;
 
 	AudioClip *audioClipLaser = nullptr;
 	AudioClip *audioClipExplosion = nullptr;
@@ -54,6 +54,8 @@ private:
 	uint32 finishedTaskCount = 0;
 
 	void onTaskFinished(Task *task) override;
+
+	void CreateSameSizeSpritesheetAnim(AnimationClip** clip, float framerate, bool loop, int rows, int columns);
 
 	void CreateJSONAnim(AnimationClip** clip, const std::string& json_path, float framerate, bool loop, float imgWidth, float imgHeight);
 

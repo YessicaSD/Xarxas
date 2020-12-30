@@ -32,7 +32,7 @@ bool ModuleResources::init()
 	loadTextureAsync("1847.jpg", &space);
 	loadTextureAsync("asteroid1.png",        &asteroid1);
 	loadTextureAsync("asteroid2.png",        &asteroid2);
-	loadTextureAsync("laser.png",            &laser);
+	loadTextureAsync("projectile.png",            &laser);
 	loadTextureAsync("explosion1.png",       &explosion1);
 	loadTextureAsync("LivingArmorIdle_tex.png", &knightIdleImg);
 	loadTextureAsync("Arm.png", &knightArm);
@@ -85,21 +85,23 @@ void ModuleResources::onTaskFinished(Task * task)
 	{
 		finishedLoading = true;
 
-		// Create the explosion animation clip
-		explosionClip = App->modRender->addAnimationClip();
-		explosionClip->frameTime = 0.1f;
-		explosionClip->loop = false;
-		for (int i = 0; i < 16; ++i)
-		{
-			float x = (i % 4) / 4.0f;
-			float y = (i / 4) / 4.0f;
-			float w = 1.0f / 4.0f;
-			float h = 1.0f / 4.0f;
-			explosionClip->addFrameRect(vec4{ x, y, w, h });
-		}
-
-		CreateJSONAnim(&knightAttackClip, "LivingArmor_tex.json", 30.f, false, 2048.f, 4096.f);
+		CreateSameSizeSpritesheetAnim(&explosionClip, 30.f, false, 4, 4);
+		CreateSameSizeSpritesheetAnim(&laserClip, 30.f, true, 3, 2);
 		CreateJSONAnim(&knightIdleClip, "LivingArmorIdle_tex.json", 30.f, true, 4096.f, 2048.f);
+	}
+}
+
+void ModuleResources::CreateSameSizeSpritesheetAnim(AnimationClip** clip, float framerate, bool loop, int rows, int columns) {
+	(*clip) = App->modRender->addAnimationClip();
+	(*clip)->frameTime = 1.f / framerate;
+	(*clip)->loop = loop;
+	float w = 1.0f / (float)columns;
+	float h = 1.0f / (float)rows;
+	for (int i = 0; i < rows * columns; ++i)
+	{
+		float x = (i % columns) / (float)columns;
+		float y = (i / columns) / (float)rows;
+		(*clip)->addFrameRect(vec4{ x, y, w, h });
 	}
 }
 
