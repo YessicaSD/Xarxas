@@ -43,7 +43,6 @@ void Laser::update()
 
 		const float lifetimeSeconds = 2.0f;
 		if (secondsSinceCreation >= lifetimeSeconds) {
-			LOG("destroying laser");
 			NetworkDestroy(gameObject);
 		}
 	}
@@ -239,8 +238,6 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 
 			NetworkDestroy(explosion, 2.0f);
 
-			// NOTE(jesus): Only played in the server right now...
-			// You need to somehow make this happen in clients
 			App->modSound->playAudioClip(App->modResources->audioClipExplosion);
 		}
 	}

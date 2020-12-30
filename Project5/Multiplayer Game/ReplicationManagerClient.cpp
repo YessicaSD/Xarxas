@@ -22,12 +22,7 @@ void ReplicationManagerClient::Read(const InputMemoryStream& packet, DeliveryMan
 		{
 		case ReplicationAction::Destroy:
 		{
-			GameObject* obj = App->modLinkingContext->getNetworkGameObject(command.networkId);
-			if (obj != nullptr)
-			{
-				App->modLinkingContext->unregisterNetworkGameObject(obj);
-				Destroy(obj);
-			}
+			DestroyGameObject(command);
 			
 		} break;
 		case ReplicationAction::Create:
@@ -48,14 +43,25 @@ void ReplicationManagerClient::Read(const InputMemoryStream& packet, DeliveryMan
 
 }
 
+
+void ReplicationManagerClient::DestroyGameObject(ReplicationCommand& command)
+{
+	GameObject* obj = App->modLinkingContext->getNetworkGameObject(command.networkId);
+	if (obj != nullptr)
+	{
+		App->modLinkingContext->unregisterNetworkGameObject(obj);
+		Destroy(obj);
+	}
+}
+
 void ReplicationManagerClient::UpdateGameObject(bool inOrder, ReplicationCommand& command, const InputMemoryStream& packet, const uint32& lastInputReceived)
 {
 	GameObject disposableObj;
 	GameObject* obj = nullptr;
 	if (inOrder) {
 		obj = App->modLinkingContext->getNetworkGameObject(command.networkId);
-		//If it is nullptr, it there was a packet loss where we created this gameobject
 		if (obj == nullptr) {
+			LOG("Create Packet loss: Trying to update an object that has not been created. Creating object...");
 			obj = App->modGameObject->Instantiate();
 			App->modLinkingContext->registerNetworkGameObjectWithNetworkId(obj, command.networkId);
 		}
@@ -90,6 +96,7 @@ void ReplicationManagerClient::CreateGameObject(uint32 networkId, const InputMem
 	// If the GameObject exists this is may mean we've lost a Destroy packet
 	if (gameObject != nullptr)
 	{
+		LOG("Destroy or Create Packet Loss: Trying to create an object where there is one.");
 		App->modLinkingContext->unregisterNetworkGameObject(gameObject);
 		Destroy(gameObject);
 	}
@@ -157,6 +164,8 @@ void ReplicationManagerClient::CreateGameObject(uint32 networkId, const InputMem
 			if (texture_filename.compare("explosion1.png") == 0) {
 				gameObject->animation = App->modRender->addAnimation(gameObject);
 				gameObject->animation->clip = App->modResources->explosionClip;
+
+				App->modSound->playAudioClip(App->modResources->audioClipExplosion);
 			}
 		}
 	}
@@ -164,7 +173,6 @@ void ReplicationManagerClient::CreateGameObject(uint32 networkId, const InputMem
 	break;
 	default:
 	{
-
 	} break;
 	}
 }
