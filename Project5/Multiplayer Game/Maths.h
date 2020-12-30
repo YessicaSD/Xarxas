@@ -10,7 +10,7 @@
 #undef PI
 #endif
 #define PI 3.14159265359f
-
+#define RADTODEGREE 57.2957795130823208767 // This is the result from 180/PI
 
 
 ////////////////////////////////////////////////////////////////////////

@@ -37,6 +37,8 @@ bool ModuleResources::init()
 	loadTextureAsync("LivingArmor_tex.png",  &knightAttackImg);
 	loadTextureAsync("LivingArmorIdle_tex.png", &knightIdleImg);
 	loadTextureAsync("Arm.png", &knightArm);
+	loadTextureAsync("ground.png", &ground);
+
 #endif
 
 	audioClipLaser = App->modSound->loadAudioClip("laser.wav");
@@ -56,6 +58,8 @@ void ModuleResources::loadTextureAsync(const char * filename, Texture **textureP
 	task->owner = this;
 	task->filename = filename;
 	task->texture = texturePtrAddress;
+	
+	textures[filename] = texturePtrAddress;
 
 	App->modTaskManager->scheduleTask(task, this);
 }

@@ -766,3 +766,12 @@ vec2 ModuleRender::ScreenToWorld(vec2 screenPosition)
 		cameraPosition.x + screenPosition.x - (rect.right - rect.left) * 0.5f,
 		cameraPosition.y + screenPosition.y - (rect.bottom - rect.top) * 0.5f};
 }
+
+vec2 ModuleRender::WorldToScreen(vec2 worldPosition)
+{
+	RECT rect;
+	::GetClientRect(hwnd, &rect);
+	return vec2{
+		worldPosition.x + (rect.right - rect.left) * 0.5f - cameraPosition.x,
+		worldPosition.y + (rect.bottom - rect.top) * 0.5f - cameraPosition.y };
+}

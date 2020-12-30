@@ -15,7 +15,23 @@ void Laser::update()
 	secondsSinceCreation += Time.deltaTime;
 
 	const float pixelsPerSecond = 1000.0f;
-	gameObject->position += vec2FromDegrees(gameObject->angle) * pixelsPerSecond * Time.deltaTime;
+	vec2 direction = vec2FromDegrees(gameObject->angle);
+	vec2 winPos = App->modRender->WorldToScreen({ 635,480 });
+	//LOG("%f", winPos.y);
+	if (gameObject->position.y >= 400 || gameObject->position.y <= -400)
+	{
+		direction.y = -direction.y;
+		gameObject->angle = (atan2(direction.y, direction.x)  * RADTODEGREE) + 90.0F;
+
+	}
+
+	if (gameObject->position.x >= 600 || gameObject->position.x <= -600)
+	{
+		direction.x = -direction.x;
+		gameObject->angle = (atan2(direction.y, direction.x) * RADTODEGREE) + 90.0F;
+
+	}
+	gameObject->position += direction * pixelsPerSecond * Time.deltaTime;
 
 	if (isServer)
 	{

@@ -107,6 +107,7 @@ public:
 	bool mustRenderColliders = false;
 
 	vec2 ScreenToWorld(vec2 screenPosition);
+	vec2 WorldToScreen(vec2 worldPosition);
 
 private:
 

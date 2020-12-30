@@ -1,5 +1,7 @@
 #pragma once
 
+#include <map>
+
 #define USE_TASK_MANAGER
 
 struct Texture;
@@ -17,6 +19,7 @@ public:
 	Texture* knightAttackImg = nullptr;
 	Texture* knightIdleImg = nullptr;
 	Texture* knightArm = nullptr;
+	Texture* ground = nullptr;
 
 	AnimationClip *explosionClip = nullptr;
 	AnimationClip* knightAttackClip = nullptr;
@@ -27,7 +30,10 @@ public:
 
 	bool finishedLoading = false;
 
+	std::map<std::string, Texture**> textures;
+
 private:
+	
 
 	bool init() override;
 

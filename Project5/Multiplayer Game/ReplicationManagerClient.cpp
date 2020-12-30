@@ -136,7 +136,7 @@ void ReplicationManagerClient::CreateGameObject(uint32 networkId, const InputMem
 		{
 			gameObject->sprite = App->modRender->addSprite(gameObject);
 			gameObject->sprite->order = 5;
-			gameObject->sprite->texture = App->modResources->knightArm;
+			gameObject->sprite->texture = *App->modResources->textures[texture_filename];
 		}	
 	}
 		
