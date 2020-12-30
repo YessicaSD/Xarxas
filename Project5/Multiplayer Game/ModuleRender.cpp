@@ -575,7 +575,8 @@ void ModuleRender::renderScene()
 	for (int i = 0; i < numObjects; ++i)
 	{
 		GameObject *gameObject = orderedGameObjects[i];
-		
+		if (!gameObject->active) continue;
+
 		// Upload vertices
 		D3D11_MAPPED_SUBRESOURCE mapped_vertices;
 		if (ctx->Map(g_pVertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped_vertices) != S_OK) {
@@ -690,6 +691,10 @@ void ModuleRender::renderScene()
 				memcpy(&constant_buffer->ViewMatrix, &ViewMatrix, sizeof(ViewMatrix));
 				memcpy(&constant_buffer->WorldMatrix, &WorldMatrix, sizeof(WorldMatrix));
 				vec4 colliderColor = vec4{ 1.0f, 0.0f, 0.0f, 0.4f };
+				if (collider->type == ColliderType::None)
+				{
+					colliderColor = { 1.0f, 1.0f , 1.0f ,0.4f };
+				}
 				memcpy(&constant_buffer->TintColor, &colliderColor, sizeof(colliderColor));
 				ctx->Unmap(g_pConstantBuffer, 0);
 			}

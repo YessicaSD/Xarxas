@@ -38,6 +38,7 @@ void Laser::update()
 		const float neutralTimeSeconds = 0.1f;
 		if (secondsSinceCreation > neutralTimeSeconds && gameObject->collider == nullptr) {
 			gameObject->collider = App->modCollision->addCollider(ColliderType::Laser, gameObject);
+			gameObject->collider->isTrigger = true;
 		}
 
 		const float lifetimeSeconds = 2.0f;
@@ -75,6 +76,9 @@ void Spaceship::start()
 
 void Spaceship::onInput(const InputController &input, const MouseController & mouseInput)
 {
+	if (!gameObject->active)
+		return;
+
 	if (input.horizontalAxis != 0.0f || input.verticalAxis != 0.0f)
 	{
 		/*const float rotateSpeed = 180.0f;
@@ -154,6 +158,21 @@ void Spaceship::update()
 	lifebar->position = gameObject->position + vec2{ -50.0f, -50.0f };
 	const vec2 shoulderPos = vec2{ 17.5f * sign(weapon->size.x), -14.f };
 	weapon->position = gameObject->position + shoulderPos;
+	if (isServer)
+	{
+		if (!gameObject->active && deadLapse < Time.time)
+		{
+			gameObject->active = true;
+			if (gameObject->collider == nullptr)
+			{
+				gameObject->collider = App->modCollision->addCollider(ColliderType::Player, gameObject);
+				gameObject->collider->isTrigger = true;
+			}
+			hitPoints = MAX_HIT_POINTS;
+			UpdateLifebar();
+			NetworkUpdate(gameObject);
+		}
+	}
 }
 
 void Spaceship::UpdateLifebar()
@@ -182,7 +201,6 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 			if (hitPoints > 0)
 			{
 				hitPoints--;
-				NetworkUpdate(gameObject);
 			}
 
 			float size = 30 + 50.0f * Random.next();
@@ -193,9 +211,19 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 				// Centered big explosion
 				size = 250.0f + 100.0f * Random.next();
 				position = gameObject->position;
-
-				NetworkDestroy(gameObject);
+				gameObject->active = false;
+				weapon->active = false;
+				if (gameObject->collider != nullptr)
+				{
+					App->modCollision->removeCollider(gameObject->collider);
+					gameObject->collider = nullptr;
+				}
+				
+			
+				deadLapse = Time.time + 0.5;
+				//NetworkDestroy(gameObject);
 			}
+			NetworkUpdate(gameObject);
 
 			GameObject *explosion = NetworkInstantiate();
 			explosion->position = position;
@@ -232,16 +260,35 @@ void Spaceship::read(const InputMemoryStream & packet, uint32 lastInputReceived)
 	vec2 server_pos;
 	float server_angle;
 	uint8 hitPoints;
-
+	bool active = true;
 	packet >> server_pos;
 	packet >> server_angle;
+	packet >> active;
 	packet >> weapon->angle;
+	gameObject->active = active;
+	if(weapon)
+		weapon->active = active;
+	if (!active)
+	{
+		if (gameObject->collider != nullptr)
+		{
+			App->modCollision->removeCollider(gameObject->collider);
+			gameObject->collider = nullptr;
+		}
+	}
+	else if(gameObject->collider == nullptr)
+	{
+		gameObject->collider = App->modCollision->addCollider(ColliderType::Player,gameObject);
+		gameObject->collider->isTrigger = true;
+	}
+
 	packet >> hitPoints;
 
 	if (lifebar != nullptr && hitPoints != this->hitPoints)
 	{
 		this->hitPoints = hitPoints;
 		UpdateLifebar();
+	
 	}
 
 	Flip(server_pos.x - gameObject->position.x);
