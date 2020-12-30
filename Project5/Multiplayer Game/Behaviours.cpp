@@ -219,7 +219,7 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 				}
 				
 			
-				deadLapse = Time.time + 0.5;
+				deadLapse = Time.time + 1.0f;
 				//NetworkDestroy(gameObject);
 			}
 			NetworkUpdate(gameObject);
