@@ -89,11 +89,8 @@ void ReplicationManagerClient::UpdateGameObject(bool inOrder, ReplicationCommand
 
 void ReplicationManagerClient::CreateGameObject(uint32 networkId, const InputMemoryStream& packet, bool inOrder)
 {
-	//TODO JAUME: Put gameObject->isLocalPlayer to true when it's your spaceship
+	GameObject* gameObject = App->modLinkingContext->getNetworkGameObject(networkId, false);
 
-	GameObject* gameObject = App->modLinkingContext->getNetworkGameObject(networkId);
-
-	// If the GameObject exists this is may mean we've lost a Destroy packet
 	if (gameObject != nullptr)
 	{
 		LOG("Destroy or Create Packet Loss: Trying to create an object where there is one.");
