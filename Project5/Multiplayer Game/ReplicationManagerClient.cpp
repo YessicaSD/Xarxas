@@ -112,6 +112,7 @@ void ReplicationManagerClient::CreateGameObject(uint32 networkId, const InputMem
 		gameObject->sprite = App->modRender->addSprite(gameObject);
 		gameObject->sprite->order = 5;
 		gameObject->sprite->texture = App->modResources->knightIdleImg;
+		gameObject->sprite->pivot = vec2{ 0.25f, 0.5f };
 		gameObject->collider = App->modCollision->addCollider(ColliderType::Player, gameObject);
 		gameObject->collider->isTrigger = true;
 

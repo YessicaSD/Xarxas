@@ -16,7 +16,6 @@ public:
 	Texture *asteroid2 = nullptr;
 	Texture *laser = nullptr;
 	Texture *explosion1 = nullptr;
-	Texture* knightAttackImg = nullptr;
 	Texture* knightIdleImg = nullptr;
 	Texture* knightArm = nullptr;
 	Texture* ground = nullptr;

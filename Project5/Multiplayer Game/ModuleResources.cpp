@@ -34,7 +34,6 @@ bool ModuleResources::init()
 	loadTextureAsync("asteroid2.png",        &asteroid2);
 	loadTextureAsync("laser.png",            &laser);
 	loadTextureAsync("explosion1.png",       &explosion1);
-	loadTextureAsync("LivingArmor_tex.png",  &knightAttackImg);
 	loadTextureAsync("LivingArmorIdle_tex.png", &knightIdleImg);
 	loadTextureAsync("Arm.png", &knightArm);
 	loadTextureAsync("ground.png", &ground);

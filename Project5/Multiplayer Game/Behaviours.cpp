@@ -61,9 +61,11 @@ void Spaceship::start()
 
 	weapon = Instantiate();
 	weapon->sprite = App->modRender->addSprite(weapon);
+	const float armDistance = -0.65f;
+	weapon->sprite->pivot = vec2{ 0.5f, armDistance };
 	vec2 bgSize = App->modResources->knightArm->size;
-	float spriteHeight = 70;
-	weapon->size = { (spriteHeight / bgSize.y) * bgSize.x , spriteHeight };
+	float spriteHeight = 50.f;
+	weapon->size = { -(spriteHeight / bgSize.y) * bgSize.x , spriteHeight };
 	weapon->sprite->texture = App->modResources->knightArm;
 	weapon->sprite->order = 6;
 }
@@ -79,16 +81,7 @@ void Spaceship::onInput(const InputController &input, const MouseController & mo
 		gameObject->position.x += input.horizontalAxis * advanceSpeed * Time.deltaTime;
 		gameObject->position.y -= input.verticalAxis * advanceSpeed * Time.deltaTime;
 
-		if (isServer)
-		{
-			NetworkUpdate(gameObject);
-		}
-	}
-
-	if (input.actionDown == ButtonState::Pressed || input.actionDown == ButtonState::Press)
-	{
-		/*const float advanceSpeed = 200.0f;
-		gameObject->position += vec2FromDegrees(gameObject->angle) * advanceSpeed * Time.deltaTime;*/
+		Flip(input.horizontalAxis);
 
 		if (isServer)
 		{
@@ -96,7 +89,8 @@ void Spaceship::onInput(const InputController &input, const MouseController & mo
 		}
 	}
 
-	float weaponAngle = atan2(mouseInput.worldY - gameObject->position.y, mouseInput.worldX - gameObject->position.x)* (180.f / PI) - 90.f;
+	float weaponAngle = atan2(mouseInput.worldY - weapon->position.y, mouseInput.worldX - weapon->position.x) * (180.f / PI) - 90.f;
+	SortWeapon();
 	if (weapon->angle != weaponAngle)
 	{
 		weapon->angle = weaponAngle;
@@ -112,10 +106,11 @@ void Spaceship::onInput(const InputController &input, const MouseController & mo
 			GameObject *laser = NetworkInstantiate();
 
 			laser->position = weapon->position;
-			laser->angle = weapon->angle;
+			laser->angle = weapon->angle + 180;
 			laser->size = { 20, 60 };
 
 			laser->sprite = App->modRender->addSprite(laser);
+			laser->sprite->pivot = vec2{ 0.5, 1.f };
 			laser->sprite->order = 3;
 			laser->sprite->texture = App->modResources->laser;
 
@@ -127,10 +122,33 @@ void Spaceship::onInput(const InputController &input, const MouseController & mo
 	}
 }
 
+void Spaceship::SortWeapon()
+{
+	if (weapon->angle > 30.f || weapon->angle < -210.f) {
+		weapon->sprite->order = 6;
+	}
+	else {
+		weapon->sprite->order = 4;
+	}
+}
+
+void Spaceship::Flip(const float horizontalAxis)
+{
+	if (horizontalAxis > 0.f) {
+		gameObject->size.x = -abs(gameObject->size.x);
+		weapon->size.x = abs(weapon->size.x);
+	}
+	else if (horizontalAxis < 0.f) {
+		gameObject->size.x = abs(gameObject->size.x);
+		weapon->size.x = -abs(weapon->size.x);
+	}
+}
+
 void Spaceship::update()
 {
 	lifebar->position = gameObject->position + vec2{ -50.0f, -50.0f };
-	weapon->position = gameObject->position + vec2{0.0f, 50.0f };
+	const vec2 shoulderPos = vec2{ 17.5f * sign(weapon->size.x), -14.f };
+	weapon->position = gameObject->position + shoulderPos;
 }
 
 void Spaceship::UpdateLifebar()
@@ -211,7 +229,7 @@ void Spaceship::read(const InputMemoryStream & packet, uint32 lastInputReceived)
 
 	packet >> server_pos;
 	packet >> server_angle;
-	packet >> weapon_angle;
+	packet >> weapon->angle;
 	packet >> hitPoints;
 
 	if (lifebar != nullptr && hitPoints != this->hitPoints)
@@ -220,7 +238,10 @@ void Spaceship::read(const InputMemoryStream & packet, uint32 lastInputReceived)
 		UpdateLifebar();
 	}
 
-	
+
+	Flip(server_pos.x - gameObject->position.x);
+	SortWeapon();
+
 	if (gameObject->networkId == App->modNetClient->getNetworkId())
 	{
 		gameObject->position = server_pos;

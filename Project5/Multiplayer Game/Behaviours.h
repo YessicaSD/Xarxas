@@ -72,8 +72,6 @@ struct Spaceship : public Behaviour
 
 	void update() override;
 
-	void UpdateLifebar();
-
 	void destroy() override;
 
 	void onCollisionTriggered(Collider &c1, Collider &c2) override;
@@ -81,4 +79,11 @@ struct Spaceship : public Behaviour
 	void write(OutputMemoryStream &packet) override;
 
 	void read(const InputMemoryStream &packet, uint32 lastInputReceived) override;
+
+private:
+	void Flip(const float horizontalAxis);
+
+	void UpdateLifebar();
+
+	void SortWeapon();
 };

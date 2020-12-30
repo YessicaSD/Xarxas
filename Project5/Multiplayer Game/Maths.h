@@ -192,3 +192,10 @@ inline vec2 vec2_cast(vec4 a)
 	vec2 result = { a.x, a.y };
 	return result;
 }
+
+inline float sign(float a) {
+	if (a < 0.f) {
+		return -1.f;
+	}
+	return 1.f;
+}

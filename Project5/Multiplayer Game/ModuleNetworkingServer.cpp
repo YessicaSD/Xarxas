@@ -404,6 +404,7 @@ GameObject * ModuleNetworkingServer::spawnPlayer(uint8 spaceshipType, vec2 initi
 	// Create sprite
 	gameObject->sprite = App->modRender->addSprite(gameObject);
 	gameObject->sprite->texture = App->modResources->knightIdleImg;
+	gameObject->sprite->pivot = vec2{ 0.25f, 0.5f };
 	gameObject->sprite->order = 5;
 	gameObject->animation = App->modRender->addAnimation(gameObject);
 	gameObject->animation->clip = App->modResources->knightIdleClip;
