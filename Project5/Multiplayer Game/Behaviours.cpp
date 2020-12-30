@@ -50,24 +50,28 @@ void Laser::update()
 
 void Spaceship::start()
 {
-	gameObject->tag = (uint32)(Random.next() * UINT_MAX);
+	if (!started) {
+		gameObject->tag = (uint32)(Random.next() * UINT_MAX);
 
-	lifebar = Instantiate();
-	lifebar->sprite = App->modRender->addSprite(lifebar);
-	lifebar->sprite->pivot = vec2{ 0.0f, 0.5f };
-	lifebar->sprite->order = 5;
-	gameObject->angle = 0;
-	UpdateLifebar();
+		lifebar = Instantiate();
+		lifebar->sprite = App->modRender->addSprite(lifebar);
+		lifebar->sprite->pivot = vec2{ 0.0f, 0.5f };
+		lifebar->sprite->order = 5;
+		gameObject->angle = 0;
+		UpdateLifebar();
 
-	weapon = Instantiate();
-	weapon->sprite = App->modRender->addSprite(weapon);
-	const float armDistance = -0.65f;
-	weapon->sprite->pivot = vec2{ 0.5f, armDistance };
-	vec2 bgSize = App->modResources->knightArm->size;
-	float spriteHeight = 50.f;
-	weapon->size = { -(spriteHeight / bgSize.y) * bgSize.x , spriteHeight };
-	weapon->sprite->texture = App->modResources->knightArm;
-	weapon->sprite->order = 6;
+		weapon = Instantiate();
+		weapon->sprite = App->modRender->addSprite(weapon);
+		const float armDistance = -0.65f;
+		weapon->sprite->pivot = vec2{ 0.5f, armDistance };
+		vec2 bgSize = App->modResources->knightArm->size;
+		float spriteHeight = 50.f;
+		weapon->size = { -(spriteHeight / bgSize.y) * bgSize.x , spriteHeight };
+		weapon->sprite->texture = App->modResources->knightArm;
+		weapon->sprite->order = 6;
+
+		started = true;
+	}
 }
 
 void Spaceship::onInput(const InputController &input, const MouseController & mouseInput)
@@ -124,11 +128,11 @@ void Spaceship::onInput(const InputController &input, const MouseController & mo
 
 void Spaceship::SortWeapon()
 {
-	if (weapon->angle > 30.f || weapon->angle < -210.f) {
-		weapon->sprite->order = 6;
+	if (weapon->size.x > 0.f) {
+		weapon->sprite->order = (weapon->angle < -30.f && weapon->angle > -150.f ? 6 : 4);
 	}
 	else {
-		weapon->sprite->order = 4;
+		weapon->sprite->order = (weapon->angle > 30.f || weapon->angle < -210.f ? 6 : 4);
 	}
 }
 
@@ -222,9 +226,10 @@ void Spaceship::write(OutputMemoryStream & packet)
 
 void Spaceship::read(const InputMemoryStream & packet, uint32 lastInputReceived)
 {
+	start();
+
 	vec2 server_pos;
 	float server_angle;
-	float weapon_angle;
 	uint8 hitPoints;
 
 	packet >> server_pos;
@@ -237,7 +242,6 @@ void Spaceship::read(const InputMemoryStream & packet, uint32 lastInputReceived)
 		this->hitPoints = hitPoints;
 		UpdateLifebar();
 	}
-
 
 	Flip(server_pos.x - gameObject->position.x);
 	SortWeapon();

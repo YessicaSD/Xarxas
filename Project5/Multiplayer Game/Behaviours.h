@@ -81,9 +81,12 @@ struct Spaceship : public Behaviour
 	void read(const InputMemoryStream &packet, uint32 lastInputReceived) override;
 
 private:
+
 	void Flip(const float horizontalAxis);
 
 	void UpdateLifebar();
 
 	void SortWeapon();
+
+	bool started = false;
 };
