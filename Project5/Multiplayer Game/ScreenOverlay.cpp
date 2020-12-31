@@ -12,7 +12,11 @@ void ScreenOverlay::enable()
 	//overlay->color[1] = 0.0f;
 	//overlay->color[2] = 0.0f;
 	//overlay->color[3] = 1.0f;
-	overlay->sprite = App->modRender->addSprite(overlay);
+	if (overlay->sprite == nullptr)
+	{
+		overlay->sprite = App->modRender->addSprite(overlay);
+
+	}
 	overlay->sprite->texture = App->modResources->background;
 	overlay->sprite->order = 9999;
 	//overlay->scene = this;

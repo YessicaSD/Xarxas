@@ -128,17 +128,22 @@ void ReplicationManagerClient::CreateGameObject(uint32 networkId, const InputMem
 		if (inOrder && gameObject->interpolation == nullptr && !gameObject->behaviour->isLocalPlayer)
 		{
 			gameObject->interpolation = (Interpolation*)App->modComponent->GetComponent<Interpolation>(gameObject);
+
 		}
 
-		gameObject->sprite = App->modRender->addSprite(gameObject);
-		gameObject->sprite->order = 5;
-		gameObject->sprite->texture = App->modResources->knightIdleImg;
-		gameObject->sprite->pivot = vec2{ 0.25f, 0.5f };
-		gameObject->collider = App->modCollision->addCollider(ColliderType::Player, gameObject);
-		gameObject->collider->isTrigger = true;
+		if (inOrder)
+		{
+			gameObject->sprite = App->modRender->addSprite(gameObject);
+			gameObject->sprite->order = 5;
+			gameObject->sprite->texture = App->modResources->knightIdleImg;
+			gameObject->sprite->pivot = vec2{ 0.25f, 0.5f };
+			gameObject->collider = App->modCollision->addCollider(ColliderType::Player, gameObject);
+			gameObject->collider->isTrigger = true;
 
-		gameObject->animation = App->modRender->addAnimation(gameObject);
-		gameObject->animation->clip = App->modResources->knightIdleClip;
+			gameObject->animation = App->modRender->addAnimation(gameObject);
+			gameObject->animation->clip = App->modResources->knightIdleClip;
+		}
+		
 	} break;
 	case BehaviourType::Laser:
 	{
