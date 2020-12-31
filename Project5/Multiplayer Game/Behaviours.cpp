@@ -79,14 +79,18 @@ void Spaceship::onInput(const InputController &input, const MouseController & mo
 		return;
 
 	if (input.horizontalAxis != 0.0f || input.verticalAxis != 0.0f)
-	{
-		/*const float rotateSpeed = 180.0f;
-		gameObject->angle += input.horizontalAxis * rotateSpeed * Time.deltaTime;*/
-		
+	{	
 		const float advanceSpeed = 200.0f;
 		gameObject->position.x += input.horizontalAxis * advanceSpeed * Time.deltaTime;
 		gameObject->position.y -= input.verticalAxis * advanceSpeed * Time.deltaTime;
-
+		if (gameObject->position.y >= 400 || gameObject->position.y <= -400)
+		{
+			gameObject->position.y = sign(gameObject->position.y) * 400;
+		}
+		if (gameObject->position.x >= 600 || gameObject->position.x <= -600)
+		{
+			gameObject->position.x = sign(gameObject->position.x) * 600;
+		}
 		Flip(input.horizontalAxis);
 
 		if (isServer)
