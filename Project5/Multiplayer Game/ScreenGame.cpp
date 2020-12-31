@@ -2,9 +2,7 @@
 #include "Networks.h"
 
 GameObject *spaceTopLeft = nullptr;
-GameObject *spaceTopRight = nullptr;
-GameObject *spaceBottomLeft = nullptr;
-GameObject *spaceBottomRight = nullptr;
+GameObject* grounds[4] = {nullptr, nullptr, nullptr, nullptr};
 
 void ScreenGame::enable()
 {
@@ -24,18 +22,45 @@ void ScreenGame::enable()
 	spaceTopLeft->sprite = App->modRender->addSprite(spaceTopLeft);
 	spaceTopLeft->sprite->texture = App->modResources->space;
 	spaceTopLeft->sprite->order = -1;
-	/*spaceTopRight = Instantiate();
-	spaceTopRight->sprite = App->modRender->addSprite(spaceTopRight);
-	spaceTopRight->sprite->texture = App->modResources->space;
-	spaceTopRight->sprite->order = -1;
-	spaceBottomLeft = Instantiate();
-	spaceBottomLeft->sprite = App->modRender->addSprite(spaceBottomLeft);
-	spaceBottomLeft->sprite->texture = App->modResources->space;
-	spaceBottomLeft->sprite->order = -1;
-	spaceBottomRight = Instantiate();
-	spaceBottomRight->sprite = App->modRender->addSprite(spaceBottomRight);
-	spaceBottomRight->sprite->texture = App->modResources->space;
-	spaceBottomRight->sprite->order = -1;*/
+
+	// Generate World
+	//Height
+	float height = 480;
+	grounds[0] = Instantiate();
+	grounds[0]->sprite = App->modRender->addSprite(grounds[0]);
+	grounds[0]->sprite->texture = App->modResources->ground;
+	grounds[0]->sprite->order = 5;
+	grounds[0]->position = { 0,height };
+	grounds[0]->size = { 1200,100 };
+
+
+	grounds[1] = Instantiate();
+	grounds[1]->sprite = App->modRender->addSprite(grounds[1]);
+	grounds[1]->sprite->texture = App->modResources->ground;
+	grounds[1]->sprite->order = 5;
+	grounds[1]->position = { 0,-height };
+	grounds[1]->angle = 180;
+	grounds[1]->size = { 1200,100 };
+
+	//Width
+	float width = 635;
+	grounds[2] = Instantiate();
+	grounds[2]->sprite = App->modRender->addSprite(grounds[2]);
+	grounds[2]->sprite->texture = App->modResources->ground;
+	grounds[2]->sprite->order = 5;
+	grounds[2]->position = { -width, 0 };
+	grounds[2]->angle = 90;
+	grounds[2]->size = { 1200,100 };
+
+	grounds[3] = Instantiate();
+	grounds[3] ->sprite = App->modRender->addSprite(grounds[3]);
+	grounds[3] ->sprite->texture = App->modResources->ground;
+	grounds[3] ->sprite->order = 5;
+	grounds[3] ->position = { width, 0 };
+	grounds[3] ->angle = -90;
+	grounds[3] ->size = { 1200,100 };
+
+
 }
 
 void ScreenGame::update()
@@ -93,7 +118,9 @@ void ScreenGame::gui()
 void ScreenGame::disable()
 {
 	Destroy(spaceTopLeft);
-	/*Destroy(spaceTopRight);
-	Destroy(spaceBottomLeft);
-	Destroy(spaceBottomRight);*/
+	for(int i = 0; i < 4; i++)
+	{
+		Destroy(grounds[i]);
+
+	}
 }

@@ -189,8 +189,16 @@ void Spaceship::UpdateLifebar()
 
 void Spaceship::destroy()
 {
-	Destroy(lifebar);
-	Destroy(weapon);
+	if (lifebar != nullptr)
+	{
+		Destroy(lifebar);
+		lifebar = nullptr;
+	}
+	if (weapon != nullptr)
+	{
+		Destroy(weapon);
+		weapon = nullptr;
+	}
 }
 
 void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)

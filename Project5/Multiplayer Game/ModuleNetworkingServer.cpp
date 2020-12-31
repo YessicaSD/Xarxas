@@ -35,43 +35,7 @@ void ModuleNetworkingServer::onStart()
 		return;
 	}
 
-	// Generate World
-	//Height
-	float height = 480;
-	GameObject* gameObject = instantiateNetworkObject();
-	gameObject->sprite = App->modRender->addSprite(gameObject);
-	gameObject->sprite->texture = App->modResources->ground;
-	gameObject->sprite->order = 5;
-	gameObject->position = { 0,height };
-	gameObject->size = { 1200,100 };
-
-
-	gameObject = instantiateNetworkObject();
-	gameObject->sprite = App->modRender->addSprite(gameObject);
-	gameObject->sprite->texture = App->modResources->ground;
-	gameObject->sprite->order = 5;
-	gameObject->position = { 0,-height };
-	gameObject->angle = 180;
-	gameObject->size = { 1200,100 };
-
-	//Width
-	float width = 635;
-	gameObject = instantiateNetworkObject();
-	gameObject->sprite = App->modRender->addSprite(gameObject);
-	gameObject->sprite->texture = App->modResources->ground;
-	gameObject->sprite->order = 5;
-	gameObject->position = { -width, 0 };
-	gameObject->angle = 90;
-	gameObject->size = { 1200,100 };
-
-	gameObject = instantiateNetworkObject();
-	gameObject->sprite = App->modRender->addSprite(gameObject);
-	gameObject->sprite->texture = App->modResources->ground;
-	gameObject->sprite->order = 5;
-	gameObject->position = { width, 0 };
-	gameObject->angle = -90;
-	gameObject->size = { 1200,100 };
-
+	
 
 	state = ServerState::Listening;
 }
