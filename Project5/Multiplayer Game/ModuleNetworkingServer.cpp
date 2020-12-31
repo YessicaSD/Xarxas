@@ -137,6 +137,9 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 				welcomePacket << ServerMessage::Welcome;
 				welcomePacket << proxy->clientId;
 				welcomePacket << proxy->gameObject->networkId;
+				proxy->lastInputConfirmationTime = Time.time;
+				proxy->lastPacketReceivedTime = Time.time;
+				proxy->lastReplicationSendTime = Time.time;
 				sendPacket(welcomePacket, fromAddress);
 
 				// Send all network objects to the new player
@@ -343,7 +346,9 @@ void ModuleNetworkingServer::destroyClientProxy(ClientProxy *clientProxy)
 	{
 		destroyNetworkObject(clientProxy->gameObject);
 	}
-
+	clientProxy->deliveryManager.clear();
+	clientProxy->replicationManager.replicationCommands.clear();
+	clientProxy->nextExpectedInputSequenceNumber = 0;
     *clientProxy = {};
 }
 

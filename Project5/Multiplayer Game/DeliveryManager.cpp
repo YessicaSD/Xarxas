@@ -102,6 +102,15 @@ void DeliveryManagerServer::processTimedOutPackets()
     }
 }
 
+void DeliveryManagerServer::clear()
+{
+    for (int i = 0; i < pendingDeliveries.size(); i++)
+    {
+        delete pendingDeliveries[i];
+    }
+    pendingDeliveries.clear();
+}
+
 bool DeliveryManagerClient::processSequenceNumber(const InputMemoryStream& packet)
 {
     uint32 sequenceNumber = 0;
