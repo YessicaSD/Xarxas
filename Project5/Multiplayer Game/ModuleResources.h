@@ -19,6 +19,7 @@ public:
 	Texture* knightIdleImg = nullptr;
 	Texture* knightArm = nullptr;
 	Texture* ground = nullptr;
+	Texture* win = nullptr;
 
 	AnimationClip *explosionClip = nullptr;
 	AnimationClip* knightIdleClip = nullptr;

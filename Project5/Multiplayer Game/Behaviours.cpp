@@ -216,9 +216,30 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 				{
 					App->modCollision->removeCollider(gameObject->collider);
 					gameObject->collider = nullptr;
+					numberDeads++;
 				}
 				
-			
+				GameObject* winGameObject = NetworkInstantiate();
+				if (c2.gameObject->tag != gameObject->networkId)
+				{
+					winGameObject->tag = c2.gameObject->tag;
+					GameObject* killer = App->modLinkingContext->getNetworkGameObject(c2.gameObject->tag);
+					if (killer)
+					{
+						Spaceship* behavior = (Spaceship*)killer->behaviour;
+						behavior->numberKills++;
+						NetworkUpdate(killer);
+					}
+				}
+
+				winGameObject->position = { 0,0 };
+				winGameObject->size = vec2{ 100, 100 };
+				winGameObject->sprite = App->modRender->addSprite(winGameObject);
+				winGameObject->sprite->texture = App->modResources->win;
+				winGameObject->sprite->order = 100;
+
+				NetworkDestroy(winGameObject, 2.0f);
+
 				deadLapse = Time.time + 1.0f;
 				//NetworkDestroy(gameObject);
 			}
@@ -248,6 +269,8 @@ void Spaceship::write(OutputMemoryStream & packet)
 	Behaviour::write(packet);
 	packet << weapon->angle;
 	packet << hitPoints;
+	packet << numberKills;
+	packet << numberDeads;
 }
 
 void Spaceship::read(const InputMemoryStream & packet, uint32 lastInputReceived)
@@ -306,4 +329,6 @@ void Spaceship::read(const InputMemoryStream & packet, uint32 lastInputReceived)
 		gameObject->interpolation->SetFinal(server_pos, server_angle);
 	}
 
+	packet >> numberKills;
+	packet >> numberDeads;
 }

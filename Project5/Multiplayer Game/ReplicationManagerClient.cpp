@@ -114,6 +114,7 @@ void ReplicationManagerClient::CreateGameObject(uint32 networkId, const InputMem
 	packet >> gameObject->position;
 	packet >> gameObject->angle;
 	packet >> gameObject->size;
+	packet >> gameObject->tag;
 	//TODO: If we're not using the texture anymore, change it
 	std::string texture_filename;
 	packet >> texture_filename;
@@ -163,6 +164,13 @@ void ReplicationManagerClient::CreateGameObject(uint32 networkId, const InputMem
 				gameObject->animation->clip = App->modResources->explosionClip;
 
 				App->modSound->playAudioClip(App->modResources->audioClipExplosion);
+			}
+			if (texture_filename.compare("win.png") == 0)
+			{
+				if (gameObject->tag != App->modNetClient->networkId)
+				{
+					gameObject->active = false;
+				}
 			}
 		}
 	}

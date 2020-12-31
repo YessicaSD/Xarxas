@@ -41,6 +41,7 @@ void ReplicationManagerServer::Write(OutputMemoryStream& packet, DeliveryManager
 				packet << gameObject->position;
 				packet << gameObject->angle;
 				packet << gameObject->size;
+				packet << gameObject->tag;
 				packet << std::string(gameObject->sprite->texture->filename);
 
 				delivery->indispensableCommands.push_back(command);

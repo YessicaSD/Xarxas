@@ -69,6 +69,25 @@ void ScreenGame::update()
 
 void ScreenGame::gui()
 {
+	if (!isServer)
+	{
+		uint32 networId = App->modNetClient->getNetworkId();
+		if (networId != 0)
+		{
+			GameObject* client = App->modLinkingContext->getNetworkGameObject(networId);
+			if (client)
+			{
+				Spaceship* behavior = (Spaceship*)client->behaviour;
+				ImGui::Begin("Score");
+				ImGui::TextColored(ImVec4(1.0,0.0,0,1.0),"Number of Kills: %i", behavior->numberKills);
+				ImGui::SameLine();
+				ImGui::TextColored(ImVec4(66.0/255.0F, 230/255.0F, 245/255.0F, 1.0), "Number of Dead: %i", behavior->numberDeads);
+				ImGui::End();
+			}
+
+		}
+	}
+	
 }
 
 void ScreenGame::disable()

@@ -67,7 +67,8 @@ struct Spaceship : public Behaviour
 	GameObject *lifebar = nullptr;
 
 	float deadLapse = 0;
-
+	unsigned int numberKills = 0;
+	unsigned int numberDeads = 0;
 	BehaviourType type() const override { return BehaviourType::Spaceship; }
 
 	void start() override;
