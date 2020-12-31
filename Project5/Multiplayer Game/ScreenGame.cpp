@@ -23,6 +23,7 @@ void ScreenGame::enable()
 	spaceTopLeft->sprite->texture = App->modResources->space;
 	spaceTopLeft->sprite->order = -1;
 
+	lastScreenSize = { 0, 0 };
 	// Generate World
 	//Height
 	float height = 480;
@@ -84,10 +85,6 @@ void ScreenGame::update()
 				spaceTopLeft->size = vec2{ (float) Window.width, resultHeight };
 
 			lastScreenSize = { (float) Window.width, (float)Window.height};
-			//spaceTopLeft->position = bgSize * floor(camPos / bgSize);
-			/*spaceTopRight->position = bgSize * (floor(camPos / bgSize) + vec2{ 1.0f, 0.0f });
-			spaceBottomLeft->position = bgSize * (floor(camPos / bgSize) + vec2{ 0.0f, 1.0f });
-			spaceBottomRight->position = bgSize * (floor(camPos / bgSize) + vec2{ 1.0f, 1.0f });;*/
 		}
 	}
 }
@@ -121,6 +118,5 @@ void ScreenGame::disable()
 	for(int i = 0; i < 4; i++)
 	{
 		Destroy(grounds[i]);
-
 	}
 }
