@@ -46,7 +46,7 @@ public:
 
 private:
 	//Receiver variables
-	uint32 expectedSequenceNum;
+	uint32 expectedSequenceNum = 0;
 	//- List of sequence number pending acknoweledgment
 	std::vector<uint32> pendingAck;
 };

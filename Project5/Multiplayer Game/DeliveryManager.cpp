@@ -138,3 +138,9 @@ void DeliveryManagerClient::writeSequenceNumbersPendingAck(OutputMemoryStream& p
     }
     pendingAck.clear();
 }
+
+void DeliveryManagerClient::clear()
+{
+    expectedSequenceNum = 0;
+    pendingAck.clear();
+}

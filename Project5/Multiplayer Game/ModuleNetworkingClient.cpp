@@ -71,6 +71,9 @@ void ModuleNetworkingClient::onStart()
 	secondsSinceLastHello = 9999.0f;
 	secondsSinceLastInputDelivery = 0.0f;
 	timeSinceLastReplication = Time.deltaTime;
+
+	deliveryManager.clear();
+	
 }
 
 void ModuleNetworkingClient::onGui()

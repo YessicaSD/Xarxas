@@ -347,6 +347,7 @@ void ModuleNetworkingServer::destroyClientProxy(ClientProxy *clientProxy)
 		destroyNetworkObject(clientProxy->gameObject);
 	}
 	clientProxy->deliveryManager.clear();
+	clientProxy->replicationManager.lastClientInputReceived = 0;
 	clientProxy->replicationManager.replicationCommands.clear();
 	clientProxy->nextExpectedInputSequenceNumber = 0;
     *clientProxy = {};
