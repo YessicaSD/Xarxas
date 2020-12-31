@@ -1,5 +1,5 @@
 # Souless Knights
-
+![Soules Knights online game](https://raw.githubusercontent.com/YessicaSD/Xarxas/main/docs/img/gameImage.png?token=AIT6YX2F6HQACZG7XW4DCRK765IOQ)
 Souless knights is an online multiplayer game about being the one that stays alive and kills the most enemies in the lobby.
 You can kill other players by shooting projectiles at them, but be careful, projectiles will bounce off walls and can damage you too!
 
@@ -23,7 +23,7 @@ You can kill other players by shooting projectiles at them, but be careful, proj
 - [Achieved] Lab 6: World State Replication.
 - [Achieved] Lab 7: Delivery Manager (timeout packets), Redundant sending of input packets.
 - [Achieved] Lab 8: Entity interpolation, Client-side prediction, Server reconciliation.
-- [Achieved] Gameplay: Players can't exit play zone, lasers bounce off walls, background sprite, kill counter.
+- [Achieved] Gameplay: Players can't exit play zone, lasers bounce off walls, responsive background, kill counter.
 
 
 ### Jaume Montagut Guix
