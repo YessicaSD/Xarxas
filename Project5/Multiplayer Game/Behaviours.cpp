@@ -218,7 +218,14 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 					gameObject->collider = nullptr;
 					numberDeads++;
 				}
-				
+				GameObject* koObj = NetworkInstantiate();
+				koObj->tag = gameObject->networkId;
+				koObj->size = vec2{ 286, 118 };
+				koObj->sprite = App->modRender->addSprite(koObj);
+				koObj->sprite->texture = App->modResources->ko;
+				koObj->sprite->order = 100;
+				NetworkDestroy(koObj, 2.0f);
+
 				GameObject* winGameObject = NetworkInstantiate();
 				if (c2.gameObject->tag != gameObject->networkId)
 				{
@@ -232,8 +239,7 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 					}
 				}
 
-				winGameObject->position = { 0,0 };
-				winGameObject->size = vec2{ 100, 100 };
+				winGameObject->size = vec2{ 200, 172 };
 				winGameObject->sprite = App->modRender->addSprite(winGameObject);
 				winGameObject->sprite->texture = App->modResources->win;
 				winGameObject->sprite->order = 100;

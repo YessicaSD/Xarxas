@@ -42,7 +42,11 @@ void ReplicationManagerServer::Write(OutputMemoryStream& packet, DeliveryManager
 				packet << gameObject->angle;
 				packet << gameObject->size;
 				packet << gameObject->tag;
-				packet << std::string(gameObject->sprite->texture->filename);
+
+				if (gameObject->sprite->texture != nullptr)
+					packet << std::string(gameObject->sprite->texture->filename);
+				else
+					packet << std::string("noTexture");
 
 				delivery->indispensableCommands.push_back(command);
 			}

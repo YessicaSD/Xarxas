@@ -157,7 +157,8 @@ void ReplicationManagerClient::CreateGameObject(uint32 networkId, const InputMem
 		{
 			gameObject->sprite = App->modRender->addSprite(gameObject);
 			gameObject->sprite->order = 5;
-			gameObject->sprite->texture = *App->modResources->textures[texture_filename];
+			if(texture_filename != "noTexture")
+				gameObject->sprite->texture = *App->modResources->textures[texture_filename];
 
 			if (texture_filename.compare("explosion1.png") == 0) {
 				gameObject->animation = App->modRender->addAnimation(gameObject);
@@ -166,6 +167,13 @@ void ReplicationManagerClient::CreateGameObject(uint32 networkId, const InputMem
 				App->modSound->playAudioClip(App->modResources->audioClipExplosion);
 			}
 			if (texture_filename.compare("win.png") == 0)
+			{
+				if (gameObject->tag != App->modNetClient->networkId)
+				{
+					gameObject->active = false;
+				}
+			}
+			if (texture_filename.compare("koDead.png") == 0)
 			{
 				if (gameObject->tag != App->modNetClient->networkId)
 				{
