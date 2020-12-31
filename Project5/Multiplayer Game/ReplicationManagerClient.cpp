@@ -54,14 +54,15 @@ void ReplicationManagerClient::DestroyGameObject(ReplicationCommand& command)
 	}
 }
 
-void ReplicationManagerClient::UpdateGameObject(bool inOrder, ReplicationCommand& command, const InputMemoryStream& packet, const uint32& lastInputReceived)
+void ReplicationManagerClient::UpdateGameObject(bool processPacket, ReplicationCommand& command, const InputMemoryStream& packet, const uint32& lastInputReceived)
 {
-	GameObject disposableObj;
 	GameObject* obj = nullptr;
-	if (inOrder) {
+	if (processPacket) {
 		obj = App->modLinkingContext->getNetworkGameObject(command.networkId);
 		if (obj == nullptr) {
 			LOG("Create Packet loss: Trying to update an object that has not been created. Creating object...");
+			//processPacket = false;
+			//do we really need to register it?
 			obj = App->modGameObject->Instantiate();
 			App->modLinkingContext->registerNetworkGameObjectWithNetworkId(obj, command.networkId);
 		}
@@ -81,9 +82,10 @@ void ReplicationManagerClient::UpdateGameObject(bool inOrder, ReplicationCommand
 	if (obj->behaviour == nullptr) {
 		packet >> obj->position;
 		packet >> obj->angle;
+		packet >> obj->active;
 	}
 	else {
-		obj->behaviour->read(packet, lastInputReceived);
+		obj->behaviour->read(packet, processPacket, lastInputReceived);
 	}
 }
 

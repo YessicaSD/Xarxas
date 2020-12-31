@@ -291,7 +291,7 @@ void Spaceship::write(OutputMemoryStream & packet)
 	packet << numberDeads;
 }
 
-void Spaceship::read(const InputMemoryStream & packet, uint32 lastInputReceived)
+void Spaceship::read(const InputMemoryStream & packet, const bool processPacket, uint32 lastInputReceived)
 {
 	start();
 
@@ -299,54 +299,57 @@ void Spaceship::read(const InputMemoryStream & packet, uint32 lastInputReceived)
 	float server_angle;
 	uint8 hitPoints;
 	bool active = true;
+
 	packet >> server_pos;
 	packet >> server_angle;
 	packet >> active;
 	packet >> weapon->angle;
-	gameObject->active = active;
-	if(weapon)
-		weapon->active = active;
-	if (!active)
-	{
-		if (gameObject->collider != nullptr)
-		{
-			App->modCollision->removeCollider(gameObject->collider);
-			gameObject->collider = nullptr;
-		}
-	}
-	else if(gameObject->collider == nullptr)
-	{
-		gameObject->collider = App->modCollision->addCollider(ColliderType::Player,gameObject);
-		gameObject->collider->isTrigger = true;
-	}
-
 	packet >> hitPoints;
-
-	if (lifebar != nullptr && hitPoints != this->hitPoints)
-	{
-		this->hitPoints = hitPoints;
-		UpdateLifebar();
-	
-	}
-
-	Flip(server_pos.x - gameObject->position.x);
-	SortWeapon();
-
-	if (gameObject->networkId == App->modNetClient->getNetworkId())
-	{
-		gameObject->position = server_pos;
-		gameObject->angle = server_angle;
-		for (int i = lastInputReceived + 1; i < App->modNetClient->inputIndex; i++)
-		{
-			App->modNetClient->ProcessInput(i, gameObject);
-		}
-	}
-
-	if (gameObject->interpolation != nullptr)
-	{
-		gameObject->interpolation->SetFinal(server_pos, server_angle);
-	}
-
 	packet >> numberKills;
 	packet >> numberDeads;
+
+	if (processPacket) {
+		gameObject->active = active;
+		if (weapon) {
+			weapon->active = active;
+		}
+		if (!active)
+		{
+			if (gameObject->collider != nullptr)
+			{
+				App->modCollision->removeCollider(gameObject->collider);
+				gameObject->collider = nullptr;
+			}
+		}
+		else if (gameObject->collider == nullptr)
+		{
+			gameObject->collider = App->modCollision->addCollider(ColliderType::Player, gameObject);
+			gameObject->collider->isTrigger = true;
+		}
+
+		if (lifebar != nullptr && hitPoints != this->hitPoints)
+		{
+			this->hitPoints = hitPoints;
+			UpdateLifebar();
+
+		}
+
+		Flip(server_pos.x - gameObject->position.x);
+		SortWeapon();
+
+		if (gameObject->networkId == App->modNetClient->getNetworkId())
+		{
+			gameObject->position = server_pos;
+			gameObject->angle = server_angle;
+			for (int i = lastInputReceived + 1; i < App->modNetClient->inputIndex; i++)
+			{
+				App->modNetClient->ProcessInput(i, gameObject);
+			}
+		}
+
+		if (gameObject->interpolation != nullptr)
+		{
+			gameObject->interpolation->SetFinal(server_pos, server_angle);
+		}
+	}
 }
