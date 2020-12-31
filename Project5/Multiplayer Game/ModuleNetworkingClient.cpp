@@ -66,6 +66,7 @@ void ModuleNetworkingClient::onStart()
 
 	inputDataFront = 0;
 	inputDataBack = 0;
+	inputIndex = 0;
 
 	secondsSinceLastHello = 9999.0f;
 	secondsSinceLastInputDelivery = 0.0f;
@@ -287,4 +288,6 @@ void ModuleNetworkingClient::onDisconnect()
 	}
 
 	App->modRender->cameraPosition = {};
+	
+
 }

@@ -85,8 +85,16 @@ void ReplicationManagerClient::UpdateGameObject(bool processPacket, ReplicationC
 		packet >> obj->active;
 	}
 	else {
+
 		obj->behaviour->read(packet, processPacket, lastInputReceived);
+		if (!processPacket)
+		{
+			obj->behaviour->destroy();
+			obj->behaviour->gameObject = nullptr;
+		}
 	}
+
+	
 }
 
 void ReplicationManagerClient::CreateGameObject(uint32 networkId, const InputMemoryStream& packet, bool inOrder)
@@ -100,16 +108,9 @@ void ReplicationManagerClient::CreateGameObject(uint32 networkId, const InputMem
 		Destroy(gameObject);
 	}
 
-	if (inOrder)
-	{
-		gameObject = App->modGameObject->Instantiate();
-		App->modLinkingContext->registerNetworkGameObjectWithNetworkId(gameObject, networkId);
-	}
-	else
-	{
-		GameObject disposableGObj;
-		gameObject = &disposableGObj;
-	}
+	gameObject = App->modGameObject->Instantiate();
+	App->modLinkingContext->registerNetworkGameObjectWithNetworkId(gameObject, networkId);
+
 
 	BehaviourType behaviour;
 	packet >> behaviour;
@@ -127,24 +128,21 @@ void ReplicationManagerClient::CreateGameObject(uint32 networkId, const InputMem
 		gameObject->behaviour = App->modBehaviour->addSpaceship(gameObject);
 		
 		gameObject->behaviour->isLocalPlayer = (networkId == App->modNetClient->getNetworkId());
-		if (inOrder && gameObject->interpolation == nullptr && !gameObject->behaviour->isLocalPlayer)
+		if (gameObject->interpolation == nullptr && !gameObject->behaviour->isLocalPlayer)
 		{
 			gameObject->interpolation = (Interpolation*)App->modComponent->GetComponent<Interpolation>(gameObject);
 
 		}
+		gameObject->sprite = App->modRender->addSprite(gameObject);
+		gameObject->sprite->order = 5;
+		gameObject->sprite->texture = App->modResources->knightIdleImg;
+		gameObject->sprite->pivot = vec2{ 0.25f, 0.5f };
+		gameObject->collider = App->modCollision->addCollider(ColliderType::Player, gameObject);
+		gameObject->collider->isTrigger = true;
 
-		if (inOrder)
-		{
-			gameObject->sprite = App->modRender->addSprite(gameObject);
-			gameObject->sprite->order = 5;
-			gameObject->sprite->texture = App->modResources->knightIdleImg;
-			gameObject->sprite->pivot = vec2{ 0.25f, 0.5f };
-			gameObject->collider = App->modCollision->addCollider(ColliderType::Player, gameObject);
-			gameObject->collider->isTrigger = true;
-
-			gameObject->animation = App->modRender->addAnimation(gameObject);
-			gameObject->animation->clip = App->modResources->knightIdleClip;
-		}
+		gameObject->animation = App->modRender->addAnimation(gameObject);
+		gameObject->animation->clip = App->modResources->knightIdleClip;
+		
 		
 	} break;
 	case BehaviourType::Laser:
