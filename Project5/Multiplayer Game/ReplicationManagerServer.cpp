@@ -62,6 +62,7 @@ void ReplicationManagerServer::Write(OutputMemoryStream& packet, DeliveryManager
 				if (gameObject->behaviour == nullptr) {
 					packet << gameObject->position;
 					packet << gameObject->angle;
+					packet << gameObject->active;
 				}
 				else {
 					gameObject->behaviour->write(packet);
