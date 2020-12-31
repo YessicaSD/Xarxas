@@ -86,6 +86,7 @@ int DeliveryManagerServer::getClientIndex() {
             return i;
         }
     }
+    ASSERT(false);//None of the delivery managers are this one
     return -1;
 }
 
