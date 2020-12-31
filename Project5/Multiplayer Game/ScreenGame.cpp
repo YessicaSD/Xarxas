@@ -61,6 +61,8 @@ void ScreenGame::enable()
 	grounds[3] ->angle = -90;
 	grounds[3] ->size = { 1200,100 };
 
+	
+	App->modSound->playAudioClip(App->modResources->audioClipEnviroment);
 
 }
 

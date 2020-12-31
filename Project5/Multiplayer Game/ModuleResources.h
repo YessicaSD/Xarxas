@@ -28,7 +28,7 @@ public:
 
 	AudioClip *audioClipLaser = nullptr;
 	AudioClip *audioClipExplosion = nullptr;
-
+	AudioClip* audioClipEnviroment = nullptr;
 	bool finishedLoading = false;
 
 	std::map<std::string, Texture**> textures;

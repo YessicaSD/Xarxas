@@ -7,7 +7,7 @@ void Laser::start()
 {
 	gameObject->networkInterpolationEnabled = false;
 
-	App->modSound->playAudioClip(App->modResources->audioClipLaser);
+	//App->modSound->playAudioClip(App->modResources->audioClipLaser);
 }
 
 void Laser::update()
@@ -277,7 +277,7 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 
 			NetworkDestroy(explosion, 2.0f);
 
-			App->modSound->playAudioClip(App->modResources->audioClipExplosion);
+			//App->modSound->playAudioClip(App->modResources->audioClipExplosion);
 		}
 	}
 }

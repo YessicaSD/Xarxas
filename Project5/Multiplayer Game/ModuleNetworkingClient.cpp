@@ -74,6 +74,7 @@ void ModuleNetworkingClient::onStart()
 
 	deliveryManager.clear();
 	
+	
 }
 
 void ModuleNetworkingClient::onGui()

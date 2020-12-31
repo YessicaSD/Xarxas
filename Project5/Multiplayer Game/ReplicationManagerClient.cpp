@@ -169,7 +169,7 @@ void ReplicationManagerClient::CreateGameObject(uint32 networkId, const InputMem
 				gameObject->animation = App->modRender->addAnimation(gameObject);
 				gameObject->animation->clip = App->modResources->explosionClip;
 
-				App->modSound->playAudioClip(App->modResources->audioClipExplosion);
+				//App->modSound->playAudioClip(App->modResources->audioClipExplosion);
 			}
 			if (texture_filename.compare("win.png") == 0)
 			{
