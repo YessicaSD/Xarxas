@@ -291,13 +291,19 @@ void Spaceship::read(const InputMemoryStream & packet, uint32 lastInputReceived)
 	float server_angle;
 	uint8 hitPoints;
 	bool active = true;
+
 	packet >> server_pos;
 	packet >> server_angle;
 	packet >> active;
 	packet >> weapon->angle;
+	packet >> hitPoints;
+	packet >> numberKills;
+	packet >> numberDeads;
+
 	gameObject->active = active;
-	if(weapon)
+	if (weapon) {
 		weapon->active = active;
+	}
 	if (!active)
 	{
 		if (gameObject->collider != nullptr)
@@ -311,8 +317,6 @@ void Spaceship::read(const InputMemoryStream & packet, uint32 lastInputReceived)
 		gameObject->collider = App->modCollision->addCollider(ColliderType::Player,gameObject);
 		gameObject->collider->isTrigger = true;
 	}
-
-	packet >> hitPoints;
 
 	if (lifebar != nullptr && hitPoints != this->hitPoints)
 	{
@@ -338,7 +342,4 @@ void Spaceship::read(const InputMemoryStream & packet, uint32 lastInputReceived)
 	{
 		gameObject->interpolation->SetFinal(server_pos, server_angle);
 	}
-
-	packet >> numberKills;
-	packet >> numberDeads;
 }
