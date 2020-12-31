@@ -16,6 +16,7 @@ private:
 	void disable() override;
 
 	GameObject *overlay = nullptr;
+	
 
 	float transitionTimeElapsed = 0.0f;
 	float transitionTimeMax = SCENE_TRANSITION_TIME_SECONDS;
