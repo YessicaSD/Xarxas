@@ -291,7 +291,7 @@ void Spaceship::write(OutputMemoryStream & packet)
 	packet << numberDeads;
 }
 
-void Spaceship::read(const InputMemoryStream & packet, uint32 lastInputReceived)
+void Spaceship::read(const InputMemoryStream & packet, const bool processPacket, uint32 lastInputReceived)
 {
 	start();
 
@@ -308,46 +308,48 @@ void Spaceship::read(const InputMemoryStream & packet, uint32 lastInputReceived)
 	packet >> numberKills;
 	packet >> numberDeads;
 
-	gameObject->active = active;
-	if (weapon) {
-		weapon->active = active;
-	}
-	if (!active)
-	{
-		if (gameObject->collider != nullptr)
-		{
-			App->modCollision->removeCollider(gameObject->collider);
-			gameObject->collider = nullptr;
+	if (processPacket) {
+		gameObject->active = active;
+		if (weapon) {
+			weapon->active = active;
 		}
-	}
-	else if(gameObject->collider == nullptr)
-	{
-		gameObject->collider = App->modCollision->addCollider(ColliderType::Player,gameObject);
-		gameObject->collider->isTrigger = true;
-	}
-
-	if (lifebar != nullptr && hitPoints != this->hitPoints)
-	{
-		this->hitPoints = hitPoints;
-		UpdateLifebar();
-	
-	}
-
-	Flip(server_pos.x - gameObject->position.x);
-	SortWeapon();
-
-	if (gameObject->networkId == App->modNetClient->getNetworkId())
-	{
-		gameObject->position = server_pos;
-		gameObject->angle = server_angle;
-		for (int i = lastInputReceived + 1; i < App->modNetClient->inputIndex; i++)
+		if (!active)
 		{
-			App->modNetClient->ProcessInput(i, gameObject);
+			if (gameObject->collider != nullptr)
+			{
+				App->modCollision->removeCollider(gameObject->collider);
+				gameObject->collider = nullptr;
+			}
 		}
-	}
+		else if (gameObject->collider == nullptr)
+		{
+			gameObject->collider = App->modCollision->addCollider(ColliderType::Player, gameObject);
+			gameObject->collider->isTrigger = true;
+		}
 
-	if (gameObject->interpolation != nullptr)
-	{
-		gameObject->interpolation->SetFinal(server_pos, server_angle);
+		if (lifebar != nullptr && hitPoints != this->hitPoints)
+		{
+			this->hitPoints = hitPoints;
+			UpdateLifebar();
+
+		}
+
+		Flip(server_pos.x - gameObject->position.x);
+		SortWeapon();
+
+		if (gameObject->networkId == App->modNetClient->getNetworkId())
+		{
+			gameObject->position = server_pos;
+			gameObject->angle = server_angle;
+			for (int i = lastInputReceived + 1; i < App->modNetClient->inputIndex; i++)
+			{
+				App->modNetClient->ProcessInput(i, gameObject);
+			}
+		}
+
+		if (gameObject->interpolation != nullptr)
+		{
+			gameObject->interpolation->SetFinal(server_pos, server_angle);
+		}
 	}
 }

@@ -29,11 +29,22 @@ struct Behaviour
 		packet << gameObject->active;
 	}
 
-	virtual void read(const InputMemoryStream &packet, uint32 lastInputReceived)
+	virtual void read(const InputMemoryStream &packet, const bool processPacket, uint32 lastInputReceived)
 	{
-		packet >> gameObject->position;
-		packet >> gameObject->angle;
-		packet >> gameObject->active;
+		if (processPacket) {
+			packet >> gameObject->position;
+			packet >> gameObject->angle;
+			packet >> gameObject->active;
+		}
+		else {
+			vec2 disposablePos;
+			float disposableAngle;
+			bool disposableActive;
+
+			packet >> disposablePos;
+			packet >> disposableAngle;
+			packet >> disposableActive;
+		}
 	}
 };
 
@@ -83,7 +94,7 @@ struct Spaceship : public Behaviour
 
 	void write(OutputMemoryStream &packet) override;
 
-	void read(const InputMemoryStream &packet, uint32 lastInputReceived) override;
+	void read(const InputMemoryStream &packet, const bool processPacket, uint32 lastInputReceived) override;
 
 private:
 
