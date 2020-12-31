@@ -35,14 +35,17 @@ You can kill other players by shooting projectiles at them, but be careful, proj
 - [Achieved] Gameplay: Character's aiming, moving, knight animations, load DragonBones animation from JSON.
 
 ## Releases
-
 - You can find our releases at:
 https://github.com/YessicaSD/Xarxas/releases
 - Find the code inside ./Project 5/Multiplayer Game/:
-https://github.com/YessicaSD/Xarxas/tree/main/Project5/Multiplayer%20Game
-
+https://github.com/YessicaSD/Xarxas/tree/main/Project5
+- Direct Link to the repository
+https://github.com/YessicaSD/Xarxas
 
 ## Considerations
 
 - Lab 7: Delivery Manager
 We decided to split the DeliveryManager class into two classes since they used their own function and didn't share much functionality.
+
+- The current audio library <dsound> only allows us to play one audio at the same time. 
+  We've chosen to prioritize the music, but you can still find the original playAudio clip lines commented in the code in their respective location.
